@@ -21,13 +21,15 @@ const ContactAndTimings = () => {
           <Button
             className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700"
             onClick={() => router.push("/location")}
+            type="button"
           >
             Back
           </Button>
           <Button
-            color="primary"
             className="w-full sm:w-auto"
+            color="primary"
             onClick={() => router.push("/services")}
+            type="button"
           >
             Next
           </Button>

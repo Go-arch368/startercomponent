@@ -14,8 +14,8 @@ export default function Welcome() {
         </p>
         <div className="flex justify-center">
           <Button
-            color="primary"
             className="w-full sm:w-auto"
+            color="primary"
             onClick={() => router.push("/business-info")}
           >
             Next

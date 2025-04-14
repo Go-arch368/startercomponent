@@ -16,14 +16,14 @@ const Services = () => {
 
         <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
           <Button
-            className="w-full sm:w-auto bg-white text-gray-700 border border-gray-300"
+            className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700"
             onClick={() => router.push("/contact&timings")}
           >
             Back
           </Button>
           <Button
-            color="primary"
             className="w-full sm:w-auto"
+            color="primary"
             onClick={() => router.push("/review&publish")}
           >
             Next
