@@ -6,12 +6,12 @@ export default function BusinessInfo() {
   const router = useRouter();
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50">
-      <div className="w-full max-w-md bg-white p-6 rounded-md shadow-md">
-        <h2 className="text-xl font-semibold mb-4">
+    <div className="flex justify-center items-center  bg-gray-50 px-4 sm:px-6">
+      <div className="w-full max-w-lg bg-white p-6 sm:p-8 rounded-md shadow-md">
+        <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-center">
           Let&apos;s Get Your Business Online!
         </h2>
-        <p className="mb-6">
+        <p className="mb-6 text-sm sm:text-base text-center text-gray-600">
           Enter the basic information about your business below.
         </p>
 
@@ -23,7 +23,7 @@ export default function BusinessInfo() {
             <input
               id="businessName"
               type="text"
-              className="w-full border px-3 py-2 rounded-md"
+              className="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -34,7 +34,7 @@ export default function BusinessInfo() {
             <input
               id="tagline"
               type="text"
-              className="w-full border px-3 py-2 rounded-md"
+              className="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -42,7 +42,10 @@ export default function BusinessInfo() {
             <label htmlFor="category" className="block text-sm font-medium mb-1">
               Category
             </label>
-            <select id="category" className="w-full border px-3 py-2 rounded-md">
+            <select
+              id="category"
+              className="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
               <option>Subcategory</option>
             </select>
           </div>
@@ -53,14 +56,14 @@ export default function BusinessInfo() {
             </label>
             <textarea
               id="description"
-              className="w-full border px-3 py-2 rounded-md"
               rows={4}
+              className="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          <div className="flex justify-between mt-6">
+          <div className="flex flex-col sm:flex-row justify-between gap-3 mt-6">
             <Button
-              className="border-1 bg-white text-gray-700"
+              className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700"
               onClick={() => router.push("/welcome")}
               type="button"
             >
@@ -68,6 +71,7 @@ export default function BusinessInfo() {
             </Button>
             <Button
               color="primary"
+              className="w-full sm:w-auto"
               onClick={() => router.push("/location")}
               type="button"
             >

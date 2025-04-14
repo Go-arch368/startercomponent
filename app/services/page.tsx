@@ -7,22 +7,23 @@ const Services = () => {
   const router = useRouter();
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50 ">
-      <div className="w-full max-w-md bg-white p-6 rounded-md shadow-md text-center mb-20">
-        <h2 className="text-xl font-semibold mb-4">Services</h2>
-        <p className="mb-6 text-gray-600">
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 px-4 sm:px-6">
+      <div className="w-full max-w-lg bg-white p-6 sm:p-8 rounded-md shadow-md text-center mb-20">
+        <h2 className="text-xl sm:text-2xl font-semibold mb-4">Services</h2>
+        <p className="mb-6 text-sm sm:text-base text-gray-600">
           This is your services step. List your business services here.
         </p>
 
-        <div className="flex justify-between">
+        <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
           <Button
-            className="bg-white text-gray-700 border-1"
+            className="w-full sm:w-auto bg-white text-gray-700 border border-gray-300"
             onClick={() => router.push("/contact&timings")}
           >
             Back
           </Button>
           <Button
             color="primary"
+            className="w-full sm:w-auto"
             onClick={() => router.push("/review&publish")}
           >
             Next

@@ -7,22 +7,28 @@ const ContactAndTimings = () => {
   const router = useRouter();
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50 ">
-      <div className="w-full max-w-md bg-white p-6 rounded-md shadow-md text-center mb-20">
-        <h2 className="text-xl font-semibold mb-4">Contact & Timings</h2>
-        <p className="mb-6 text-gray-600">
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 px-4 sm:px-6">
+      <div className="w-full max-w-lg bg-white p-6 sm:p-8 rounded-md shadow-md text-center mb-20">
+        <h2 className="text-xl sm:text-2xl font-semibold mb-4">
+          Contact & Timings
+        </h2>
+        <p className="mb-6 text-sm sm:text-base text-gray-600">
           This is your contact & timings step. Add your contact info and
           business hours here.
         </p>
 
-        <div className="flex justify-between">
+        <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
           <Button
-            className="bg-white text-gray-700 border-1"
+            className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700"
             onClick={() => router.push("/location")}
           >
             Back
           </Button>
-          <Button color="primary" onClick={() => router.push("/services")}>
+          <Button
+            color="primary"
+            className="w-full sm:w-auto"
+            onClick={() => router.push("/services")}
+          >
             Next
           </Button>
         </div>
@@ -32,15 +38,3 @@ const ContactAndTimings = () => {
 };
 
 export default ContactAndTimings;
-
-/* 
-
-<Button
-   color="primary"
-   className="bg-green"
-   onClick={()=>router.push("./services")}
->
- Next
-</Button>
-
-*/
