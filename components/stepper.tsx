@@ -23,45 +23,44 @@ export default function Stepper() {
             key={step.label}
             className="flex-1 min-w-[80px] flex flex-col items-center relative"
           >
-            {/* Left line */}
+          
             {index !== 0 && (
               <div
                 className={clsx(
                   "absolute hidden sm:block left-0 top-1/3 w-1/2 h-0.5 z-0 translate-y-[-50%]",
-                  index <= currentStep ? "bg-blue-600" : "bg-gray-300",
+                  index <= currentStep ? "bg-blue-600" : "bg-gray-300"
                 )}
               />
             )}
 
-            {/* Circle */}
+     
             <div
               className={clsx(
                 "w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 flex items-center justify-center text-sm font-medium z-10 bg-white",
                 index <= currentStep
                   ? "border-blue-600 text-blue-600"
-                  : "border-gray-300 text-gray-400",
+                  : "border-gray-300 text-gray-400"
               )}
             >
               {index + 1}
             </div>
 
-            {/* Right line */}
             {index !== steps.length - 1 && (
               <div
                 className={clsx(
                   "absolute hidden sm:block right-0 top-1/3 w-1/2 h-0.5 z-0 translate-y-[-50%]",
-                  index < currentStep ? "bg-blue-600" : "bg-gray-300",
+                  index < currentStep ? "bg-blue-600" : "bg-gray-300"
                 )}
               />
             )}
 
-            {/* Label */}
+           
             <div
               className={clsx(
                 "mt-2 text-[11px] sm:text-xs text-center whitespace-nowrap px-1",
                 index === currentStep
                   ? "text-blue-600 font-medium"
-                  : "text-gray-400",
+                  : "text-gray-600" 
               )}
             >
               {step.label}
