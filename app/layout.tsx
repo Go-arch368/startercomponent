@@ -1,9 +1,15 @@
 import "@/styles/globals.css";
+
+// Next.js and other libraries
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
+
+// App configuration
 import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
+
+// Components
 import Stepper from "@/components/stepper";
 
 export const metadata: Metadata = {
@@ -38,10 +44,10 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-            <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-           <Stepper/>
-              {children}   
-              </Providers>
+        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+          <Stepper />
+          {children}
+        </Providers>
       </body>
     </html>
   );
