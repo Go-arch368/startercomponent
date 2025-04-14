@@ -1,11 +1,10 @@
 
-import Stepper from "@/components/stepper";
-
+import Welcome from "./welcome/page";
 
 export default function Home() {
   return (
     <div>
-      
+      <Welcome/>
     </div>
   );
 }
