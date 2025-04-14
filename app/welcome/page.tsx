@@ -1,11 +1,24 @@
-import React from 'react'
+'use client';
+import { useRouter } from 'next/navigation';
+import { Button } from '@heroui/button';
 
-const welcome = () => {
+export default function Welcome() {
+  const router = useRouter();
+
   return (
-    <div>
-this is your welcome page
+    <div className="flex justify-center items-center min-h-screen bg-gray-50">
+      <div className="w-full max-w-md bg-white p-6 rounded-md shadow-md text-center mb-20">
+        <h1 className="text-2xl font-bold mb-4">Welcome!</h1>
+        <p className="mb-6 text-gray-600">
+          We're excited to help get your business online. Let’s get started.
+        </p>
+        <Button
+          color="primary"
+          onClick={() => router.push('/business-info')}
+        >
+          Next
+        </Button>
+      </div>
     </div>
-  )
+  );
 }
-
-export default welcome
