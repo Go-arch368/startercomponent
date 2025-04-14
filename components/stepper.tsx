@@ -1,7 +1,9 @@
 "use client";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";  // Import the router for navigation
 import clsx from "clsx";
 import { motion, AnimatePresence } from "framer-motion";
+import { Check } from "lucide-react";
 
 const steps = [
   { label: "Welcome", path: "/welcome" },
@@ -15,6 +17,7 @@ const steps = [
 export default function Stepper() {
   const pathname = usePathname();
   const currentStep = steps.findIndex((step) => step.path === pathname);
+  const router = useRouter();  // Initialize the router
 
   const getVisibleSteps = () => {
     if (currentStep <= 1) return steps.slice(0, 3);
@@ -24,9 +27,42 @@ export default function Stepper() {
 
   const visibleSteps = getVisibleSteps();
 
+  const renderCircle = (index: number) => {
+    const handleClick = () => {
+      // Navigate to the corresponding path of the clicked step
+      router.push(steps[index].path);
+    };
+
+    if (index < currentStep) {
+      return (
+        <div className="w-8 h-8 rounded-full border-2 border-green-600 bg-green-100 text-green-600 flex items-center justify-center text-sm font-bold z-10">
+          <Check size={18} />
+        </div>
+      );
+    }
+    if (index === currentStep) {
+      return (
+        <div
+          className="w-8 h-8 rounded-full border-2 border-blue-600 text-blue-600 flex items-center justify-center text-sm font-medium z-10 bg-white cursor-pointer"
+          onClick={handleClick}  // On click, navigate to the step's path
+        >
+          {index + 1}
+        </div>
+      );
+    }
+    return (
+      <div
+        className="w-8 h-8 rounded-full border-2 border-gray-300 text-gray-400 flex items-center justify-center text-sm font-medium z-10 bg-white cursor-pointer"
+        onClick={handleClick}  // On click, navigate to the step's path
+      >
+        {index + 1}
+      </div>
+    );
+  };
+
   return (
     <>
-     
+      {/* Mobile Stepper */}
       <div className="w-full flex flex-col items-center py-6 px-2 sm:hidden">
         <motion.p
           key={currentStep}
@@ -38,11 +74,13 @@ export default function Stepper() {
           Step {currentStep + 1} of {steps.length}
         </motion.p>
 
-        <div className="flex items-center justify-between w-full max-w-xs relative gap-y-6 mb-3">
+        <div className="relative w-full max-w-xs flex items-center justify-between mb-3">
+          {/* Line Background - Changed to Blue */}
+          <div className="absolute top-4 left-0 right-0 h-0.5 bg-blue-600 z-0" />
+
           <AnimatePresence mode="popLayout">
             {steps.map((step, index) => {
               const isVisible = visibleSteps.includes(step);
-
               return (
                 <motion.div
                   key={step.label}
@@ -52,24 +90,12 @@ export default function Stepper() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3 }}
                   className={clsx(
-                    "flex-1 min-w-[60px] flex flex-col items-center relative transition-all duration-300",
-                    {
-                      hidden: !isVisible,
-                      flex: isVisible,
-                    }
+                    "flex-1 min-w-[60px] flex flex-col items-center relative",
+                    { hidden: !isVisible }
                   )}
                 >
-                  <motion.div
-                    layout
-                    className={clsx(
-                      "w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-medium z-10 bg-white",
-                      index <= currentStep
-                        ? "border-blue-600 text-blue-600"
-                        : "border-gray-300 text-gray-400"
-                    )}
-                  >
-                    {index + 1}
-                  </motion.div>
+                  {renderCircle(index)}
+
                   <div
                     className={clsx(
                       "mt-1 text-[11px] text-center whitespace-nowrap px-1",
@@ -86,45 +112,36 @@ export default function Stepper() {
           </AnimatePresence>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex gap-2 mt-1"
-        >
+        {/* Dot indicators */}
+        <div className="flex gap-2 mt-1">
           {steps.map((_, index) => (
-            <motion.div
+            <div
               key={index}
               className={clsx(
-                "w-2.5 h-2.5 rounded-full transition-colors duration-300",
-                index <= currentStep ? "bg-blue-600" : "bg-gray-300"
+                "w-2.5 h-2.5 rounded-full",
+                index <= currentStep ? "bg-green-600" : "bg-gray-300"
               )}
-              layout
             />
           ))}
-        </motion.div>
+        </div>
       </div>
 
-      
+      {/* Desktop Stepper */}
       <div className="w-full hidden sm:flex flex-col items-center py-6 px-4">
         <p className="text-sm text-gray-700 font-medium mb-4">
           Step {currentStep + 1} of {steps.length}
         </p>
-        <div className="flex items-center justify-between w-full max-w-4xl gap-4">
+
+        <div className="relative w-full max-w-4xl flex items-center justify-between">
+         
+          <div className="absolute top-4 left-0 right-0 h-0.5 bg-blue-600 z-0" />
+
           {steps.map((step, index) => (
             <div
               key={step.label}
-              className="flex-1 min-w-[60px] flex flex-col items-center"
+              className="flex-1 min-w-[60px] flex flex-col items-center relative z-10"
             >
-              <div
-                className={clsx(
-                  "w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-medium z-10 bg-white",
-                  index <= currentStep
-                    ? "border-blue-600 text-blue-600"
-                    : "border-gray-300 text-gray-400"
-                )}
-              >
-                {index + 1}
-              </div>
+              {renderCircle(index)}
               <div
                 className={clsx(
                   "mt-1 text-[11px] text-center whitespace-nowrap px-1",
