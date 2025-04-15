@@ -89,10 +89,9 @@ export default function Stepper() {
                 <motion.div
                   key={step.label}
                   animate={{ opacity: 1, scale: 1 }}
-                  className={clsx(
-                    "relative flex min-w-[60px] flex-1 flex-col items-center",
-                    { hidden: !isVisible }
-                  )}
+                  className={clsx("relative flex min-w-[60px] flex-1 flex-col items-center", {
+                    hidden: !isVisible,
+                  })}
                   exit={{ opacity: 0, scale: 0.95 }}
                   initial={{ opacity: 0, scale: 0.95 }}
                   layout
@@ -102,9 +101,7 @@ export default function Stepper() {
                   <div
                     className={clsx(
                       "mt-1 px-1 text-[11px] text-center whitespace-nowrap",
-                      index === currentStep
-                        ? "text-blue-600 font-medium"
-                        : "text-gray-600"
+                      index === currentStep ? "text-blue-600 font-medium" : "text-gray-600"
                     )}
                   >
                     {step.label}
@@ -146,9 +143,7 @@ export default function Stepper() {
               <div
                 className={clsx(
                   "mt-1 px-1 text-[11px] text-center whitespace-nowrap",
-                  index === currentStep
-                    ? "text-blue-600 font-medium"
-                    : "text-gray-600"
+                  index === currentStep ? "text-blue-600 font-medium" : "text-gray-600"
                 )}
               >
                 {step.label}
