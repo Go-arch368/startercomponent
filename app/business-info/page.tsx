@@ -121,8 +121,11 @@ export default function BusinessInformationForm() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form Data:", formData);
-    alert("Form data logged to console (check developer tools)");
+    const jsonData = JSON.stringify(formData, null, 2); // Pretty-printed JSON
+    console.log("Submitted JSON Data:", jsonData);
+    alert("Submitted JSON Data:\n" + jsonData);
+    // Optionally, send to an API:
+    // fetch('/api/submit', { method: 'POST', body: jsonData, headers: { 'Content-Type': 'application/json' } });
   };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -155,14 +158,16 @@ export default function BusinessInformationForm() {
   };
 
   // Handle time change for open/close times
-  const handleTimeChange = (day: keyof typeof business.timings, type: string, value: string) => {
-      if (closedDays[day]) return;
-      const timings = { ...business.timings };
-      const current = timings[day] === "Closed" ? ["09:00", "17:00"] : timings[day].split(" - ");
-      const openTime = type === "open" ? value : current[0]?.replace(/ [AP]M/, "") || "09:00";
-      const closeTime = type === "close" ? value : current[1]?.replace(/ [AP]M/, "") || "17:00";
-      const formatted = `${formatTime(openTime)} - ${formatTime(closeTime)}`;
-      updateFormData(`subcategories.0.businesses.0.timings.${day}`, formatted);
+  const handleTimeChange = (day: string, type: "open" | "close", value: string) => {
+    if (closedDays[day]) return;
+    const timings = { ...business.timings };
+    const current = timings[day as keyof typeof timings] === "Closed" 
+      ? ["09:00", "17:00"] 
+      : timings[day as keyof typeof timings].split(" - ");
+    const openTime = type === "open" ? value : current[0]?.replace(/ [AP]M/, "") || "09:00";
+    const closeTime = type === "close" ? value : current[1]?.replace(/ [AP]M/, "") || "17:00";
+    const formatted = `${formatTime(openTime)} - ${formatTime(closeTime)}`;
+    updateFormData(`subcategories.0.businesses.0.timings.${day}`, formatted);
   };
 
   // Handle closed day checkbox
@@ -396,7 +401,7 @@ export default function BusinessInformationForm() {
                           placeholder={
                             initialBusiness.timings[day as keyof typeof initialBusiness.timings].split(" - ")[0] || "09:00 AM"
                           }
-                          onChange={(e) => handleTimeChange(day as keyof typeof business.timings, "open", e.target.value)}
+                          onChange={(e) => handleTimeChange(day, "open", e.target.value)}
                           className="w-full pl-8 p-2 border border-gray-300 rounded-md text-sm"
                           disabled={closedDays[day]}
                         />
@@ -408,7 +413,7 @@ export default function BusinessInformationForm() {
                           placeholder={
                             initialBusiness.timings[day as keyof typeof initialBusiness.timings].split(" - ")[1] || "06:00 PM"
                           }
-                          onChange={(e) => handleTimeChange(day as keyof typeof business.timings, "close", e.target.value)}
+                          onChange={(e) => handleTimeChange(day, "close", e.target.value)}
                           className="w-full pl-8 p-2 border border-gray-300 rounded-md text-sm"
                           disabled={closedDays[day]}
                         />
@@ -766,25 +771,26 @@ export default function BusinessInformationForm() {
 
         <button
           type="submit"
-          className="bg-blue-500 text-white px-5 py-2.5 rounded-md text-base hover:bg-blue-600 transition "
+          className="bg-blue-500 text-white px-5 py-2.5 rounded-md text-base hover:bg-blue-600 transition w-full"
         >
           Submit
         </button>
-        <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
-          <Button
-            className="w-full sm:w-auto  border-1 bg-white text-gray-700"
-            onClick={() => router.push("/welcome")}
-          >
-            Back
-          </Button>
-          <Button
-            className="w-full sm:w-auto"
-            color="primary"
-            onClick={() => router.push("/location")}
-          >
-            Next
-          </Button>
-        </div>
+
+         <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
+                  <Button
+                    className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700"
+                    onClick={() => router.push("/business-info")}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    className="w-full sm:w-auto"
+                    color="primary"
+                    onClick={() => router.push("/contact&timings")}
+                  >
+                    Next
+                  </Button>
+                </div>
       </form>
     </div>
   );
