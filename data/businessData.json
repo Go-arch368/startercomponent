@@ -27,19 +27,13 @@
               "saturday": "10:00 AM - 04:00 PM",
               "sunday": "Closed"
             },
-            "services": [
-              {
-                "name": "Car Repair Service 1",
-                "price": "$50+"
-              },
-              {
-                "name": "Car Repair Service 2",
-                "price": "$75+"
-              }
-            ],
+           "services": [
+            { "name": "", "price": "$50+", "currency": "USD" },
+            { "name": "", "price": "$75+", "currency": "EUR" }
+          ],
             "gallery": [
-              "/images/sample1.jpg",
-              "/images/sample2.jpg"
+              "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+              "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             ],
             "highlights": [
               "Top Rated",

@@ -3,7 +3,8 @@ import { useState } from "react";
 import businessData from "@/data/businessData.json";
 import categoryandsubcategory from "@/data/category and subcategory.json";
 import { ClockIcon } from "@heroicons/react/24/outline";
-
+import { Button } from "@heroui/button";
+import { useRouter } from "next/navigation";
 // Sample country codes (matches your JSON's +1)
 const countryCodes = [
   { code: "+1", country: "United States" },
@@ -13,8 +14,31 @@ const countryCodes = [
   { code: "+86", country: "China" },
 ];
 
+// Price options for dropdown
+const priceOptions = ["$50+", "$75+", "$100+", "$150+", "Custom"];
+
+// Currency options for dropdown
+const currencyOptions = ["USD", "GBP", "EUR", "INR", "JPY"];
+
 export default function BusinessInformationForm() {
-  const [formData, setFormData] = useState(businessData);
+  const router = useRouter()
+  const [formData, setFormData] = useState({
+    ...businessData,
+    subcategories: [
+      {
+        ...businessData.subcategories[0],
+        businesses: [
+          {
+            ...businessData.subcategories[0].businesses[0],
+            services: businessData.subcategories[0].businesses[0].services.map((service) => ({
+              ...service,
+              currency: "USD", // Default currency
+            })),
+          },
+        ],
+      },
+    ],
+  });
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
   const [phoneCountryCode, setPhoneCountryCode] = useState(countryCodes[0].code);
@@ -131,16 +155,14 @@ export default function BusinessInformationForm() {
   };
 
   // Handle time change for open/close times
-  const handleTimeChange = (day: string, type: string, value: string) => {
-    if (closedDays[day]) return;
-    const timings = { ...business.timings };
-    const current = timings[day as keyof typeof timings] === "Closed" 
-      ? ["09:00", "17:00"] 
-      : timings[day as keyof typeof timings].split(" - ");
-    const openTime = type === "open" ? value : current[0]?.replace(/ [AP]M/, "") || "09:00";
-    const closeTime = type === "close" ? value : current[1]?.replace(/ [AP]M/, "") || "17:00";
-    const formatted = `${formatTime(openTime)} - ${formatTime(closeTime)}`;
-    updateFormData(`subcategories.0.businesses.0.timings.${day}`, formatted);
+  const handleTimeChange = (day: keyof typeof business.timings, type: string, value: string) => {
+      if (closedDays[day]) return;
+      const timings = { ...business.timings };
+      const current = timings[day] === "Closed" ? ["09:00", "17:00"] : timings[day].split(" - ");
+      const openTime = type === "open" ? value : current[0]?.replace(/ [AP]M/, "") || "09:00";
+      const closeTime = type === "close" ? value : current[1]?.replace(/ [AP]M/, "") || "17:00";
+      const formatted = `${formatTime(openTime)} - ${formatTime(closeTime)}`;
+      updateFormData(`subcategories.0.businesses.0.timings.${day}`, formatted);
   };
 
   // Handle closed day checkbox
@@ -374,7 +396,7 @@ export default function BusinessInformationForm() {
                           placeholder={
                             initialBusiness.timings[day as keyof typeof initialBusiness.timings].split(" - ")[0] || "09:00 AM"
                           }
-                          onChange={(e) => handleTimeChange(day, "open", e.target.value)}
+                          onChange={(e) => handleTimeChange(day as keyof typeof business.timings, "open", e.target.value)}
                           className="w-full pl-8 p-2 border border-gray-300 rounded-md text-sm"
                           disabled={closedDays[day]}
                         />
@@ -386,7 +408,7 @@ export default function BusinessInformationForm() {
                           placeholder={
                             initialBusiness.timings[day as keyof typeof initialBusiness.timings].split(" - ")[1] || "06:00 PM"
                           }
-                          onChange={(e) => handleTimeChange(day, "close", e.target.value)}
+                          onChange={(e) => handleTimeChange(day as keyof typeof business.timings, "close", e.target.value)}
                           className="w-full pl-8 p-2 border border-gray-300 rounded-md text-sm"
                           disabled={closedDays[day]}
                         />
@@ -427,11 +449,8 @@ export default function BusinessInformationForm() {
                   </div>
                   <div className="flex-1 min-w-[150px]">
                     <label className="block mb-2 font-medium text-gray-700">Price:</label>
-                    <input
-                      type="text"
-                      placeholder={
-                        initialBusiness.services[index]?.price || "Enter price"
-                      } // "$50+"
+                    <select
+                      value={service.price || ""}
                       onChange={(e) =>
                         handleArrayChange(
                           "subcategories.0.businesses.0.services",
@@ -441,7 +460,35 @@ export default function BusinessInformationForm() {
                         )
                       }
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                    />
+                    >
+                      <option value="">Select price</option>
+                      {priceOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex-1 min-w-[100px]">
+                    <label className="block mb-2 font-medium text-gray-700">Currency:</label>
+                    <select
+                      value={service.currency || "USD"}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "subcategories.0.businesses.0.services",
+                          index,
+                          "currency",
+                          e.target.value
+                        )
+                      }
+                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                    >
+                      {currencyOptions.map((currency) => (
+                        <option key={currency} value={currency}>
+                          {currency}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
                 {business.services.length > 1 && (
@@ -459,7 +506,11 @@ export default function BusinessInformationForm() {
           <button
             type="button"
             onClick={() =>
-              addArrayItem("subcategories.0.businesses.0.services", { name: "", price: "" })
+              addArrayItem("subcategories.0.businesses.0.services", {
+                name: "",
+                price: "",
+                currency: "USD",
+              })
             }
             className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600 transition"
           >
@@ -715,10 +766,25 @@ export default function BusinessInformationForm() {
 
         <button
           type="submit"
-          className="bg-blue-500 text-white px-5 py-2.5 rounded-md text-base hover:bg-blue-600 transition w-full"
+          className="bg-blue-500 text-white px-5 py-2.5 rounded-md text-base hover:bg-blue-600 transition "
         >
           Submit
         </button>
+        <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
+          <Button
+            className="w-full sm:w-auto  border-1 bg-white text-gray-700"
+            onClick={() => router.push("/welcome")}
+          >
+            Back
+          </Button>
+          <Button
+            className="w-full sm:w-auto"
+            color="primary"
+            onClick={() => router.push("/location")}
+          >
+            Next
+          </Button>
+        </div>
       </form>
     </div>
   );
