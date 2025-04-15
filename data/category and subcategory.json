@@ -1,0 +1,156 @@
+[
+    {
+      "category": "Automotive",
+      "subcategories": ["Car Repair", "Car Sales", "Tires", "Auto Parts"]
+    },
+    {
+      "category": "Health & Medical",
+      "subcategories": [
+        "Hospitals",
+        "Clinics",
+        "Dentists",
+        "Pharmacies",
+        "Physiotherapy Centres",
+        "Veterinary Clinics"
+      ]
+    },
+    {
+      "category": "Education",
+      "subcategories": [
+        "Schools (primary, secondary)",
+        "Colleges & Universities",
+        "Tutoring Services",
+        "Educational Consultants"
+      ]
+    },
+    {
+      "category": "Restaurants & Food",
+      "subcategories": [
+        "Fast Food",
+        "Fine Dining",
+        "Cafes",
+        "Bakeries",
+        "Food Delivery Services"
+      ]
+    },
+    {
+      "category": "Shopping & Retail",
+      "subcategories": [
+        "Clothing Stores",
+        "Electronics Stores",
+        "Jewellery Showrooms",
+        "Grocery Stores",
+        "Department Stores",
+        "Furniture Showrooms",
+        "Pest Control"
+      ]
+    },
+    {
+      "category": "Professional Business Services",
+      "subcategories": [
+        "Chartered Accountants",
+        "Lawyers",
+        "Marketing Agencies",
+        "Business Consultants"
+      ]
+    },
+    {
+      "category": "Home Services",
+      "subcategories": [
+        "Interior Designers",
+        "Carpenters",
+        "Plumbers",
+        "Electricians",
+        "Cleaners",
+        "Landscapers",
+        "Home Renovation"
+      ]
+    },
+    {
+      "category": "Travel & Transportation",
+      "subcategories": [
+        "Airlines",
+        "Hotels",
+        "Car Rentals",
+        "Travel Agencies",
+        "Public Transport"
+      ]
+    },
+    {
+      "category": "Real Estate",
+      "subcategories": [
+        "Builders and Developers",
+        "Civil Contractors",
+        "Real Estate Agents",
+        "Property Management"
+      ]
+    },
+    {
+      "category": "Financial Services",
+      "subcategories": [
+        "Banks",
+        "Loan Agencies",
+        "Insurance Agencies",
+        "Investment Services",
+        "Credit Unions"
+      ]
+    },
+    {
+      "category": "Government & Community",
+      "subcategories": [
+        "Local Government Offices",
+        "Community Centers",
+        "Libraries",
+        "Post Offices"
+      ]
+    },
+    {
+      "category": "Entertainment & Media",
+      "subcategories": [
+        "Movie Theaters",
+        "Music Stores",
+        "Event Management",
+        "Convention Halls",
+        "Media Production"
+      ]
+    },
+    {
+      "category": "Sports & Recreation",
+      "subcategories": [
+        "Gyms",
+        "Sports Leagues",
+        "Parks",
+        "Recreation Centers",
+        "Sports Equipment Stores"
+      ]
+    },
+    {
+      "category": "Pets & Animals",
+      "subcategories": [
+        "Pet Stores",
+        "Veterinarians",
+        "Pet Grooming",
+        "Animal Shelters",
+        "Pet Training"
+      ]
+    },
+    {
+      "category": "Computers & Mobile",
+      "subcategories": [
+        "Internet Service Providers",
+        "Computer Sales and Repair",
+        "Mobile Sales and Repair",
+        "Web Design",
+        "Software Solutions"
+      ]
+    },
+    {
+      "category": "Safety & Security",
+      "subcategories": [
+        "Private Security Services",
+        "Fire Departments",
+        "Police Stations",
+        "Safety Equipment"
+      ]
+    }
+  ]

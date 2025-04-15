@@ -1,335 +1,520 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@heroui/button';
+import businessData from '@/data/businessData.json';
+import categoryandsubcategory from "@/data/category and subcategory.json";
+
 export default function BusinessInformationForm() {
-  const router = useRouter()
-  const [services, setServices] = useState([{ id: 1 }]);
-  const [galleryItems, setGalleryItems] = useState([{ id: 1 }]);
-  const [highlights, setHighlights] = useState([{ id: 1 }]);
-  const [faqs, setFaqs] = useState([{ id: 1 }]);
+  const [formData, setFormData] = useState(businessData);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedSubcategory, setSelectedSubcategory] = useState('');
+  
+  const business = formData.subcategories[0].businesses[0];
 
-  const addService = () => {
-    setServices([...services, { id: services.length + 1 }]);
+  const updateFormData = (path: string, value: any) => {
+    const keys = path.split('.');
+    const newData = JSON.parse(JSON.stringify(formData));
+    
+    let current = newData;
+    for (let i = 0; i < keys.length - 1; i++) {
+      current = current[keys[i]];
+    }
+    current[keys[keys.length - 1]] = value;
+    
+    setFormData(newData);
   };
 
-  const addGalleryItem = () => {
-    setGalleryItems([...galleryItems, { id: galleryItems.length + 1 }]);
+  const handleArrayChange = (arrayPath: string, index: number, field: string, value: any) => {
+    const newData = JSON.parse(JSON.stringify(formData));
+    const keys = arrayPath.split('.');
+    let current = newData;
+    
+    for (let i = 0; i < keys.length; i++) {
+      current = current[keys[i]];
+    }
+    
+    current[index][field] = value;
+    setFormData(newData);
   };
 
-  const addHighlight = () => {
-    setHighlights([...highlights, { id: highlights.length + 1 }]);
+  const addArrayItem = (arrayPath: string, newItem: any) => {
+    const newData = JSON.parse(JSON.stringify(formData));
+    const keys = arrayPath.split('.');
+    let current = newData;
+    
+    for (let i = 0; i < keys.length; i++) {
+      current = current[keys[i]];
+    }
+    
+    current.push(newItem);
+    setFormData(newData);
   };
 
-  const addFaq = () => {
-    setFaqs([...faqs, { id: faqs.length + 1 }]);
+  const removeArrayItem = (arrayPath: string, index: number) => {
+    const newData = JSON.parse(JSON.stringify(formData));
+    const keys = arrayPath.split('.');
+    let current = newData;
+    
+    for (let i = 0; i < keys.length; i++) {
+      current = current[keys[i]];
+    }
+    
+    current.splice(index, 1);
+    setFormData(newData);
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        addArrayItem('subcategories.0.businesses.0.gallery', reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log('Form Data:', formData);
+    alert('Form data logged to console (check developer tools)');
+  };
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const category = e.target.value;
+    setSelectedCategory(category);
+    setSelectedSubcategory('');
+    updateFormData('subcategories.0.name', category);
+  };
+
+  const handleSubcategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const subcategory = e.target.value;
+    setSelectedSubcategory(subcategory);
+    updateFormData('subcategories.0.name', subcategory);
+  };
+
+  const getSubcategories = () => {
+    if (!selectedCategory) return [];
+    const categoryObj = categoryandsubcategory.find(cat => cat.category === selectedCategory);
+    return categoryObj ? categoryObj.subcategories : [];
   };
 
   return (
     <div className="max-w-4xl mx-auto p-5">
-      <div className="bg-gray-50 rounded-lg shadow-sm p-6">
+      <form onSubmit={handleSubmit} className="bg-gray-50 rounded-lg shadow-sm p-6">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Business Information Form</h2>
         
-        {/* Category & Subcategory */}
+        {/* Category and Subcategory Selection */}
         <div className="mb-6 pb-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold mb-4 text-gray-700">Category & Subcategory</h3>
+          <h3 className="text-lg font-semibold mb-4 text-gray-700">Business Category</h3>
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex-1 min-w-[250px]">
-              <label htmlFor="category" className="block mb-2 font-medium text-gray-700">Category:</label>
-              <select id="category" name="category" className="w-full p-2 border border-gray-300 rounded-md text-sm">
-                <option value="">Select Category</option>
-                <option value="automotive">Automotive</option>
-                <option value="health">Health</option>
-                <option value="home">Home</option>
-                <option value="professional">Professional Services</option>
+              <label className="block mb-2 font-medium text-gray-700">Category:</label>
+              <select
+                value={selectedCategory}
+                onChange={handleCategoryChange}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                required
+              >
+                <option value="">Select a category</option>
+                {categoryandsubcategory.map((category, index) => (
+                  <option key={index} value={category.category}>
+                    {category.category}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="flex-1 min-w-[250px]">
-              <label htmlFor="subcategory" className="block mb-2 font-medium text-gray-700">Subcategory:</label>
-              <select id="subcategory" name="subcategory" className="w-full p-2 border border-gray-300 rounded-md text-sm">
-                <option value="">Select Subcategory</option>
-                <option value="car-repair">Car Repair</option>
-                <option value="car-wash">Car Wash</option>
-                <option value="auto-parts">Auto Parts</option>
+              <label className="block mb-2 font-medium text-gray-700">Subcategory:</label>
+              <select
+                value={selectedSubcategory}
+                onChange={handleSubcategoryChange}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                required
+                disabled={!selectedCategory}
+              >
+                <option value="">Select a subcategory</option>
+                {getSubcategories().map((subcategory, index) => (
+                  <option key={index} value={subcategory}>
+                    {subcategory}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
         </div>
-        
+
         {/* Basic Information */}
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Basic Information</h3>
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex-1 min-w-[250px]">
-              <label htmlFor="businessName" className="block mb-2 font-medium text-gray-700">Business Name:</label>
-              <input type="text" id="businessName" name="businessName" placeholder="e.g. Sample Car Repair Business" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
+              <label className="block mb-2 font-medium text-gray-700">Business Name:</label>
+              <input 
+                type="text" 
+                value={business.businessName}
+                onChange={(e) => updateFormData('subcategories.0.businesses.0.businessName', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                required
+              />
             </div>
           </div>
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[250px]">
-              <label htmlFor="description" className="block mb-2 font-medium text-gray-700">Description:</label>
-              <textarea id="description" name="description" placeholder="Top-rated car repair services in your local area."
-                className="w-full p-2 border border-gray-300 rounded-md text-sm h-24"></textarea>
+              <label className="block mb-2 font-medium text-gray-700">Description:</label>
+              <textarea 
+                value={business.description}
+                onChange={(e) => updateFormData('subcategories.0.businesses.0.description', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm h-24"
+                required
+              />
             </div>
           </div>
         </div>
-        
+
         {/* Location */}
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Location</h3>
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex-1 min-w-[250px]">
-              <label htmlFor="address" className="block mb-2 font-medium text-gray-700">Address:</label>
-              <input type="text" id="address" name="address" placeholder="123 Main Street" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
+              <label className="block mb-2 font-medium text-gray-700">Address:</label>
+              <input 
+                type="text" 
+                value={business.location.address}
+                onChange={(e) => updateFormData('subcategories.0.businesses.0.location.address', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                required
+              />
             </div>
             <div className="flex-1 min-w-[250px]">
-              <label htmlFor="city" className="block mb-2 font-medium text-gray-700">City:</label>
-              <input type="text" id="city" name="city" placeholder="Sample City" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
+              <label className="block mb-2 font-medium text-gray-700">City:</label>
+              <input 
+                type="text" 
+                value={business.location.city}
+                onChange={(e) => updateFormData('subcategories.0.businesses.0.location.city', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                required
+              />
             </div>
           </div>
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[250px]">
-              <label htmlFor="state" className="block mb-2 font-medium text-gray-700">State:</label>
-              <input type="text" id="state" name="state" placeholder="Sample State" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
+              <label className="block mb-2 font-medium text-gray-700">State:</label>
+              <input 
+                type="text" 
+                value={business.location.state}
+                onChange={(e) => updateFormData('subcategories.0.businesses.0.location.state', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                required
+              />
             </div>
             <div className="flex-1 min-w-[250px]">
-              <label htmlFor="postalCode" className="block mb-2 font-medium text-gray-700">Postal Code:</label>
-              <input type="text" id="postalCode" name="postalCode" placeholder="000000" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
+              <label className="block mb-2 font-medium text-gray-700">Postal Code:</label>
+              <input 
+                type="text" 
+                value={business.location.postalCode}
+                onChange={(e) => updateFormData('subcategories.0.businesses.0.location.postalCode', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                required
+              />
             </div>
           </div>
         </div>
-        
+
         {/* Contact Information */}
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Contact Information</h3>
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex-1 min-w-[250px]">
-              <label htmlFor="phone" className="block mb-2 font-medium text-gray-700">Phone:</label>
-              <input type="tel" id="phone" name="phone" placeholder="+1-000-000-0000" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
+              <label className="block mb-2 font-medium text-gray-700">Phone:</label>
+              <input 
+                type="tel" 
+                value={business.contact.phone}
+                onChange={(e) => updateFormData('subcategories.0.businesses.0.contact.phone', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                required
+              />
             </div>
             <div className="flex-1 min-w-[250px]">
-              <label htmlFor="email" className="block mb-2 font-medium text-gray-700">Email:</label>
-              <input type="email" id="email" name="email" placeholder="info@samplecarrepair.com" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
+              <label className="block mb-2 font-medium text-gray-700">Email:</label>
+              <input 
+                type="email" 
+                value={business.contact.email}
+                onChange={(e) => updateFormData('subcategories.0.businesses.0.contact.email', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                required
+              />
             </div>
           </div>
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[250px]">
-              <label htmlFor="website" className="block mb-2 font-medium text-gray-700">Website:</label>
-              <input type="url" id="website" name="website" placeholder="https://www.samplecarrepair.com" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
+              <label className="block mb-2 font-medium text-gray-700">Website:</label>
+              <input 
+                type="url" 
+                value={business.contact.website}
+                onChange={(e) => updateFormData('subcategories.0.businesses.0.contact.website', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              />
             </div>
           </div>
         </div>
-        
+
         {/* Business Hours */}
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Business Hours</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="flex-1 min-w-[250px]">
-              <label htmlFor="monday" className="block mb-2 font-medium text-gray-700">Monday:</label>
-              <input type="text" id="monday" name="monday" placeholder="09:00 AM - 06:00 PM" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
-            </div>
-            <div className="flex-1 min-w-[250px]">
-              <label htmlFor="tuesday" className="block mb-2 font-medium text-gray-700">Tuesday:</label>
-              <input type="text" id="tuesday" name="tuesday" placeholder="09:00 AM - 06:00 PM" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
-            </div>
-            <div className="flex-1 min-w-[250px]">
-              <label htmlFor="wednesday" className="block mb-2 font-medium text-gray-700">Wednesday:</label>
-              <input type="text" id="wednesday" name="wednesday" placeholder="09:00 AM - 06:00 PM" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
-            </div>
-            <div className="flex-1 min-w-[250px]">
-              <label htmlFor="thursday" className="block mb-2 font-medium text-gray-700">Thursday:</label>
-              <input type="text" id="thursday" name="thursday" placeholder="09:00 AM - 06:00 PM" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
-            </div>
-            <div className="flex-1 min-w-[250px]">
-              <label htmlFor="friday" className="block mb-2 font-medium text-gray-700">Friday:</label>
-              <input type="text" id="friday" name="friday" placeholder="09:00 AM - 06:00 PM" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
-            </div>
-            <div className="flex-1 min-w-[250px]">
-              <label htmlFor="saturday" className="block mb-2 font-medium text-gray-700">Saturday:</label>
-              <input type="text" id="saturday" name="saturday" placeholder="10:00 AM - 04:00 PM" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
-            </div>
-            <div className="flex-1 min-w-[250px]">
-              <label htmlFor="sunday" className="block mb-2 font-medium text-gray-700">Sunday:</label>
-              <input type="text" id="sunday" name="sunday" placeholder="Closed" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
-            </div>
+            {Object.entries(business.timings).map(([day, hours]) => (
+              <div key={day} className="flex-1 min-w-[250px]">
+                <label className="block mb-2 font-medium text-gray-700">
+                  {day.charAt(0).toUpperCase() + day.slice(1)}:
+                </label>
+                <div className="flex items-center">
+                  <input 
+                    type="text" 
+                    value={hours}
+                    onChange={(e) => updateFormData(`subcategories.0.businesses.0.timings.${day}`, e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  />
+                  <input 
+                    type="time" 
+                    id={`${day}-timepicker`} 
+                    className="hidden"
+                    onChange={(e) => {
+                      const time = e.target.value;
+                      const formattedTime = time ? `${time} - ${time}` : hours;
+                      updateFormData(`subcategories.0.businesses.0.timings.${day}`, formattedTime);
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-        
+
         {/* Services */}
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Services</h3>
-          <div className="mb-4" id="services-container">
-            {services.map((service, index) => (
-              <div key={service.id} className="mb-4 p-3 border border-gray-200 rounded-md bg-white">
-                <div className="flex flex-wrap gap-4">
+          <div className="mb-4">
+            {business.services.map((service, index) => (
+              <div key={index} className="mb-4 p-3 border border-gray-200 rounded-md bg-white">
+                <div className="flex flex-wrap gap-4 mb-3">
                   <div className="flex-1 min-w-[250px]">
-                    <label htmlFor={`serviceName${index + 1}`} className="block mb-2 font-medium text-gray-700">Service Name:</label>
+                    <label className="block mb-2 font-medium text-gray-700">Service Name:</label>
                     <input 
                       type="text" 
-                      id={`serviceName${index + 1}`} 
-                      name={`serviceName${index + 1}`} 
-                      placeholder={`Car Repair Service ${index + 1}`} 
+                      value={service.name}
+                      onChange={(e) => handleArrayChange('subcategories.0.businesses.0.services', index, 'name', e.target.value)}
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                      required
                     />
                   </div>
-                  <div className="flex-1 min-w-[250px]">
-                    <label htmlFor={`servicePrice${index + 1}`} className="block mb-2 font-medium text-gray-700">Price:</label>
+                  <div className="flex-1 min-w-[150px]">
+                    <label className="block mb-2 font-medium text-gray-700">Price:</label>
                     <input 
                       type="text" 
-                      id={`servicePrice${index + 1}`} 
-                      name={`servicePrice${index + 1}`} 
-                      placeholder="$50+" 
+                      value={service.price}
+                      onChange={(e) => handleArrayChange('subcategories.0.businesses.0.services', index, 'price', e.target.value)}
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
                     />
                   </div>
                 </div>
+                {business.services.length > 1 && (
+                  <button 
+                    type="button" 
+                    onClick={() => removeArrayItem('subcategories.0.businesses.0.services', index)}
+                    className="mt-2 text-red-500 text-sm hover:text-red-700"
+                  >
+                    Remove Service
+                  </button>
+                )}
               </div>
             ))}
           </div>
-          <button type="button" onClick={addService} className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600 transition">
-            + Add Another Service
+          <button 
+            type="button" 
+            onClick={() => addArrayItem('subcategories.0.businesses.0.services', { name: '', price: '' })}
+            className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600 transition"
+          >
+            + Add Service
           </button>
         </div>
-        
+
         {/* Gallery */}
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Gallery</h3>
-          <div className="mb-4" id="gallery-container">
-            {galleryItems.map((item, index) => (
-              <div key={item.id} className="mb-4 p-3 border border-gray-200 rounded-md bg-white">
-                <div className="flex-1 min-w-[250px]">
-                  <label htmlFor={`gallery${index + 1}`} className="block mb-2 font-medium text-gray-700">Image URL:</label>
-                  <input 
-                    type="text" 
-                    id={`gallery${index + 1}`} 
-                    name={`gallery${index + 1}`} 
-                    placeholder={`/images/sample${index + 1}.jpg`} 
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  />
-                </div>
+          <div className="mb-4">
+            {business.gallery.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                {business.gallery.map((image, index) => (
+                  <div key={index} className="relative group">
+                    <img 
+                      src={image} 
+                      alt={`Gallery ${index + 1}`} 
+                      className="w-full h-32 object-cover rounded-md border border-gray-200"
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => removeArrayItem('subcategories.0.businesses.0.gallery', index)}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <p className="text-gray-500 mb-4">No images uploaded yet</p>
+            )}
+            <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
+              <label className="cursor-pointer">
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                <div className="flex flex-col items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <p className="mt-2 text-sm text-gray-600">Drag and drop images here, or click to browse</p>
+                  <p className="text-xs text-gray-500">Supports JPG, PNG up to 5MB</p>
+                </div>
+              </label>
+            </div>
           </div>
-          <button type="button" onClick={addGalleryItem} className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600 transition">
-            + Add Another Image
-          </button>
         </div>
-        
+
         {/* Highlights */}
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Highlights</h3>
-          <div className="mb-4" id="highlights-container">
-            {highlights.map((highlight, index) => (
-              <div key={highlight.id} className="mb-4 p-3 border border-gray-200 rounded-md bg-white">
-                <div className="flex-1 min-w-[250px]">
-                  <label htmlFor={`highlight${index + 1}`} className="block mb-2 font-medium text-gray-700">Highlight:</label>
+          <div className="mb-4">
+            {business.highlights.map((highlight, index) => (
+              <div key={index} className="mb-4">
+                <div className="flex items-center gap-2">
                   <input 
                     type="text" 
-                    id={`highlight${index + 1}`} 
-                    name={`highlight${index + 1}`} 
-                    placeholder={index === 0 ? "Top Rated" : `Highlight ${index + 1}`} 
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                    value={highlight}
+                    onChange={(e) => {
+                      const newHighlights = [...business.highlights];
+                      newHighlights[index] = e.target.value;
+                      updateFormData('subcategories.0.businesses.0.highlights', newHighlights);
+                    }}
+                    className="flex-1 p-2 border border-gray-300 rounded-md text-sm"
                   />
+                  {business.highlights.length > 1 && (
+                    <button 
+                      type="button" 
+                      onClick={() => removeArrayItem('subcategories.0.businesses.0.highlights', index)}
+                      className="p-2 text-red-500 hover:text-red-700"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
           </div>
-          <button type="button" onClick={addHighlight} className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600 transition">
-            + Add Another Highlight
+          <button 
+            type="button" 
+            onClick={() => addArrayItem('subcategories.0.businesses.0.highlights', '')}
+            className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600 transition"
+          >
+            + Add Highlight
           </button>
         </div>
-        
+
         {/* Call to Action */}
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Call to Action</h3>
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex-1 min-w-[250px]">
-              <label htmlFor="ctaCall" className="block mb-2 font-medium text-gray-700">Call Number:</label>
-              <input type="tel" id="ctaCall" name="ctaCall" placeholder="+1-000-000-0000" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
+              <label className="block mb-2 font-medium text-gray-700">Call Number:</label>
+              <input 
+                type="tel" 
+                value={business.cta.call}
+                onChange={(e) => updateFormData('subcategories.0.businesses.0.cta.call', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              />
             </div>
             <div className="flex-1 min-w-[250px]">
-              <label htmlFor="ctaBookUrl" className="block mb-2 font-medium text-gray-700">Booking URL:</label>
-              <input type="text" id="ctaBookUrl" name="ctaBookUrl" placeholder="/book/car_repair_001" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
+              <label className="block mb-2 font-medium text-gray-700">Booking URL:</label>
+              <input 
+                type="text" 
+                value={business.cta.bookUrl}
+                onChange={(e) => updateFormData('subcategories.0.businesses.0.cta.bookUrl', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              />
             </div>
           </div>
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[250px]">
-              <label htmlFor="ctaDirections" className="block mb-2 font-medium text-gray-700">Get Directions URL:</label>
-              <input type="url" id="ctaDirections" name="ctaDirections" placeholder="https://maps.google.com" 
-                className="w-full p-2 border border-gray-300 rounded-md text-sm" />
+              <label className="block mb-2 font-medium text-gray-700">Get Directions URL:</label>
+              <input 
+                type="url" 
+                value={business.cta.getDirections}
+                onChange={(e) => updateFormData('subcategories.0.businesses.0.cta.getDirections', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              />
             </div>
           </div>
         </div>
-        
+
         {/* FAQs */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">FAQs</h3>
-          <div className="mb-4" id="faqs-container">
-            {faqs.map((faq, index) => (
-              <div key={faq.id} className="mb-4 p-3 border border-gray-200 rounded-md bg-white">
-                <div className="flex-1 min-w-[250px] mb-3">
-                  <label htmlFor={`faqQuestion${index + 1}`} className="block mb-2 font-medium text-gray-700">Question:</label>
+          <div className="mb-4">
+            {business.faqs.map((faq, index) => (
+              <div key={index} className="mb-4 p-3 border border-gray-200 rounded-md bg-white">
+                <div className="mb-3">
+                  <label className="block mb-2 font-medium text-gray-700">Question:</label>
                   <input 
                     type="text" 
-                    id={`faqQuestion${index + 1}`} 
-                    name={`faqQuestion${index + 1}`} 
-                    placeholder={index === 0 ? "What services are included?" : `FAQ Question ${index + 1}`} 
+                    value={faq.question}
+                    onChange={(e) => handleArrayChange('subcategories.0.businesses.0.faqs', index, 'question', e.target.value)}
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
                   />
                 </div>
-                <div className="flex-1 min-w-[250px]">
-                  <label htmlFor={`faqAnswer${index + 1}`} className="block mb-2 font-medium text-gray-700">Answer:</label>
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700">Answer:</label>
                   <textarea 
-                    id={`faqAnswer${index + 1}`} 
-                    name={`faqAnswer${index + 1}`} 
-                    placeholder={index === 0 ? "We offer a wide range of services including consultations and repairs." : `FAQ Answer ${index + 1}`}
+                    value={faq.answer}
+                    onChange={(e) => handleArrayChange('subcategories.0.businesses.0.faqs', index, 'answer', e.target.value)}
                     className="w-full p-2 border border-gray-300 rounded-md text-sm h-24"
-                  ></textarea>
+                  />
                 </div>
+                {business.faqs.length > 1 && (
+                  <button 
+                    type="button" 
+                    onClick={() => removeArrayItem('subcategories.0.businesses.0.faqs', index)}
+                    className="mt-2 text-red-500 text-sm hover:text-red-700"
+                  >
+                    Remove FAQ
+                  </button>
+                )}
               </div>
             ))}
           </div>
-          <button type="button" onClick={addFaq} className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600 transition">
-            + Add Another FAQ
+          <button 
+            type="button" 
+            onClick={() => addArrayItem('subcategories.0.businesses.0.faqs', { question: '', answer: '' })}
+            className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600 transition"
+          >
+            + Add FAQ
           </button>
         </div>
-        
-        <button type="submit" className="bg-blue-500 text-white px-5 py-2.5 rounded-md text-base hover:bg-blue-600 transition mt-6">
+
+        <button 
+          type="submit" 
+          className="bg-blue-500 text-white px-5 py-2.5 rounded-md text-base hover:bg-blue-600 transition w-full"
+        >
           Submit
         </button>
-      </div>
-      <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
-          <Button
-            className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700"
-            onClick={() => router.push("/welcome")}
-          >
-            Back
-          </Button>
-          <Button
-            className="w-full sm:w-auto"
-            color="primary"
-            onClick={() => router.push("/location")}
-          >
-            Next
-          </Button>
-        </div>
+      </form>
     </div>
   );
 }
