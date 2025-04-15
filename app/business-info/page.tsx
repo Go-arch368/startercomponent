@@ -2,13 +2,34 @@
 import { useState } from "react";
 import businessData from "@/data/businessData.json";
 import categoryandsubcategory from "@/data/category and subcategory.json";
+import { ClockIcon } from "@heroicons/react/24/outline";
+
+// Sample country codes (matches your JSON's +1)
+const countryCodes = [
+  { code: "+1", country: "United States" },
+  { code: "+44", country: "United Kingdom" },
+  { code: "+91", country: "India" },
+  { code: "+81", country: "Japan" },
+  { code: "+86", country: "China" },
+];
 
 export default function BusinessInformationForm() {
   const [formData, setFormData] = useState(businessData);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [phoneCountryCode, setPhoneCountryCode] = useState(countryCodes[0].code);
+  const [callCountryCode, setCallCountryCode] = useState(countryCodes[0].code);
+  const [closedDays, setClosedDays] = useState(
+    Object.fromEntries(
+      Object.entries(businessData.subcategories[0].businesses[0].timings).map(([day, hours]) => [
+        day,
+        hours === "Closed",
+      ])
+    )
+  );
 
   const business = formData.subcategories[0].businesses[0];
+  const initialBusiness = businessData.subcategories[0].businesses[0];
 
   const updateFormData = (path: string, value: any) => {
     const keys = path.split(".");
@@ -99,6 +120,38 @@ export default function BusinessInformationForm() {
     return categoryObj ? categoryObj.subcategories : [];
   };
 
+  // Helper to format time from 24-hour to 12-hour format
+  const formatTime = (time: string) => {
+    if (!time) return "";
+    const [hours, minutes] = time.split(":");
+    const hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    const formattedHour = hour % 12 || 12;
+    return `${formattedHour}:${minutes} ${ampm}`;
+  };
+
+  // Handle time change for open/close times
+  const handleTimeChange = (day: string, type: string, value: string) => {
+    if (closedDays[day]) return;
+    const timings = { ...business.timings };
+    const current = timings[day as keyof typeof timings] === "Closed" 
+      ? ["09:00", "17:00"] 
+      : timings[day as keyof typeof timings].split(" - ");
+    const openTime = type === "open" ? value : current[0]?.replace(/ [AP]M/, "") || "09:00";
+    const closeTime = type === "close" ? value : current[1]?.replace(/ [AP]M/, "") || "17:00";
+    const formatted = `${formatTime(openTime)} - ${formatTime(closeTime)}`;
+    updateFormData(`subcategories.0.businesses.0.timings.${day}`, formatted);
+  };
+
+  // Handle closed day checkbox
+  const handleClosedChange = (day: string) => {
+    setClosedDays((prev) => ({ ...prev, [day]: !prev[day] }));
+    updateFormData(
+      `subcategories.0.businesses.0.timings.${day}`,
+      !closedDays[day] ? "Closed" : "09:00 AM - 06:00 PM"
+    );
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-5">
       <form onSubmit={handleSubmit} className="bg-gray-50 rounded-lg shadow-sm p-6">
@@ -152,7 +205,7 @@ export default function BusinessInformationForm() {
               <label className="block mb-2 font-medium text-gray-700">Business Name:</label>
               <input
                 type="text"
-                value={business.businessName}
+                placeholder={initialBusiness.businessName} // "Sample Car Repair Business"
                 onChange={(e) =>
                   updateFormData("subcategories.0.businesses.0.businessName", e.target.value)
                 }
@@ -165,7 +218,7 @@ export default function BusinessInformationForm() {
             <div className="flex-1 min-w-[250px]">
               <label className="block mb-2 font-medium text-gray-700">Description:</label>
               <textarea
-                value={business.description}
+                placeholder={initialBusiness.description} // "Top-rated car repair services..."
                 onChange={(e) =>
                   updateFormData("subcategories.0.businesses.0.description", e.target.value)
                 }
@@ -184,7 +237,7 @@ export default function BusinessInformationForm() {
               <label className="block mb-2 font-medium text-gray-700">Address:</label>
               <input
                 type="text"
-                value={business.location.address}
+                placeholder={initialBusiness.location.address} // "123 Main Street"
                 onChange={(e) =>
                   updateFormData("subcategories.0.businesses.0.location.address", e.target.value)
                 }
@@ -196,7 +249,7 @@ export default function BusinessInformationForm() {
               <label className="block mb-2 font-medium text-gray-700">City:</label>
               <input
                 type="text"
-                value={business.location.city}
+                placeholder={initialBusiness.location.city} // "Sample City"
                 onChange={(e) =>
                   updateFormData("subcategories.0.businesses.0.location.city", e.target.value)
                 }
@@ -210,7 +263,7 @@ export default function BusinessInformationForm() {
               <label className="block mb-2 font-medium text-gray-700">State:</label>
               <input
                 type="text"
-                value={business.location.state}
+                placeholder={initialBusiness.location.state} // "Sample State"
                 onChange={(e) =>
                   updateFormData("subcategories.0.businesses.0.location.state", e.target.value)
                 }
@@ -222,7 +275,7 @@ export default function BusinessInformationForm() {
               <label className="block mb-2 font-medium text-gray-700">Postal Code:</label>
               <input
                 type="text"
-                value={business.location.postalCode}
+                placeholder={initialBusiness.location.postalCode} // "000000"
                 onChange={(e) =>
                   updateFormData("subcategories.0.businesses.0.location.postalCode", e.target.value)
                 }
@@ -239,21 +292,37 @@ export default function BusinessInformationForm() {
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex-1 min-w-[250px]">
               <label className="block mb-2 font-medium text-gray-700">Phone:</label>
-              <input
-                type="tel"
-                value={business.contact.phone}
-                onChange={(e) =>
-                  updateFormData("subcategories.0.businesses.0.contact.phone", e.target.value)
-                }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                required
-              />
+              <div className="flex">
+                <select
+                  value={phoneCountryCode}
+                  onChange={(e) => setPhoneCountryCode(e.target.value)}
+                  className="w-24 p-2 border border-gray-300 rounded-l-md text-sm"
+                >
+                  {countryCodes.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.code} ({country.country})
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="tel"
+                  placeholder={initialBusiness.contact.phone.replace("+1-", "")} // "000-000-0000"
+                  onChange={(e) =>
+                    updateFormData(
+                      "subcategories.0.businesses.0.contact.phone",
+                      `${phoneCountryCode}-${e.target.value}`
+                    )
+                  }
+                  className="flex-1 p-2 border border-gray-300 rounded-r-md text-sm"
+                  required
+                />
+              </div>
             </div>
             <div className="flex-1 min-w-[250px]">
               <label className="block mb-2 font-medium text-gray-700">Email:</label>
               <input
                 type="email"
-                value={business.contact.email}
+                placeholder={initialBusiness.contact.email} // "info@samplecarrepair.com"
                 onChange={(e) =>
                   updateFormData("subcategories.0.businesses.0.contact.email", e.target.value)
                 }
@@ -267,7 +336,7 @@ export default function BusinessInformationForm() {
               <label className="block mb-2 font-medium text-gray-700">Website:</label>
               <input
                 type="url"
-                value={business.contact.website}
+                placeholder={initialBusiness.contact.website} // "https://www.samplecarrepair.com"
                 onChange={(e) =>
                   updateFormData("subcategories.0.businesses.0.contact.website", e.target.value)
                 }
@@ -281,30 +350,49 @@ export default function BusinessInformationForm() {
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Business Hours</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Object.entries(business.timings).map(([day, hours]) => (
+            {Object.keys(business.timings).map((day) => (
               <div key={day} className="flex-1 min-w-[250px]">
                 <label className="block mb-2 font-medium text-gray-700">
                   {day.charAt(0).toUpperCase() + day.slice(1)}:
                 </label>
-                <div className="flex items-center">
-                  <input
-                    type="text"
-                    value={hours}
-                    onChange={(e) =>
-                      updateFormData(`subcategories.0.businesses.0.timings.${day}`, e.target.value)
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  />
-                  <input
-                    type="time"
-                    id={`${day}-timepicker`}
-                    className="hidden"
-                    onChange={(e) => {
-                      const time = e.target.value;
-                      const formattedTime = time ? `${time} - ${time}` : hours;
-                      updateFormData(`subcategories.0.businesses.0.timings.${day}`, formattedTime);
-                    }}
-                  />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={closedDays[day]}
+                      onChange={() => handleClosedChange(day)}
+                      className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                    />
+                    <span className="text-sm text-gray-600">Closed</span>
+                  </div>
+                  {!closedDays[day] && (
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <ClockIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                          type="time"
+                          placeholder={
+                            initialBusiness.timings[day as keyof typeof initialBusiness.timings].split(" - ")[0] || "09:00 AM"
+                          }
+                          onChange={(e) => handleTimeChange(day, "open", e.target.value)}
+                          className="w-full pl-8 p-2 border border-gray-300 rounded-md text-sm"
+                          disabled={closedDays[day]}
+                        />
+                      </div>
+                      <div className="relative flex-1">
+                        <ClockIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                          type="time"
+                          placeholder={
+                            initialBusiness.timings[day as keyof typeof initialBusiness.timings].split(" - ")[1] || "06:00 PM"
+                          }
+                          onChange={(e) => handleTimeChange(day, "close", e.target.value)}
+                          className="w-full pl-8 p-2 border border-gray-300 rounded-md text-sm"
+                          disabled={closedDays[day]}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -322,7 +410,9 @@ export default function BusinessInformationForm() {
                     <label className="block mb-2 font-medium text-gray-700">Service Name:</label>
                     <input
                       type="text"
-                      value={service.name}
+                      placeholder={
+                        initialBusiness.services[index]?.name || "Enter service name"
+                      } // "Car Repair Service 1"
                       onChange={(e) =>
                         handleArrayChange(
                           "subcategories.0.businesses.0.services",
@@ -339,7 +429,9 @@ export default function BusinessInformationForm() {
                     <label className="block mb-2 font-medium text-gray-700">Price:</label>
                     <input
                       type="text"
-                      value={service.price}
+                      placeholder={
+                        initialBusiness.services[index]?.price || "Enter price"
+                      } // "$50+"
                       onChange={(e) =>
                         handleArrayChange(
                           "subcategories.0.businesses.0.services",
@@ -454,7 +546,9 @@ export default function BusinessInformationForm() {
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
-                    value={highlight}
+                    placeholder={
+                      initialBusiness.highlights[index] || "Enter highlight"
+                    } // "Top Rated"
                     onChange={(e) => {
                       const newHighlights = [...business.highlights];
                       newHighlights[index] = e.target.value;
@@ -503,20 +597,36 @@ export default function BusinessInformationForm() {
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex-1 min-w-[250px]">
               <label className="block mb-2 font-medium text-gray-700">Call Number:</label>
-              <input
-                type="tel"
-                value={business.cta.call}
-                onChange={(e) =>
-                  updateFormData("subcategories.0.businesses.0.cta.call", e.target.value)
-                }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
-              />
+              <div className="flex">
+                <select
+                  value={callCountryCode}
+                  onChange={(e) => setCallCountryCode(e.target.value)}
+                  className="w-24 p-2 border border-gray-300 rounded-l-md text-sm"
+                >
+                  {countryCodes.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.code} ({country.country})
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="tel"
+                  placeholder={initialBusiness.cta.call.replace("+1-", "")} // "000-000-0000"
+                  onChange={(e) =>
+                    updateFormData(
+                      "subcategories.0.businesses.0.cta.call",
+                      `${callCountryCode}-${e.target.value}`
+                    )
+                  }
+                  className="flex-1 p-2 border border-gray-300 rounded-r-md text-sm"
+                />
+              </div>
             </div>
             <div className="flex-1 min-w-[250px]">
               <label className="block mb-2 font-medium text-gray-700">Booking URL:</label>
               <input
                 type="text"
-                value={business.cta.bookUrl}
+                placeholder={initialBusiness.cta.bookUrl} // "/book/car_repair_001"
                 onChange={(e) =>
                   updateFormData("subcategories.0.businesses.0.cta.bookUrl", e.target.value)
                 }
@@ -529,7 +639,7 @@ export default function BusinessInformationForm() {
               <label className="block mb-2 font-medium text-gray-700">Get Directions URL:</label>
               <input
                 type="url"
-                value={business.cta.getDirections}
+                placeholder={initialBusiness.cta.getDirections} // "https://maps.google.com"
                 onChange={(e) =>
                   updateFormData("subcategories.0.businesses.0.cta.getDirections", e.target.value)
                 }
@@ -549,7 +659,9 @@ export default function BusinessInformationForm() {
                   <label className="block mb-2 font-medium text-gray-700">Question:</label>
                   <input
                     type="text"
-                    value={faq.question}
+                    placeholder={
+                      initialBusiness.faqs[index]?.question || "Enter question"
+                    } // "What services are included?"
                     onChange={(e) =>
                       handleArrayChange(
                         "subcategories.0.businesses.0.faqs",
@@ -564,7 +676,9 @@ export default function BusinessInformationForm() {
                 <div>
                   <label className="block mb-2 font-medium text-gray-700">Answer:</label>
                   <textarea
-                    value={faq.answer}
+                    placeholder={
+                      initialBusiness.faqs[index]?.answer || "Enter answer"
+                    } // "We offer a wide range..."
                     onChange={(e) =>
                       handleArrayChange(
                         "subcategories.0.businesses.0.faqs",

@@ -1,60 +1,68 @@
+
 {
-  "subcategories": [
-    {
-      "name": "Car Repair",
-      "businesses": [
-        {
-          "businessName": "Sample Car Repair Business",
-          "description": "Top-rated car repair services in your local area.",
-          "location": {
-            "address": "123 Main Street",
-            "city": "Sample City",
-            "state": "Sample State",
-            "postalCode": "000000"
-          },
-          "contact": {
-            "phone": "+1-000-000-0000",
-            "email": "info@samplecarrepair.com",
-            "website": "https://www.samplecarrepair.com"
-          },
-          "timings": {
-            "monday": "09:00 AM - 06:00 PM",
-            "tuesday": "09:00 AM - 06:00 PM",
-            "wednesday": "09:00 AM - 06:00 PM",
-            "thursday": "09:00 AM - 06:00 PM",
-            "friday": "09:00 AM - 06:00 PM",
-            "saturday": "10:00 AM - 04:00 PM",
-            "sunday": "Closed"
-          },
-          "services": [
-            {
-              "name": "Car Repair Service 1",
-              "price": "$50+"
+    "subcategories": [
+      {
+        "name": "Car Repair",
+        "businesses": [
+          {
+            "businessName": "Sample Car Repair Business",
+            "description": "Top-rated car repair services in your local area.",
+            "location": {
+              "address": "123 Main Street",
+              "city": "Sample City",
+              "state": "Sample State",
+              "postalCode": "000000"
             },
-            {
-              "name": "Car Repair Service 2",
-              "price": "$75+"
-            }
-          ],
-          "gallery": ["/images/sample1.jpg", "/images/sample2.jpg"],
-          "highlights": ["Top Rated", "Affordable", "Certified Staff"],
-          "cta": {
-            "call": "+1-000-000-0000",
-            "bookUrl": "/book/car_repair_001",
-            "getDirections": "https://maps.google.com"
-          },
-          "faqs": [
-            {
-              "question": "What services are included?",
-              "answer": "We offer a wide range of services including consultations and repairs."
+            "contact": {
+              "phone": "+1-000-000-0000",
+              "email": "info@samplecarrepair.com",
+              "website": "https://www.samplecarrepair.com"
             },
-            {
-              "question": "Do you accept bookings?",
-              "answer": "Yes, bookings can be made through our website."
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
+            "timings": {
+              "monday": "09:00 AM - 06:00 PM",
+              "tuesday": "09:00 AM - 06:00 PM",
+              "wednesday": "09:00 AM - 06:00 PM",
+              "thursday": "09:00 AM - 06:00 PM",
+              "friday": "09:00 AM - 06:00 PM",
+              "saturday": "10:00 AM - 04:00 PM",
+              "sunday": "Closed"
+            },
+            "services": [
+              {
+                "name": "Car Repair Service 1",
+                "price": "$50+"
+              },
+              {
+                "name": "Car Repair Service 2",
+                "price": "$75+"
+              }
+            ],
+            "gallery": [
+              "/images/sample1.jpg",
+              "/images/sample2.jpg"
+            ],
+            "highlights": [
+              "Top Rated",
+              "Affordable",
+              "Certified Staff"
+            ],
+            "cta": {
+              "call": "+1-000-000-0000",
+              "bookUrl": "/book/car_repair_001",
+              "getDirections": "https://maps.google.com"
+            },
+            "faqs": [
+              {
+                "question": "What services are included?",
+                "answer": "We offer a wide range of services including consultations and repairs."
+              },
+              {
+                "question": "Do you accept bookings?",
+                "answer": "Yes, bookings can be made through our website."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
