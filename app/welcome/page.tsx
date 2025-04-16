@@ -34,8 +34,14 @@ export default function Welcome() {
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Select Business Category</h3>
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex-1 min-w-[250px]">
-              <label className="block mb-2 font-medium text-gray-700">Category:</label>
+              <label
+                htmlFor="category-select"
+                className="block mb-2 font-medium text-gray-700"
+              >
+                Category:
+              </label>
               <select
+                id="category-select" // Added id
                 value={selectedCategory}
                 onChange={handleCategoryChange}
                 className="w-full p-2 border border-gray-300 rounded-md text-sm"
@@ -50,8 +56,14 @@ export default function Welcome() {
               </select>
             </div>
             <div className="flex-1 min-w-[250px]">
-              <label className="block mb-2 font-medium text-gray-700">Subcategory:</label>
+              <label
+                htmlFor="subcategory-select"
+                className="block mb-2 font-medium text-gray-700"
+              >
+                Subcategory:
+              </label>
               <select
+                id="subcategory-select" // Added id
                 value={selectedSubcategory}
                 onChange={handleSubcategoryChange}
                 className="w-full p-2 border border-gray-300 rounded-md text-sm"
