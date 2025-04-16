@@ -192,7 +192,7 @@ export default function BusinessInformationForm() {
       <form onSubmit={handleSubmit} className="bg-gray-50 rounded-lg shadow-sm p-6">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Business Information Form</h2>
 
-        {/* Category and Subcategory Selection */}
+        
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Business Category</h3>
           <div className="flex flex-wrap gap-4 mb-4">

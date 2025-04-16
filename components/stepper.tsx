@@ -1,17 +1,25 @@
 "use client";
-
 import clsx from "clsx";
+import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check } from "lucide-react";
+import {
+  Check,
+  Home,
+  Briefcase,
+  MapPin,
+  Phone,
+  Wrench,
+  CheckCircle,
+} from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 const steps = [
-  { label: "Welcome", path: "/welcome" },
-  { label: "Business Info", path: "/business-info" },
-  { label: "Location", path: "/location" },
-  { label: "Contact & Timings", path: "/contact&timings" },
-  { label: "Services", path: "/services" },
-  { label: "Review & Publish", path: "/review&publish" },
+  { label: "Welcome", path: "/welcome", icon: Home },
+  { label: "Business Info", path: "/business-info", icon: Briefcase },
+  { label: "Location", path: "/location", icon: MapPin },
+  { label: "Contact & Timings", path: "/contact&timings", icon: Phone },
+  { label: "Services", path: "/services", icon: Wrench },
+  { label: "Review & Publish", path: "/review&publish", icon: CheckCircle },
 ];
 
 export default function Stepper() {
@@ -38,18 +46,17 @@ export default function Stepper() {
   };
 
   const renderCircle = (index: number) => {
-    if (index < currentStep) {
-      return (
-        <div className="z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 border-green-600 bg-green-100 text-sm font-bold text-green-600">
-          <Check size={18} />
-        </div>
-      );
-    }
-
+    const Icon = steps[index].icon;
+    const isCompleted = index < currentStep;
     const isCurrent = index === currentStep;
+
     const circleClasses = clsx(
       "z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-medium bg-white cursor-pointer",
-      isCurrent ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"
+      {
+        "border-green-600 text-green-600": isCompleted,
+        "border-blue-600 text-blue-600": isCurrent,
+        "border-gray-300 text-gray-400": !isCompleted && !isCurrent,
+      }
     );
 
     return (
@@ -60,14 +67,39 @@ export default function Stepper() {
         onClick={() => handleClick(index)}
         onKeyDown={(e) => handleKeyDown(e, index)}
       >
-        {index + 1}
+        <Icon size={18} />
+      </div>
+    );
+  };
+
+  const renderLabel = (index: number) => {
+    const isCompleted = index < currentStep;
+    const isCurrent = index === currentStep;
+
+    const labelClasses = clsx(
+      "mt-1 px-1 text-[11px] text-center whitespace-nowrap flex items-center gap-1",
+      {
+        "text-green-600 font-medium": isCompleted,
+        "text-blue-600 font-medium": isCurrent,
+        "text-gray-600": !isCompleted && !isCurrent,
+      }
+    );
+
+    return (
+      <div className={labelClasses}>
+        {steps[index].label}
+        {isCompleted && (
+          <span className="ml-1 flex h-4 w-4 items-center justify-center rounded-full bg-green-600 text-white">
+            <Check size={12} strokeWidth={3} />
+          </span>
+        )}
       </div>
     );
   };
 
   return (
     <>
-      {/* Mobile Stepper */}
+      
       <div className="flex w-full flex-col items-center px-2 py-6 sm:hidden">
         <motion.p
           key={currentStep}
@@ -80,32 +112,33 @@ export default function Stepper() {
         </motion.p>
 
         <div className="relative mb-3 flex w-full max-w-xs items-center justify-between">
-          <div className="absolute top-4 left-0 right-0 z-0 h-0.5 bg-blue-600" />
-
           <AnimatePresence mode="popLayout">
-            {steps.map((step, index) => {
-              const isVisible = visibleSteps.includes(step);
+            {visibleSteps.map((step, index) => {
+              const globalIndex = steps.findIndex((s) => s.path === step.path);
+              const isFirstVisible = globalIndex === steps.findIndex((s) => s.path === visibleSteps[0].path);
+              const isLastVisible = globalIndex === steps.findIndex((s) => s.path === visibleSteps[visibleSteps.length - 1].path);
               return (
                 <motion.div
                   key={step.label}
                   animate={{ opacity: 1, scale: 1 }}
-                  className={clsx("relative flex min-w-[60px] flex-1 flex-col items-center", {
-                    hidden: !isVisible,
-                  })}
+                  className="relative flex min-w-[60px] flex-1 flex-col items-center"
                   exit={{ opacity: 0, scale: 0.95 }}
                   initial={{ opacity: 0, scale: 0.95 }}
                   layout
                   transition={{ duration: 0.3 }}
                 >
-                  {renderCircle(index)}
-                  <div
-                    className={clsx(
-                      "mt-1 px-1 text-[11px] text-center whitespace-nowrap",
-                      index === currentStep ? "text-blue-600 font-medium" : "text-gray-600"
-                    )}
-                  >
-                    {step.label}
-                  </div>
+                
+                  {globalIndex < steps.length - 1 && !isLastVisible && (
+                    <div
+                      className="absolute top-4 z-0 h-0.5 bg-blue-600"
+                      style={{
+                        left: "calc(50% + 1rem)", 
+                        right: "calc(-50% + 1rem)", 
+                      }}
+                    />
+                  )}
+                  {renderCircle(globalIndex)}
+                  {renderLabel(globalIndex)}
                 </motion.div>
               );
             })}
@@ -125,29 +158,30 @@ export default function Stepper() {
         </div>
       </div>
 
-      {/* Desktop Stepper */}
+    
       <div className="hidden w-full flex-col items-center px-4 py-6 sm:flex">
         <p className="mb-4 text-sm font-medium text-gray-700">
           Step {currentStep + 1} of {steps.length}
         </p>
 
         <div className="relative flex w-full max-w-4xl items-center justify-between">
-          <div className="absolute top-4 left-0 right-0 z-0 h-0.5 bg-blue-600" />
-
           {steps.map((step, index) => (
             <div
               key={step.label}
               className="relative z-10 flex min-w-[60px] flex-1 flex-col items-center"
             >
+           
+              {index < steps.length - 1 && (
+                <div
+                  className="absolute top-4 z-0 h-0.5 bg-blue-600"
+                  style={{
+                    left: "calc(50% + 1rem)", 
+                    right: "calc(-50% + 1rem)", 
+                  }}
+                />
+              )}
               {renderCircle(index)}
-              <div
-                className={clsx(
-                  "mt-1 px-1 text-[11px] text-center whitespace-nowrap",
-                  index === currentStep ? "text-blue-600 font-medium" : "text-gray-600"
-                )}
-              >
-                {step.label}
-              </div>
+              {renderLabel(index)}
             </div>
           ))}
         </div>
