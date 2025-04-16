@@ -3,14 +3,13 @@ import clsx from "clsx";
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  
   Home,
   Briefcase,
   MapPin,
   Phone,
   Wrench,
   CheckCircle,
-  BadgeCheck
+  BadgeCheck,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -67,8 +66,9 @@ export default function Stepper() {
         tabIndex={0}
         onClick={() => handleClick(index)}
         onKeyDown={(e) => handleKeyDown(e, index)}
+        aria-label={`Go to ${steps[index].label} step`} // Accessible name for screen readers
       >
-        <Icon size={18} />
+        <Icon size={18} aria-hidden="true" /> {/* Hide icon from screen readers */}
       </div>
     );
   };
@@ -100,7 +100,7 @@ export default function Stepper() {
 
   return (
     <>
-      
+      {/* Mobile View */}
       <div className="flex w-full flex-col items-center px-2 py-6 sm:hidden">
         <motion.p
           key={currentStep}
@@ -128,13 +128,12 @@ export default function Stepper() {
                   layout
                   transition={{ duration: 0.3 }}
                 >
-                
                   {globalIndex < steps.length - 1 && !isLastVisible && (
                     <div
                       className="absolute top-4 z-0 h-0.5 bg-blue-600"
                       style={{
-                        left: "calc(50% + 1rem)", 
-                        right: "calc(-50% + 1rem)", 
+                        left: "calc(50% + 1rem)",
+                        right: "calc(-50% + 1rem)",
                       }}
                     />
                   )}
@@ -159,7 +158,7 @@ export default function Stepper() {
         </div>
       </div>
 
-    
+      {/* Desktop View */}
       <div className="hidden w-full flex-col items-center px-4 py-6 sm:flex">
         <p className="mb-4 text-sm font-medium text-gray-700">
           Step {currentStep + 1} of {steps.length}
@@ -171,13 +170,12 @@ export default function Stepper() {
               key={step.label}
               className="relative z-10 flex min-w-[60px] flex-1 flex-col items-center"
             >
-           
               {index < steps.length - 1 && (
                 <div
                   className="absolute top-4 z-0 h-0.5 bg-blue-600"
                   style={{
-                    left: "calc(50% + 1rem)", 
-                    right: "calc(-50% + 1rem)", 
+                    left: "calc(50% + 1rem)",
+                    right: "calc(-50% + 1rem)",
                   }}
                 />
               )}
