@@ -3,13 +3,14 @@ import clsx from "clsx";
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  Check,
+  
   Home,
   Briefcase,
   MapPin,
   Phone,
   Wrench,
   CheckCircle,
+  BadgeCheck
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -90,7 +91,7 @@ export default function Stepper() {
         {steps[index].label}
         {isCompleted && (
           <span className="ml-1 flex h-4 w-4 items-center justify-center rounded-full bg-green-600 text-white">
-            <Check size={12} strokeWidth={3} />
+            <BadgeCheck size={12} strokeWidth={3} />
           </span>
         )}
       </div>
