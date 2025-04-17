@@ -42,7 +42,7 @@ export default function BusinessInformation() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-5">
+    <main role="main" className="max-w-4xl mx-auto p-5">
       <form onSubmit={handleSubmit} className="bg-gray-50 rounded-lg shadow-sm p-6">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">
           Business Information
@@ -55,10 +55,14 @@ export default function BusinessInformation() {
           </h3>
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex-1 min-w-[250px]">
-              <label className="block mb-2 font-medium text-gray-700">
+              <label
+                htmlFor="business-name"
+                className="block mb-2 font-medium text-gray-700 text-base" // Larger font
+              >
                 Business Name:
               </label>
               <input
+                id="business-name"
                 type="text"
                 placeholder={initialBusiness.businessName}
                 onChange={(e) =>
@@ -67,17 +71,21 @@ export default function BusinessInformation() {
                     e.target.value
                   )
                 }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                className="w-full p-2 border border-gray-300 rounded-md text-base focus:ring-2 focus:ring-blue-500" // Larger font, focus ring
                 required
               />
             </div>
           </div>
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[250px]">
-              <label className="block mb-2 font-medium text-gray-700">
+              <label
+                htmlFor="description"
+                className="block mb-2 font-medium text-gray-700 text-base" // Larger font
+              >
                 Description:
               </label>
               <textarea
+                id="description"
                 placeholder={initialBusiness.description}
                 onChange={(e) =>
                   updateFormData(
@@ -85,23 +93,22 @@ export default function BusinessInformation() {
                     e.target.value
                   )
                 }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm h-24"
+                className="w-full p-2 border border-gray-300 rounded-md text-base h-24 focus:ring-2 focus:ring-blue-500" // Larger font, focus ring
                 required
               />
             </div>
           </div>
         </div>
 
-    
         <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
           <Button
-            className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700"
+            className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700 focus:ring-2 focus:ring-blue-500" // Focus ring
             onClick={() => router.push("/welcome")}
           >
             Back
           </Button>
           <Button
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto focus:ring-2 focus:ring-blue-500" // Focus ring
             color="primary"
             onClick={() => router.push("/location")}
           >
@@ -109,6 +116,6 @@ export default function BusinessInformation() {
           </Button>
         </div>
       </form>
-    </div>
+    </main>
   );
 }
