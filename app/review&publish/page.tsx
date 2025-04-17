@@ -298,7 +298,6 @@ const GalleryFAQsAndCTA = () => {
   </div>
 </div>
 
-
 <div className="mb-6 pb-6 border-b border-gray-200">
   <h3 className="text-lg font-semibold mb-4 text-gray-700">FAQs</h3>
   <div className="mb-4">
@@ -378,12 +377,11 @@ const GalleryFAQsAndCTA = () => {
         answer: "",
       })
     }
-    className="bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700 transition"
+    className="bg-green-700 text-white px-4 py-2 rounded-md text-sm hover:bg-green-800 transition"
   >
     + Add FAQ
   </button>
 </div>
-        
       
 
         <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
