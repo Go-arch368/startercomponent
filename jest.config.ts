@@ -10,9 +10,17 @@ const config: Config = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/$1', // maps @ to your root folder
+    '^@/(.*)$': '<rootDir>/$1',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '^@/data/(.*)$': '<rootDir>/data/$1',
+    '^@/components/(.*)$': '<rootDir>/components/$1', // maps @ to your root folder
   },
-  collectCoverage: true, // Enable coverage collection
+  transform: {
+    '^.+\\.(ts|tsx)$': 'ts-jest',
+    '^.+\\.(js|jsx)$': 'babel-jest',
+  },
+  collectCoverage: true,
+  preset: 'ts-jest', // Enable coverage collection
   // collectCoverageFrom: [
   //   'app/**/*.{ts,tsx}', // Collect coverage for all files in the app folder (adjust as needed)
   //   '!app/**/*.test.{ts,tsx}', // Exclude test files from coverage

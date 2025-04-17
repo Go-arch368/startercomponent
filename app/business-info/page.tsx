@@ -43,7 +43,11 @@ export default function BusinessInformation() {
 
   return (
     <main role="main" className="max-w-4xl mx-auto p-5">
-      <form onSubmit={handleSubmit} className="bg-gray-50 rounded-lg shadow-sm p-6">
+  <form 
+  onSubmit={handleSubmit} 
+  className="bg-gray-50 rounded-lg shadow-sm p-6"
+  data-testid="business-form"
+>
         <h2 className="text-2xl font-bold mb-6 text-gray-800">
           Business Information
         </h2>
