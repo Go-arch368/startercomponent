@@ -251,55 +251,82 @@ const ContactAndTimings = () => {
 
         {/* Business Hours */}
         <div className="mb-6 pb-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold mb-4 text-gray-700">Business Hours</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Object.keys(formData.subcategories[0].businesses[0].timings).map((day) => {
-              const { open, close } = getTimeValues(formData.subcategories[0].businesses[0].timings[day]);
-              return (
-                <div key={day} className="flex-1 min-w-[250px]">
-                  <label className="block mb-2 font-medium text-gray-700">
-                    {day.charAt(0).toUpperCase() + day.slice(1)}:
-                  </label>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={closedDays[day]}
-                        onChange={() => handleClosedChange(day)}
-                        className="h-4 w-4 text-blue-600 border-gray-300 rounded"
-                      />
-                      <span className="text-sm text-gray-600">Closed</span>
-                    </div>
-                    {!closedDays[day] && (
-                      <div className="flex gap-2">
-                        <div className="relative flex-1">
-                          <ClockIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                          <input
-                            type="time"
-                            value={open}
-                            onChange={(e) => handleTimeChange(day, "open", e.target.value)}
-                            className="w-full pl-8 p-2 border border-gray-300 rounded-md text-sm"
-                            disabled={closedDays[day]}
-                          />
-                        </div>
-                        <div className="relative flex-1">
-                          <ClockIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                          <input
-                            type="time"
-                            value={close}
-                            onChange={(e) => handleTimeChange(day, "close", e.target.value)}
-                            className="w-full pl-8 p-2 border border-gray-300 rounded-md text-sm"
-                            disabled={closedDays[day]}
-                          />
-                        </div>
-                      </div>
+  <h3 className="text-lg font-semibold mb-4 text-gray-700">Business Hours</h3>
+  <fieldset>
+    <legend className="sr-only">Business Hours</legend>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {Object.keys(formData.subcategories[0].businesses[0].timings).map((day) => {
+        const { open, close } = getTimeValues(formData.subcategories[0].businesses[0].timings[day]);
+        return (
+          <div key={day} className="flex-1 min-w-[250px]">
+            <label className="block mb-2 font-medium text-gray-700">
+              {day.charAt(0).toUpperCase() + day.slice(1)}:
+            </label>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id={`closed-${day}`}
+                  checked={closedDays[day]}
+                  onChange={() => handleClosedChange(day)}
+                  className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                />
+                <label htmlFor={`closed-${day}`} className="text-sm text-gray-600">
+                  Closed
+                </label>
+              </div>
+              {!closedDays[day] && (
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <ClockIcon
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+                      aria-hidden="true"
+                    />
+                    <label htmlFor={`open-${day}`} className="sr-only">
+                      {day} Opening Time
+                    </label>
+                    <input
+                      type="time"
+                      id={`open-${day}`}
+                      value={open}
+                      onChange={(e) => handleTimeChange(day, "open", e.target.value)}
+                      className="w-full pl-8 p-2 border border-gray-300 rounded-md text-sm"
+                      disabled={closedDays[day]}
+                      aria-describedby={closedDays[day] ? `closed-desc-${day}` : undefined}
+                    />
+                    {closedDays[day] && (
+                      <span id={`closed-desc-${day}`} className="sr-only">
+                        This time input is disabled because {day} is marked as closed.
+                      </span>
                     )}
                   </div>
+                  <div className="relative flex-1">
+                    <ClockIcon
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+                      aria-hidden="true"
+                    />
+                    <label htmlFor={`close-${day}`} className="sr-only">
+                      {day} Closing Time
+                    </label>
+                    <input
+                      type="time"
+                      id={`close-${day}`}
+                      value={close}
+                      onChange={(e) => handleTimeChange(day, "close", e.target.value)}
+                      className="w-full pl-8 p-2 border border-gray-300 rounded-md text-sm"
+                      disabled={closedDays[day]}
+                      aria-describedby={closedDays[day] ? `closed-desc-${day}` : undefined}
+                    />
+                  </div>
                 </div>
-              );
-            })}
+              )}
+            </div>
           </div>
-        </div>
+        );
+      })}
+    </div>
+  </fieldset>
+</div>
 
         <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
           <Button
