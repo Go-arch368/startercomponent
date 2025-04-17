@@ -78,7 +78,7 @@ export default function Stepper() {
     const isCurrent = index === currentStep;
 
     const labelClasses = clsx(
-      "mt-1 px-1 text-xs text-center max-w-[100px] truncate flex items-center gap-1",
+      "mt-1 px-1 text-xs text-center max-w-[100px] flex items-center gap-1",
       {
         "text-green-600 font-medium": isCompleted,
         "text-blue-600 font-medium": isCurrent,
@@ -88,10 +88,13 @@ export default function Stepper() {
 
     return (
       <div className={labelClasses}>
-        {steps[index].label}
+        <span className="truncate">{steps[index].label}</span>
         {isCompleted && (
-          <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-600 text-white">
-            <BadgeCheck size={12} strokeWidth={3} />
+          <span
+            className="ml-1 flex h-6 w-6 items-center justify-center rounded-full bg-green-600 text-white flex-shrink-0"
+            aria-hidden="true"
+          >
+            <BadgeCheck size={14} strokeWidth={2} />
           </span>
         )}
       </div>
