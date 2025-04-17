@@ -66,9 +66,9 @@ export default function Stepper() {
         tabIndex={0}
         onClick={() => handleClick(index)}
         onKeyDown={(e) => handleKeyDown(e, index)}
-        aria-label={`Go to ${steps[index].label} step`} // Accessible name for screen readers
+        aria-label={`Go to ${steps[index].label} step`}
       >
-        <Icon size={18} aria-hidden="true" /> {/* Hide icon from screen readers */}
+        <Icon size={18} aria-hidden="true" />
       </div>
     );
   };
@@ -78,7 +78,7 @@ export default function Stepper() {
     const isCurrent = index === currentStep;
 
     const labelClasses = clsx(
-      "mt-1 px-1 text-[11px] text-center whitespace-nowrap flex items-center gap-1",
+      "mt-1 px-1 text-xs text-center max-w-[100px] truncate flex items-center gap-1",
       {
         "text-green-600 font-medium": isCompleted,
         "text-blue-600 font-medium": isCurrent,
@@ -90,7 +90,7 @@ export default function Stepper() {
       <div className={labelClasses}>
         {steps[index].label}
         {isCompleted && (
-          <span className="ml-1 flex h-4 w-4 items-center justify-center rounded-full bg-green-600 text-white">
+          <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-600 text-white">
             <BadgeCheck size={12} strokeWidth={3} />
           </span>
         )}
@@ -116,8 +116,9 @@ export default function Stepper() {
           <AnimatePresence mode="popLayout">
             {visibleSteps.map((step, index) => {
               const globalIndex = steps.findIndex((s) => s.path === step.path);
-              const isFirstVisible = globalIndex === steps.findIndex((s) => s.path === visibleSteps[0].path);
-              const isLastVisible = globalIndex === steps.findIndex((s) => s.path === visibleSteps[visibleSteps.length - 1].path);
+              const isLastVisible =
+                globalIndex ===
+                steps.findIndex((s) => s.path === visibleSteps[visibleSteps.length - 1].path);
               return (
                 <motion.div
                   key={step.label}
