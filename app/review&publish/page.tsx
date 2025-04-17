@@ -137,239 +137,252 @@ const GalleryFAQsAndCTA = () => {
         </h2>
 
       
-        <div className="mb-6 pb-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold mb-4 text-gray-700">Gallery</h3>
-          <div className="mb-4">
-            {formData.subcategories[0].businesses[0].gallery.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                {formData.subcategories[0].businesses[0].gallery.map(
-                  (image, index) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={image}
-                        alt={`Gallery ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-md border border-gray-200"
-                      />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          removeArrayItem(
-                            "subcategories.0.businesses.0.gallery",
-                            index
-                          )
-                        }
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  )
-                )}
-              </div>
-            ) : (
-              <p className="text-gray-500 mb-4">No images uploaded yet</p>
-            )}
-            <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
-              <label className="cursor-pointer">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-                <div className="flex flex-col items-center justify-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-12 w-12 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <p className="mt-2 text-sm text-gray-600">
-                    Drag and drop images here, or click to browse
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Supports JPG, PNG up to 5MB
-                  </p>
-                </div>
-              </label>
-            </div>
-          </div>
-        </div>
-
-
-        <div className="mb-6 pb-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold mb-4 text-gray-700">
-            Call to Action
-          </h3>
-          <div className="flex flex-wrap gap-4 mb-4">
-            <div className="flex-1 min-w-[250px]">
-              <label className="block mb-2 font-medium text-gray-700">
-                Call Number:
-              </label>
-              <div className="flex">
-                <select
-                  value={callCountryCode}
-                  onChange={(e) => setCallCountryCode(e.target.value)}
-                  className="w-24 p-2 border border-gray-300 rounded-l-md text-sm"
-                >
-                  {countryCodes.map((country) => (
-                    <option key={country.code} value={country.code}>
-                      {country.code} ({country.country})
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="tel"
-                  placeholder={initialBusiness.cta.call.replace("+1-", "")}
-                  value={formData.subcategories[0].businesses[0].cta.call.replace(
-                    `${callCountryCode}-`,
-                    ""
-                  )}
-                  onChange={(e) =>
-                    updateFormData(
-                      "subcategories.0.businesses.0.cta.call",
-                      `${callCountryCode}-${e.target.value}`
-                    )
-                  }
-                  className="flex-1 p-2 border border-gray-300 rounded-r-md text-sm"
-                />
-              </div>
-            </div>
-            <div className="flex-1 min-w-[250px]">
-              <label className="block mb-2 font-medium text-gray-700">
-                Booking URL:
-              </label>
-              <input
-                type="text"
-                placeholder={initialBusiness.cta.bookUrl}
-                value={formData.subcategories[0].businesses[0].cta.bookUrl}
-                onChange={(e) =>
-                  updateFormData(
-                    "subcategories.0.businesses.0.cta.bookUrl",
-                    e.target.value
-                  )
-                }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
-              />
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[250px]">
-              <label className="block mb-2 font-medium text-gray-700">
-                Get Directions URL:
-              </label>
-              <input
-                type="url"
-                placeholder={initialBusiness.cta.getDirections}
-                value={formData.subcategories[0].businesses[0].cta.getDirections}
-                onChange={(e) =>
-                  updateFormData(
-                    "subcategories.0.businesses.0.cta.getDirections",
-                    e.target.value
-                  )
-                }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="mb-6 pb-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold mb-4 text-gray-700">FAQs</h3>
-          <div className="mb-4">
-            {formData.subcategories[0].businesses[0].faqs.map((faq, index) => (
-              <div
-                key={index}
-                className="mb-4 p-3 border border-gray-200 rounded-md bg-white"
+      
+<div className="mb-6 pb-6 border-b border-gray-200">
+  <h3 className="text-lg font-semibold mb-4 text-gray-700">Gallery</h3>
+  <div className="mb-4">
+    {formData.subcategories[0].businesses[0].gallery.length > 0 ? (
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+        {formData.subcategories[0].businesses[0].gallery.map((image, index) => (
+          <div key={index} className="relative group">
+            <img
+              src={image}
+              alt={`Gallery image ${index + 1}`}
+              className="w-full h-32 object-cover rounded-md border border-gray-200"
+            />
+            <button
+              type="button"
+              onClick={() =>
+                removeArrayItem("subcategories.0.businesses.0.gallery", index)
+              }
+              className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+              aria-label={`Remove image ${index + 1}`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                viewBox="0 0 20 20"
+                fill="currentColor"
               >
-                <div className="mb-3">
-                  <label className="block mb-2 font-medium text-gray-700">
-                    Question:
-                  </label>
-                  <input
-                    type="text"
-                    placeholder={
-                      initialBusiness.faqs[index]?.question || "Enter question"
-                    }
-                    value={faq.question}
-                    onChange={(e) =>
-                      handleArrayChange(
-                        "subcategories.0.businesses.0.faqs",
-                        index,
-                        "question",
-                        e.target.value
-                      )
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-2 font-medium text-gray-700">
-                    Answer:
-                  </label>
-                  <textarea
-                    placeholder={
-                      initialBusiness.faqs[index]?.answer || "Enter answer"
-                    }
-                    value={faq.answer}
-                    onChange={(e) =>
-                      handleArrayChange(
-                        "subcategories.0.businesses.0.faqs",
-                        index,
-                        "answer",
-                        e.target.value
-                      )
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm h-24"
-                  />
-                </div>
-                {formData.subcategories[0].businesses[0].faqs.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      removeArrayItem("subcategories.0.businesses.0.faqs", index)
-                    }
-                    className="mt-2 text-red-500 text-sm hover:text-red-700"
-                  >
-                    Remove FAQ
-                  </button>
-                )}
-              </div>
-            ))}
+                <path
+                  fillRule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
           </div>
+        ))}
+      </div>
+    ) : (
+      <p className="text-gray-500 mb-4">No images uploaded yet</p>
+    )}
+    <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
+      <label className="cursor-pointer">
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          className="hidden"
+        />
+        <div className="flex flex-col items-center justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-12 w-12 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
+          </svg>
+          <p className="mt-2 text-sm text-gray-600">
+            Drag and drop images here, or click to browse
+          </p>
+          <p className="text-xs text-gray-500">Supports JPG, PNG up to 5MB</p>
+        </div>
+      </label>
+    </div>
+  </div>
+</div>
+
+
+<div className="mb-6 pb-6 border-b border-gray-200">
+  <h3 className="text-lg font-semibold mb-4 text-gray-700">Call to Action</h3>
+  <div className="flex flex-wrap gap-4 mb-4">
+    <div className="flex-1 min-w-[250px]">
+      <label
+        htmlFor="country-code"
+        className="block mb-2 font-medium text-gray-700"
+      >
+        Country Code:
+      </label>
+      <div className="flex">
+        <select
+          id="country-code"
+          value={callCountryCode}
+          onChange={(e) => setCallCountryCode(e.target.value)}
+          className="w-24 p-2 border border-gray-300 rounded-l-md text-sm"
+        >
+          {countryCodes.map((country) => (
+            <option key={country.code} value={country.code}>
+              {country.code} ({country.country})
+            </option>
+          ))}
+        </select>
+        <input
+          type="tel"
+          placeholder={initialBusiness.cta.call.replace("+1-", "")}
+          value={formData.subcategories[0].businesses[0].cta.call.replace(
+            `${callCountryCode}-`,
+            ""
+          )}
+          onChange={(e) =>
+            updateFormData(
+              "subcategories.0.businesses.0.cta.call",
+              `${callCountryCode}-${e.target.value}`
+            )
+          }
+          className="flex-1 p-2 border border-gray-300 rounded-r-md text-sm"
+        />
+      </div>
+    </div>
+    <div className="flex-1 min-w-[250px]">
+      <label
+        htmlFor="booking-url"
+        className="block mb-2 font-medium text-gray-700"
+      >
+        Booking URL:
+      </label>
+      <input
+        id="booking-url"
+        type="text"
+        placeholder={initialBusiness.cta.bookUrl}
+        value={formData.subcategories[0].businesses[0].cta.bookUrl}
+        onChange={(e) =>
+          updateFormData(
+            "subcategories.0.businesses.0.cta.bookUrl",
+            e.target.value
+          )
+        }
+        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+      />
+    </div>
+  </div>
+  <div className="flex flex-wrap gap-4">
+    <div className="flex-1 min-w-[250px]">
+      <label
+        htmlFor="directions-url"
+        className="block mb-2 font-medium text-gray-700"
+      >
+        Get Directions URL:
+      </label>
+      <input
+        id="directions-url"
+        type="url"
+        placeholder={initialBusiness.cta.getDirections}
+        value={formData.subcategories[0].businesses[0].cta.getDirections}
+        onChange={(e) =>
+          updateFormData(
+            "subcategories.0.businesses.0.cta.getDirections",
+            e.target.value
+          )
+        }
+        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+      />
+    </div>
+  </div>
+</div>
+
+
+<div className="mb-6 pb-6 border-b border-gray-200">
+  <h3 className="text-lg font-semibold mb-4 text-gray-700">FAQs</h3>
+  <div className="mb-4">
+    {formData.subcategories[0].businesses[0].faqs.map((faq, index) => (
+      <div
+        key={index}
+        className="mb-4 p-3 border border-gray-400 rounded-md bg-white"
+      >
+        <div className="mb-3">
+          <label
+            htmlFor={`faq-question-${index}`}
+            className="block mb-2 font-medium text-gray-700"
+          >
+            Question:
+          </label>
+          <input
+            id={`faq-question-${index}`}
+            type="text"
+            placeholder={
+              initialBusiness.faqs[index]?.question || "Enter question"
+            }
+            value={faq.question}
+            onChange={(e) =>
+              handleArrayChange(
+                "subcategories.0.businesses.0.faqs",
+                index,
+                "question",
+                e.target.value
+              )
+            }
+            className="w-full p-2 border border-gray-300 rounded-md text-sm"
+          />
+        </div>
+        <div>
+          <label
+            htmlFor={`faq-answer-${index}`}
+            className="block mb-2 font-medium text-gray-700"
+          >
+            Answer:
+          </label>
+          <textarea
+            id={`faq-answer-${index}`}
+            placeholder={
+              initialBusiness.faqs[index]?.answer || "Enter answer"
+            }
+            value={faq.answer}
+            onChange={(e) =>
+              handleArrayChange(
+                "subcategories.0.businesses.0.faqs",
+                index,
+                "answer",
+                e.target.value
+              )
+            }
+            className="w-full p-2 border border-gray-300 rounded-md text-sm h-24"
+          />
+        </div>
+        {formData.subcategories[0].businesses[0].faqs.length > 1 && (
           <button
             type="button"
             onClick={() =>
-              addArrayItem("subcategories.0.businesses.0.faqs", {
-                question: "",
-                answer: "",
-              })
+              removeArrayItem("subcategories.0.businesses.0.faqs", index)
             }
-            className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600 transition"
+            className="mt-2 text-red-800 text-sm hover:text-red-900"
           >
-            + Add FAQ
+            Remove FAQ
           </button>
-        </div>
-
+        )}
+      </div>
+    ))}
+  </div>
+  <button
+    type="button"
+    onClick={() =>
+      addArrayItem("subcategories.0.businesses.0.faqs", {
+        question: "",
+        answer: "",
+      })
+    }
+    className="bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700 transition"
+  >
+    + Add FAQ
+  </button>
+</div>
         
       
 
