@@ -53,14 +53,15 @@ export default function Stepper() {
     const circleClasses = clsx(
       "z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-medium bg-white cursor-pointer",
       {
-        "border-green-600 text-green-600": isCompleted,
+        "border-green-700 text-green-700": isCompleted, // Improved contrast
         "border-blue-600 text-blue-600": isCurrent,
-        "border-gray-300 text-gray-400": !isCompleted && !isCurrent,
+        "border-gray-300 text-gray-400": !isCompleted && !isCompleted,
       }
     );
 
     return (
       <div
+        id={`step-${index}`} // ID for label association
         className={circleClasses}
         role="button"
         tabIndex={0}
@@ -80,29 +81,33 @@ export default function Stepper() {
     const labelClasses = clsx(
       "mt-1 px-1 text-xs text-center max-w-[100px] flex items-center gap-1",
       {
-        "text-green-600 font-medium": isCompleted,
+        "text-green-700 font-medium": isCompleted, // Improved contrast
         "text-blue-600 font-medium": isCurrent,
         "text-gray-600": !isCompleted && !isCurrent,
       }
     );
 
     return (
-      <div className={labelClasses}>
+      <label
+        htmlFor={`step-${index}`} // Associate with circle
+        className={labelClasses}
+        title={steps[index].label} // Full text for screen readers
+      >
         <span className="truncate">{steps[index].label}</span>
         {isCompleted && (
           <span
-            className="ml-1 flex h-6 w-6 items-center justify-center rounded-full bg-green-600 text-white flex-shrink-0"
+            className="ml-1 flex h-6 w-6 items-center justify-center rounded-full bg-green-700 text-white flex-shrink-0"
             aria-hidden="true"
           >
             <BadgeCheck size={14} strokeWidth={2} />
           </span>
         )}
-      </div>
+      </label>
     );
   };
 
   return (
-    <>
+    <nav aria-label="Stepper navigation">
       {/* Mobile View */}
       <div className="flex w-full flex-col items-center px-2 py-6 sm:hidden">
         <motion.p
@@ -155,7 +160,7 @@ export default function Stepper() {
               key={index}
               className={clsx(
                 "h-2.5 w-2.5 rounded-full",
-                index <= currentStep ? "bg-green-600" : "bg-gray-300"
+                index <= currentStep ? "bg-green-700" : "bg-gray-300"
               )}
             />
           ))}
@@ -189,6 +194,6 @@ export default function Stepper() {
           ))}
         </div>
       </div>
-    </>
+    </nav>
   );
 }
