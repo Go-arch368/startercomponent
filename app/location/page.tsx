@@ -42,7 +42,7 @@ const Location = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-5">
-      <form onSubmit={handleSubmit} className="bg-gray-50 rounded-lg shadow-sm p-6">
+      <form onSubmit={handleSubmit}  data-testid="location-form" className="bg-gray-50 rounded-lg shadow-sm p-6">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Business Location</h2>
 
      
@@ -50,17 +50,16 @@ const Location = () => {
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Location</h3>
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex-1 min-w-[250px]">
-              <label className="block mb-2 font-medium text-gray-700">Address:</label>
-              <input
-                type="text"
-                placeholder={initialBusiness.location.address} 
-                value={formData.subcategories[0].businesses[0].location.address}
-                onChange={(e) =>
-                  updateFormData("subcategories.0.businesses.0.location.address", e.target.value)
-                }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                required
-              />
+            <label htmlFor="address" className="block mb-2 font-medium text-gray-700">
+  Address:
+</label>
+<input
+  id="address"
+  type="text"
+  placeholder={initialBusiness.location.address}
+  className="w-full p-2 border border-gray-300 rounded-md text-sm"
+  required
+/>
             </div>
             <div className="flex-1 min-w-[250px]">
               <label className="block mb-2 font-medium text-gray-700">City:</label>
