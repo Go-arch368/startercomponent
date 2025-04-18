@@ -22,10 +22,11 @@ const config: Config = {
   },
   collectCoverage: true,
   preset: 'ts-jest', // Enable coverage collection
-  // collectCoverageFrom: [
-  //   'app/**/*.{ts,tsx}', // Collect coverage for all files in the app folder (adjust as needed)
-  //   '!app/**/*.test.{ts,tsx}', // Exclude test files from coverage
-  // ],
+  collectCoverageFrom: [
+    'app/**/*.{ts,tsx}',
+    'components/**/*.{ts,tsx}', // Collect coverage for all files in the app folder (adjust as needed)
+    '!app/**/*.test.{ts,tsx}', // Exclude test files from coverage
+  ],
   // coverageDirectory: '<rootDir>/coverage', // Specify where coverage reports should be output
   // coverageThreshold: {
   //   global: {
