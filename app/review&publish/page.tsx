@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import { Button } from "@heroui/button";
 import businessData from "@/data/businessData.json";
 
@@ -30,6 +31,7 @@ const GalleryFAQsAndCTA = () => {
     ],
   });
   const [callCountryCode, setCallCountryCode] = useState(countryCodes[0].code);
+  const [isPublishing, setIsPublishing] = useState(false);
 
   const initialBusiness = businessData.subcategories[0].businesses[0];
 
@@ -100,16 +102,19 @@ const GalleryFAQsAndCTA = () => {
     reader.readAsDataURL(file);
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
+    setIsPublishing(true);
+    
     const welcomeData = JSON.parse(localStorage.getItem("welcome") || "{}");
 
     const business = businessData.subcategories[0].businesses[0];
     if (!business.services || !Array.isArray(business.services)) {
       console.error("Services is not an array");
+      setIsPublishing(false);
       return;
     }
 
-    const combinedData = {
+    const postData = {
       welcome: {
         category: welcomeData.category || "",
         subcategory: welcomeData.subcategory || "",
@@ -129,10 +134,29 @@ const GalleryFAQsAndCTA = () => {
       cta: { ...formData.subcategories[0].businesses[0].cta },
     };
 
-    const jsonData = JSON.stringify(combinedData, null, 2);
-    console.log("Published Business Data:", jsonData);
-    alert("Published Business Data:\n" + jsonData);
-    router.push("/review&publish");
+    try {
+      const response = await axios.post(
+        "https://jsonplaceholder.typicode.com/posts",
+        postData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("API Response:", response.data);
+      alert(
+        "Business published successfully!\nAPI Response:\n" +
+          JSON.stringify(response.data, null, 2)
+      );
+      router.push("/review&publish");
+    } catch (error) {
+      console.error("Error publishing business:", error);
+      alert("Failed to publish business. Please try again.");
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   return (
@@ -408,8 +432,9 @@ const GalleryFAQsAndCTA = () => {
             color="primary"
             onClick={handlePublish}
             type="button"
+            disabled={isPublishing}
           >
-            Publish
+            {isPublishing ? "Publishing..." : "Publish"}
           </Button>
         </div>
       </form>

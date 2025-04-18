@@ -2,8 +2,6 @@
   "name": "next-app-template",
   "version": "0.0.1",
   "private": true,
- 
-
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -11,7 +9,7 @@
     "lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix",
     "test": "jest",
     "test:watch": "jest --watch",
-    "sonar":"sonar-scanner"
+    "sonar": "sonar-scanner"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -28,6 +26,7 @@
     "@heroui/theme": "2.4.13",
     "@react-aria/ssr": "3.9.7",
     "@react-aria/visually-hidden": "3.8.21",
+    "axios": "^1.8.4",
     "clsx": "2.1.1",
     "framer-motion": "11.13.1",
     "history": "^5.3.0",
