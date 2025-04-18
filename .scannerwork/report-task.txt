@@ -2,5 +2,5 @@ projectKey=startercomponent
 serverUrl=http://localhost:9000
 serverVersion=25.3.0.104237
 dashboardUrl=http://localhost:9000/dashboard?id=startercomponent
-ceTaskId=121ecae5-64e2-44e4-922e-1b210d6846d6
-ceTaskUrl=http://localhost:9000/api/ce/task?id=121ecae5-64e2-44e4-922e-1b210d6846d6
+ceTaskId=ec6ddcd8-3263-414b-9349-a2a8ff210ce4
+ceTaskUrl=http://localhost:9000/api/ce/task?id=ec6ddcd8-3263-414b-9349-a2a8ff210ce4

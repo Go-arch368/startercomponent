@@ -24,7 +24,7 @@ const steps = [
 
 export default function Stepper() {
   const pathname = usePathname();
-  const currentStep = steps.findIndex((step) => step.path === pathname);
+  const currentStep = steps.findIndex((step) => step.path === pathname) === -1 ? 0 : steps.findIndex((step) => step.path === pathname);
   const router = useRouter();
 
   const getVisibleSteps = () => {
@@ -53,15 +53,15 @@ export default function Stepper() {
     const circleClasses = clsx(
       "z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-medium bg-white cursor-pointer",
       {
-        "border-green-700 text-green-700": isCompleted, // Improved contrast
+        "border-green-700 text-green-700": isCompleted,
         "border-blue-600 text-blue-600": isCurrent,
-        "border-gray-300 text-gray-400": !isCompleted && !isCompleted,
+        "border-gray-300 text-gray-400": !isCompleted && !isCurrent,
       }
     );
 
     return (
       <div
-        id={`step-${index}`} // ID for label association
+        id={`step-${index}`}
         className={circleClasses}
         role="button"
         tabIndex={0}
@@ -81,7 +81,7 @@ export default function Stepper() {
     const labelClasses = clsx(
       "mt-1 px-1 text-xs text-center max-w-[100px] flex items-center gap-1",
       {
-        "text-green-700 font-medium": isCompleted, // Improved contrast
+        "text-green-700 font-medium": isCompleted,
         "text-blue-600 font-medium": isCurrent,
         "text-gray-600": !isCompleted && !isCurrent,
       }
@@ -89,9 +89,9 @@ export default function Stepper() {
 
     return (
       <label
-        htmlFor={`step-${index}`} // Associate with circle
+        htmlFor={`step-${index}`}
         className={labelClasses}
-        title={steps[index].label} // Full text for screen readers
+        title={steps[index].label}
       >
         <span className="truncate">{steps[index].label}</span>
         {isCompleted && (
@@ -109,7 +109,10 @@ export default function Stepper() {
   return (
     <nav aria-label="Stepper navigation">
       {/* Mobile View */}
-      <div className="flex w-full flex-col items-center px-2 py-6 sm:hidden">
+      <div
+        className="flex w-full flex-col items-center px-2 py-6 sm:hidden"
+        data-testid="mobile-stepper"
+      >
         <motion.p
           key={currentStep}
           animate={{ opacity: 1, y: 0 }}
@@ -158,6 +161,7 @@ export default function Stepper() {
           {steps.map((_, index) => (
             <div
               key={index}
+              role="presentation"
               className={clsx(
                 "h-2.5 w-2.5 rounded-full",
                 index <= currentStep ? "bg-green-700" : "bg-gray-300"
@@ -168,7 +172,10 @@ export default function Stepper() {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden w-full flex-col items-center px-4 py-6 sm:flex">
+      <div
+        className="hidden w-full flex-col items-center px-4 py-6 sm:flex"
+        data-testid="desktop-stepper"
+      >
         <p className="mb-4 text-sm font-medium text-gray-700">
           Step {currentStep + 1} of {steps.length}
         </p>
