@@ -111,16 +111,11 @@ const ContactAndTimings = () => {
     );
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const jsonData = JSON.stringify(formData, null, 2);
-    console.log("Submitted Contact and Timings Data:", jsonData);
-    alert("Submitted Contact and Timings Data:\n" + jsonData);
-  };
+  
 
   return (
     <div className="max-w-4xl mx-auto p-5">
-      <form onSubmit={handleSubmit} className="bg-gray-50 rounded-lg shadow-sm p-6" aria-describedby="form-instructions">
+      <form className="bg-gray-50 rounded-lg shadow-sm p-6" aria-describedby="form-instructions">
         <p id="form-instructions" className="sr-only">
           Complete the contact information, call to action, and business hours. Check the "Closed" box for any day the business is closed, which will disable the time inputs for that day.
         </p>

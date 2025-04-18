@@ -73,16 +73,15 @@ const Services = () => {
     updateFormData("subcategories.0.businesses.0.services", services);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const jsonData = JSON.stringify(formData, null, 2);
-    console.log("Submitted Services Data:", jsonData);
-    alert("Submitted Services Data:\n" + jsonData);
-  };
-
+  
   return (
     <div className="max-w-4xl mx-auto p-5">
-      <form onSubmit={handleSubmit} className="bg-gray-50 rounded-lg shadow-sm p-6" aria-describedby="form-instructions">
+    <form 
+ 
+  className="bg-gray-50 rounded-lg shadow-sm p-6" 
+  aria-describedby="form-instructions"
+  data-testid="services-form" 
+>
         <p id="form-instructions" className="sr-only">
           Enter service details including name and price. Add or remove services as needed. Use the buttons to navigate.
         </p>

@@ -34,17 +34,12 @@ export default function BusinessInformation() {
     setFormData(newData);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const jsonData = JSON.stringify(formData, null, 2);
-    console.log("Submitted Business Information:", jsonData);
-    alert("Submitted Business Information:\n" + jsonData);
-  };
+  
 
   return (
     <main role="main" className="max-w-4xl mx-auto p-5">
   <form 
-  onSubmit={handleSubmit} 
+ 
   className="bg-gray-50 rounded-lg shadow-sm p-6"
   data-testid="business-form"
 >

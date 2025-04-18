@@ -33,16 +33,11 @@ const Location = () => {
     setFormData(newData);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const jsonData = JSON.stringify(formData, null, 2);
-    console.log("Submitted Location Data:", jsonData);
-    alert("Submitted Location Data:\n" + jsonData);
-  };
+ 
 
   return (
     <div className="max-w-4xl mx-auto p-5">
-      <form onSubmit={handleSubmit}  data-testid="location-form" className="bg-gray-50 rounded-lg shadow-sm p-6">
+      <form  data-testid="location-form" className="bg-gray-50 rounded-lg shadow-sm p-6">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Business Location</h2>
 
      
