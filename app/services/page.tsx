@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/button";
 import businessData from "@/data/businessData.json";
@@ -24,20 +24,31 @@ const currencyCodes = [
 
 const Services = () => {
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    subcategories: [
-      {
-        businesses: [
-          {
-            services: businessData.subcategories[0].businesses[0].services.map((service) => ({
-              name: service.name,
-              price: service.price || "USD $50",
-            })),
-          },
-        ],
-      },
-    ],
+  const [formData, setFormData] = useState(() => {
+    // Load persisted formData from localStorage
+    const savedData = localStorage.getItem("servicesFormData");
+    return savedData
+      ? JSON.parse(savedData)
+      : {
+          subcategories: [
+            {
+              businesses: [
+                {
+                  services: businessData.subcategories[0].businesses[0].services.map((service) => ({
+                    name: service.name,
+                    price: service.price || "USD $50",
+                  })),
+                },
+              ],
+            },
+          ],
+        };
   });
+
+  // Save formData to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("servicesFormData", JSON.stringify(formData));
+  }, [formData]);
 
   const initialBusiness = businessData.subcategories[0].businesses[0];
 
@@ -73,15 +84,20 @@ const Services = () => {
     updateFormData("subcategories.0.businesses.0.services", services);
   };
 
-  
+  const handleNext = () => {
+    // Save to localStorage explicitly (optional, as useEffect handles it)
+    localStorage.setItem("servicesFormData", JSON.stringify(formData));
+    // Navigate to the next page
+    router.push("/review&publish");
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-5">
-    <form 
- 
-  className="bg-gray-50 rounded-lg shadow-sm p-6" 
-  aria-describedby="form-instructions"
-  data-testid="services-form" 
->
+      <form
+        className="bg-gray-50 rounded-lg shadow-sm p-6"
+        aria-describedby="form-instructions"
+        data-testid="services-form"
+      >
         <p id="form-instructions" className="sr-only">
           Enter service details including name and price. Add or remove services as needed. Use the buttons to navigate.
         </p>
@@ -91,35 +107,41 @@ const Services = () => {
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Services</h3>
           <div className="mb-4">
-            {formData.subcategories[0].businesses[0].services.map((service, index) => (
+            {formData.subcategories[0].businesses[0].services.map((service, index: number) => (
               <div
                 key={index}
                 className="mb-4 p-3 border border-gray-500 rounded-md bg-white"
               >
                 <div className="flex flex-wrap gap-4 mb-3">
                   <div className="flex-1 min-w-[250px]">
-                    <label htmlFor={`service-name-${index}`} className="block mb-2 font-medium text-gray-900">
+                    <label
+                      htmlFor={`service-name-${index}`}
+                      className="block mb-2 font-medium text-gray-900"
+                    >
                       Service Name:
                     </label>
                     <input
                       type="text"
                       id={`service-name-${index}`}
                       placeholder={initialBusiness.services[index]?.name || "Enter service name"}
-                      value={service.name}
+                      value={service.name || ""}
                       onChange={(e) => handleServiceChange(index, "name", e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                      className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
                       required
                     />
                   </div>
                   <div className="flex-1 min-w-[150px]">
-                    <label htmlFor={`service-price-${index}`} className="block mb-2 font-medium text-gray-900">
+                    <label
+                      htmlFor={`service-price-${index}`}
+                      className="block mb-2 font-medium text-gray-900"
+                    >
                       Price:
                     </label>
                     <select
                       id={`service-price-${index}`}
-                      value={service.price}
+                      value={service.price || "USD $50"}
                       onChange={(e) => handleServiceChange(index, "price", e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                      className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
                     >
                       {currencyCodes.map((currency) => (
                         <option key={currency.code} value={currency.code}>
@@ -133,7 +155,8 @@ const Services = () => {
                   <button
                     type="button"
                     onClick={() => removeService(index)}
-                    className="mt-2 text-red-700 text-sm hover:text-red-900 focus:outline focus:outline-2 focus:outline-red-700"
+                    className="mt-2 text-red-700 text-sm hover:text-red-900 focus:ring-2 focus:ring-red-700"
+                    aria-label={`Remove service ${index + 1}`}
                   >
                     Remove Service
                   </button>
@@ -144,7 +167,8 @@ const Services = () => {
           <button
             type="button"
             onClick={addService}
-            className="bg-green-700 text-white px-4 py-2 rounded-md text-sm hover:bg-green-800 transition focus:outline focus:outline-2 focus:outline-green-700"
+            className="bg-green-700 text-white px-4 py-2 rounded-md text-sm hover:bg-green-800 transition focus:ring-2 focus:ring-green-700"
+            aria-label="Add new service"
           >
             + Add Service
           </button>
@@ -152,16 +176,16 @@ const Services = () => {
 
         <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
           <Button
-            className="w-full sm:w-auto border border-gray-300 bg-white text-gray-900"
+            className="w-full sm:w-auto border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
             onClick={() => router.push("/contact&timings")}
             type="button"
           >
             Back
           </Button>
           <Button
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto focus:ring-2 focus:ring-blue-500"
             color="primary"
-            onClick={() => router.push("/review&publish")}
+            onClick={handleNext}
             type="button"
           >
             Next

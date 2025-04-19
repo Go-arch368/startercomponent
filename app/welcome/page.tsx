@@ -1,22 +1,34 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/button";
 import categoryandsubcategory from "@/data/category and subcategory.json";
 
 export default function Welcome() {
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(() => {
+    // Load persisted category from localStorage
+    return localStorage.getItem("welcomeCategory") || "";
+  });
+  const [selectedSubcategory, setSelectedSubcategory] = useState(() => {
+    // Load persisted subcategory from localStorage
+    return localStorage.getItem("welcomeSubcategory") || "";
+  });
+
+  // Save to localStorage whenever selections change
+  useEffect(() => {
+    localStorage.setItem("welcomeCategory", selectedCategory);
+    localStorage.setItem("welcomeSubcategory", selectedSubcategory);
+  }, [selectedCategory, selectedSubcategory]);
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const category = e.target.value;
     setSelectedCategory(category);
-    setSelectedSubcategory("");
+    setSelectedSubcategory(""); // Reset subcategory when category changes
   };
 
   const handleSubcategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const subcategory = e.target.value;
+      const subcategory = e.target.value;
     setSelectedSubcategory(subcategory);
   };
 
@@ -24,6 +36,14 @@ export default function Welcome() {
     if (!selectedCategory) return [];
     const categoryObj = categoryandsubcategory.find((cat) => cat.category === selectedCategory);
     return categoryObj ? categoryObj.subcategories : [];
+  };
+
+  const handleNext = () => {
+    // Save to localStorage explicitly (optional, as useEffect handles it)
+    localStorage.setItem("welcomeCategory", selectedCategory);
+    localStorage.setItem("welcomeSubcategory", selectedSubcategory);
+    // Navigate to the next page
+    router.push("/business-info");
   };
 
   return (
@@ -41,10 +61,10 @@ export default function Welcome() {
                 Category:
               </label>
               <select
-                id="category-select" // Added id
+                id="category-select"
                 value={selectedCategory}
                 onChange={handleCategoryChange}
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
                 required
               >
                 <option value="">Select a category</option>
@@ -63,10 +83,10 @@ export default function Welcome() {
                 Subcategory:
               </label>
               <select
-                id="subcategory-select" // Added id
+                id="subcategory-select"
                 value={selectedSubcategory}
                 onChange={handleSubcategoryChange}
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
                 required
                 disabled={!selectedCategory}
               >
@@ -82,9 +102,9 @@ export default function Welcome() {
         </div>
         <div className="flex justify-center">
           <Button
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto focus:ring-2 focus:ring-blue-500"
             color="primary"
-            onClick={() => router.push("/business-info")}
+            onClick={handleNext}
           >
             Next
           </Button>

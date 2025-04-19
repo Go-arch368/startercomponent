@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/button";
 import { ClockIcon } from "@heroicons/react/24/outline";
@@ -15,29 +15,53 @@ const countryCodes = [
 
 const ContactAndTimings = () => {
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    subcategories: [
-      {
-        businesses: [
-          {
-            contact: { ...businessData.subcategories[0].businesses[0].contact },
-            timings: { ...businessData.subcategories[0].businesses[0].timings },
-            cta: { ...businessData.subcategories[0].businesses[0].cta },
-          },
-        ],
-      },
-    ],
+  const [formData, setFormData] = useState(() => {
+    // Load persisted formData from localStorage
+    const savedData = localStorage.getItem("contactAndTimingsFormData");
+    return savedData
+      ? JSON.parse(savedData)
+      : {
+          subcategories: [
+            {
+              businesses: [
+                {
+                  contact: { ...businessData.subcategories[0].businesses[0].contact },
+                  timings: { ...businessData.subcategories[0].businesses[0].timings },
+                  cta: { ...businessData.subcategories[0].businesses[0].cta },
+                },
+              ],
+            },
+          ],
+        };
   });
-  const [phoneCountryCode, setPhoneCountryCode] = useState(countryCodes[0].code);
-  const [callCountryCode, setCallCountryCode] = useState(countryCodes[0].code);
-  const [closedDays, setClosedDays] = useState(
-    Object.fromEntries(
-      Object.entries(businessData.subcategories[0].businesses[0].timings).map(([day, hours]) => [
-        day,
-        hours === "Closed",
-      ])
-    )
-  );
+  const [phoneCountryCode, setPhoneCountryCode] = useState(() => {
+    // Load persisted phoneCountryCode
+    return localStorage.getItem("phoneCountryCode") || countryCodes[0].code;
+  });
+  const [callCountryCode, setCallCountryCode] = useState(() => {
+    // Load persisted callCountryCode
+    return localStorage.getItem("callCountryCode") || countryCodes[0].code;
+  });
+  const [closedDays, setClosedDays] = useState(() => {
+    // Load persisted closedDays
+    const savedClosedDays = localStorage.getItem("closedDays");
+    return savedClosedDays
+      ? JSON.parse(savedClosedDays)
+      : Object.fromEntries(
+          Object.entries(businessData.subcategories[0].businesses[0].timings).map(([day, hours]) => [
+            day,
+            hours === "Closed",
+          ])
+        );
+  });
+
+  // Save to localStorage whenever states change
+  useEffect(() => {
+    localStorage.setItem("contactAndTimingsFormData", JSON.stringify(formData));
+    localStorage.setItem("phoneCountryCode", phoneCountryCode);
+    localStorage.setItem("callCountryCode", callCountryCode);
+    localStorage.setItem("closedDays", JSON.stringify(closedDays));
+  }, [formData, phoneCountryCode, callCountryCode, closedDays]);
 
   const initialBusiness = businessData.subcategories[0].businesses[0];
 
@@ -52,7 +76,7 @@ const ContactAndTimings = () => {
     setFormData(newData);
   };
 
-  const formatTime = (time: string) => {
+  const formatTime = (time: string | undefined) => {
     if (!time) return "";
     const [hours, minutes] = time.split(":");
     const hour = parseInt(hours, 10);
@@ -61,7 +85,7 @@ const ContactAndTimings = () => {
     return `${formattedHour}:${minutes} ${ampm}`;
   };
 
-  const parseTimeTo24Hour = (time: string) => {
+  const parseTimeTo24Hour = (time: string | undefined) => {
     if (!time || time === "Closed" || !time.includes(" ")) return "";
     try {
       const match = time.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
@@ -77,7 +101,7 @@ const ContactAndTimings = () => {
     }
   };
 
-  const getTimeValues = (timeString: string) => {
+  const getTimeValues = (timeString: string | undefined) => {
     if (!timeString || timeString === "Closed") {
       return { open: "09:00", close: "17:00" };
     }
@@ -104,18 +128,30 @@ const ContactAndTimings = () => {
   };
 
   const handleClosedChange = (day: string) => {
-    setClosedDays((prev) => ({ ...prev, [day]: !prev[day] }));
+    setClosedDays((prev: Record<string, boolean>) => ({ ...prev, [day]: !prev[day] }));
     updateFormData(
       `subcategories.0.businesses.0.timings.${day}`,
       !closedDays[day] ? "Closed" : "09:00 AM - 06:00 PM"
     );
   };
 
-  
+  const handleNext = () => {
+    // Save to localStorage explicitly (optional, as useEffect handles it)
+    localStorage.setItem("contactAndTimingsFormData", JSON.stringify(formData));
+    localStorage.setItem("phoneCountryCode", phoneCountryCode);
+    localStorage.setItem("callCountryCode", callCountryCode);
+    localStorage.setItem("closedDays", JSON.stringify(closedDays));
+    // Navigate to the next page
+    router.push("/services");
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-5">
-      <form className="bg-gray-50 rounded-lg shadow-sm p-6" aria-describedby="form-instructions">
+      <form
+        className="bg-gray-50 rounded-lg shadow-sm p-6"
+        aria-describedby="form-instructions"
+        data-testid="contact-timings-form"
+      >
         <p id="form-instructions" className="sr-only">
           Complete the contact information, call to action, and business hours. Check the "Closed" box for any day the business is closed, which will disable the time inputs for that day.
         </p>
@@ -137,7 +173,7 @@ const ContactAndTimings = () => {
                   id="phone-code"
                   value={phoneCountryCode}
                   onChange={(e) => setPhoneCountryCode(e.target.value)}
-                  className="w-24 p-2 border border-gray-300 rounded-l-md text-sm"
+                  className="w-24 p-2 border border-gray-300 rounded-l-md text-sm focus:ring-2 focus:ring-blue-500"
                   aria-label="Country code"
                 >
                   {countryCodes.map((country) => (
@@ -150,14 +186,17 @@ const ContactAndTimings = () => {
                   type="tel"
                   id="phone-number"
                   placeholder={initialBusiness.contact.phone.replace("+1-", "")}
-                  value={formData.subcategories[0].businesses[0].contact.phone.replace(`${phoneCountryCode}-`, "")}
+                  value={formData.subcategories[0].businesses[0].contact.phone.replace(
+                    `${phoneCountryCode}-`,
+                    ""
+                  )}
                   onChange={(e) =>
                     updateFormData(
                       "subcategories.0.businesses.0.contact.phone",
                       `${phoneCountryCode}-${e.target.value}`
                     )
                   }
-                  className="flex-1 p-2 border border-gray-300 rounded-r-md text-sm"
+                  className="flex-1 p-2 border border-gray-300 rounded-r-md text-sm focus:ring-2 focus:ring-blue-500"
                   required
                   aria-label="Phone number"
                 />
@@ -171,11 +210,11 @@ const ContactAndTimings = () => {
                 type="email"
                 id="email"
                 placeholder={initialBusiness.contact.email}
-                value={formData.subcategories[0].businesses[0].contact.email}
+                value={formData.subcategories[0].businesses[0].contact.email || ""}
                 onChange={(e) =>
                   updateFormData("subcategories.0.businesses.0.contact.email", e.target.value)
                 }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
@@ -189,11 +228,11 @@ const ContactAndTimings = () => {
                 type="url"
                 id="website"
                 placeholder={initialBusiness.contact.website}
-                value={formData.subcategories[0].businesses[0].contact.website}
+                value={formData.subcategories[0].businesses[0].contact.website || ""}
                 onChange={(e) =>
                   updateFormData("subcategories.0.businesses.0.contact.website", e.target.value)
                 }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -215,7 +254,7 @@ const ContactAndTimings = () => {
                   id="call-code"
                   value={callCountryCode}
                   onChange={(e) => setCallCountryCode(e.target.value)}
-                  className="w-24 p-2 border border-gray-300 rounded-l-md text-sm"
+                  className="w-24 p-2 border border-gray-300 rounded-l-md text-sm focus:ring-2 focus:ring-blue-500"
                   aria-label="Country code"
                 >
                   {countryCodes.map((country) => (
@@ -228,14 +267,17 @@ const ContactAndTimings = () => {
                   type="tel"
                   id="call-number"
                   placeholder={initialBusiness.cta.call.replace("+1-", "")}
-                  value={formData.subcategories[0].businesses[0].cta.call.replace(`${callCountryCode}-`, "")}
+                  value={formData.subcategories[0].businesses[0].cta.call.replace(
+                    `${callCountryCode}-`,
+                    ""
+                  )}
                   onChange={(e) =>
                     updateFormData(
                       "subcategories.0.businesses.0.cta.call",
                       `${callCountryCode}-${e.target.value}`
                     )
                   }
-                  className="flex-1 p-2 border border-gray-300 rounded-r-md text-sm"
+                  className="flex-1 p-2 border border-gray-300 rounded-r-md text-sm focus:ring-2 focus:ring-blue-500"
                   aria-label="Call number"
                 />
               </div>
@@ -248,11 +290,11 @@ const ContactAndTimings = () => {
                 type="text"
                 id="book-url"
                 placeholder={initialBusiness.cta.bookUrl}
-                value={formData.subcategories[0].businesses[0].cta.bookUrl}
+                value={formData.subcategories[0].businesses[0].cta.bookUrl || ""}
                 onChange={(e) =>
                   updateFormData("subcategories.0.businesses.0.cta.bookUrl", e.target.value)
                 }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -265,11 +307,11 @@ const ContactAndTimings = () => {
                 type="url"
                 id="directions-url"
                 placeholder={initialBusiness.cta.getDirections}
-                value={formData.subcategories[0].businesses[0].cta.getDirections}
+                value={formData.subcategories[0].businesses[0].cta.getDirections || ""}
                 onChange={(e) =>
                   updateFormData("subcategories.0.businesses.0.cta.getDirections", e.target.value)
                 }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -295,7 +337,7 @@ const ContactAndTimings = () => {
                           id={`closed-${day}`}
                           checked={closedDays[day]}
                           onChange={() => handleClosedChange(day)}
-                          className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:outline focus:outline-2 focus:outline-blue-600"
+                          className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                         />
                         <label htmlFor={`closed-${day}`} className="text-sm text-gray-600">
                           Closed
@@ -316,7 +358,7 @@ const ContactAndTimings = () => {
                               id={`open-${day}`}
                               value={open}
                               onChange={(e) => handleTimeChange(day, "open", e.target.value)}
-                              className="w-full pl-8 p-2 border border-gray-300 rounded-md text-sm focus:outline focus:outline-2 focus:outline-blue-600"
+                              className="w-full pl-8 p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
                               disabled={closedDays[day]}
                               aria-describedby={closedDays[day] ? `closed-desc-${day}` : undefined}
                             />
@@ -339,7 +381,7 @@ const ContactAndTimings = () => {
                               id={`close-${day}`}
                               value={close}
                               onChange={(e) => handleTimeChange(day, "close", e.target.value)}
-                              className="w-full pl-8 p-2 border border-gray-300 rounded-md text-sm focus:outline focus:outline-2 focus:outline-blue-600"
+                              className="w-full pl-8 p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
                               disabled={closedDays[day]}
                               aria-describedby={closedDays[day] ? `closed-desc-${day}` : undefined}
                             />
@@ -356,16 +398,16 @@ const ContactAndTimings = () => {
 
         <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
           <Button
-            className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700"
+            className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700 focus:ring-2 focus:ring-blue-500"
             onClick={() => router.push("/location")}
             type="button"
           >
             Back
           </Button>
           <Button
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto focus:ring-2 focus:ring-blue-500"
             color="primary"
-            onClick={() => router.push("/services")}
+            onClick={handleNext}
             type="button"
           >
             Next
