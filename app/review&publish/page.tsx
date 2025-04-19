@@ -135,15 +135,8 @@ const GalleryFAQsAndCTA = () => {
     };
 
     try {
-      const response = await axios.post(
-        "https://jsonplaceholder.typicode.com/posts",
-        postData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axios.post("http://localhost:4000/businesses", postData);
+
 
       console.log("API Response:", response.data);
       alert(
