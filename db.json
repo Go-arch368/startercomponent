@@ -1,4 +1,868 @@
 {
-    "businesses": []
-  }
-  
+  "businesses": [
+    {
+      "id": "e8cd",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com",
+        "timings": {
+          "monday": "09:00 AM - 06:00 PM",
+          "tuesday": "09:00 AM - 06:00 PM",
+          "wednesday": "09:00 AM - 06:00 PM",
+          "thursday": "09:00 AM - 06:00 PM",
+          "friday": "09:00 AM - 06:00 PM",
+          "saturday": "10:00 AM - 04:00 PM",
+          "sunday": "Closed"
+        }
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        },
+        {
+          "question": "Do you accept bookings?",
+          "answer": "Yes, bookings can be made through our website."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "b527",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com",
+        "timings": {
+          "monday": "09:00 AM - 06:00 PM",
+          "tuesday": "09:00 AM - 06:00 PM",
+          "wednesday": "09:00 AM - 06:00 PM",
+          "thursday": "09:00 AM - 06:00 PM",
+          "friday": "09:00 AM - 06:00 PM",
+          "saturday": "10:00 AM - 04:00 PM",
+          "sunday": "Closed"
+        }
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        },
+        {
+          "question": "Do you accept bookings?",
+          "answer": "Yes, bookings can be made through our website."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "34ab",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com",
+        "timings": {
+          "monday": "09:00 AM - 06:00 PM",
+          "tuesday": "09:00 AM - 06:00 PM",
+          "wednesday": "09:00 AM - 06:00 PM",
+          "thursday": "09:00 AM - 06:00 PM",
+          "friday": "09:00 AM - 06:00 PM",
+          "saturday": "10:00 AM - 04:00 PM",
+          "sunday": "Closed"
+        }
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        },
+        {
+          "question": "Do you accept bookings?",
+          "answer": "Yes, bookings can be made through our website."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "53a5",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com",
+        "timings": {
+          "monday": "09:00 AM - 06:00 PM",
+          "tuesday": "09:00 AM - 06:00 PM",
+          "wednesday": "09:00 AM - 06:00 PM",
+          "thursday": "09:00 AM - 06:00 PM",
+          "friday": "09:00 AM - 06:00 PM",
+          "saturday": "10:00 AM - 04:00 PM",
+          "sunday": "Closed"
+        }
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        },
+        {
+          "question": "Do you accept bookings?",
+          "answer": "Yes, bookings can be made through our website."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "57c2",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "",
+        "description": ""
+      },
+      "location": {},
+      "contact": {},
+      "services": [],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      },
+      "timings": {}
+    },
+    {
+      "id": "9dd2",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "",
+        "description": ""
+      },
+      "location": {},
+      "contact": {},
+      "services": [],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      },
+      "timings": {}
+    },
+    {
+      "id": "49a7",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "",
+        "description": ""
+      },
+      "location": {},
+      "contact": {},
+      "services": [],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      },
+      "timings": {}
+    },
+    {
+      "id": "aed7",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "",
+        "description": ""
+      },
+      "location": {},
+      "contact": {},
+      "services": [],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      },
+      "timings": {}
+    },
+    {
+      "id": "bff0",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "",
+        "description": ""
+      },
+      "location": {},
+      "contact": {},
+      "services": [],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      },
+      "timings": {}
+    },
+    {
+      "id": "8bbf",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "",
+        "description": ""
+      },
+      "location": {},
+      "contact": {},
+      "services": [],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      },
+      "timings": {}
+    },
+    {
+      "id": "9aaf",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "",
+        "description": ""
+      },
+      "location": {},
+      "contact": {},
+      "services": [],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      },
+      "timings": {}
+    },
+    {
+      "id": "3d4a",
+      "welcome": {
+        "category": "Sports & Recreation",
+        "subcategory": "Parks"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com",
+        "timings": {
+          "monday": "09:00 AM - 06:00 PM",
+          "tuesday": "09:00 AM - 06:00 PM",
+          "wednesday": "09:00 AM - 06:00 PM",
+          "thursday": "09:00 AM - 06:00 PM",
+          "friday": "09:00 AM - 06:00 PM",
+          "saturday": "10:00 AM - 04:00 PM",
+          "sunday": "Closed"
+        }
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "c997",
+      "welcome": {
+        "category": "Sports & Recreation",
+        "subcategory": "Parks"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com",
+        "timings": {
+          "monday": "09:00 AM - 06:00 PM",
+          "tuesday": "09:00 AM - 06:00 PM",
+          "wednesday": "09:00 AM - 06:00 PM",
+          "thursday": "09:00 AM - 06:00 PM",
+          "friday": "09:00 AM - 06:00 PM",
+          "saturday": "10:00 AM - 04:00 PM",
+          "sunday": "Closed"
+        }
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "b446",
+      "welcome": {
+        "category": "Sports & Recreation",
+        "subcategory": "Parks"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com",
+        "timings": {
+          "monday": "09:00 AM - 06:00 PM",
+          "tuesday": "09:00 AM - 06:00 PM",
+          "wednesday": "09:00 AM - 06:00 PM",
+          "thursday": "09:00 AM - 06:00 PM",
+          "friday": "09:00 AM - 06:00 PM",
+          "saturday": "10:00 AM - 04:00 PM",
+          "sunday": "Closed"
+        }
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "7c6c",
+      "welcome": {
+        "category": "Sports & Recreation",
+        "subcategory": "Parks"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com",
+        "timings": {
+          "monday": "09:00 AM - 06:00 PM",
+          "tuesday": "09:00 AM - 06:00 PM",
+          "wednesday": "09:00 AM - 06:00 PM",
+          "thursday": "09:00 AM - 06:00 PM",
+          "friday": "09:00 AM - 06:00 PM",
+          "saturday": "10:00 AM - 04:00 PM",
+          "sunday": "Closed"
+        }
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "3d04",
+      "welcome": {
+        "category": "Sports & Recreation",
+        "subcategory": "Parks"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com",
+        "timings": {
+          "monday": "09:00 AM - 06:00 PM",
+          "tuesday": "09:00 AM - 06:00 PM",
+          "wednesday": "09:00 AM - 06:00 PM",
+          "thursday": "09:00 AM - 06:00 PM",
+          "friday": "09:00 AM - 06:00 PM",
+          "saturday": "10:00 AM - 04:00 PM",
+          "sunday": "Closed"
+        }
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "b33d",
+      "welcome": {
+        "category": "Sports & Recreation",
+        "subcategory": "Parks"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com",
+        "timings": {
+          "monday": "09:00 AM - 06:00 PM",
+          "tuesday": "09:00 AM - 06:00 PM",
+          "wednesday": "09:00 AM - 06:00 PM",
+          "thursday": "09:00 AM - 06:00 PM",
+          "friday": "09:00 AM - 06:00 PM",
+          "saturday": "10:00 AM - 04:00 PM",
+          "sunday": "Closed"
+        }
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "ef68",
+      "welcome": {
+        "category": "Sports & Recreation",
+        "subcategory": "Parks"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com",
+        "timings": {
+          "monday": "09:00 AM - 06:00 PM",
+          "tuesday": "09:00 AM - 06:00 PM",
+          "wednesday": "09:00 AM - 06:00 PM",
+          "thursday": "09:00 AM - 06:00 PM",
+          "friday": "09:00 AM - 06:00 PM",
+          "saturday": "10:00 AM - 04:00 PM",
+          "sunday": "Closed"
+        }
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "gallery": [
+        "https://images.unsplash.com/photo-1741513543210-c17d608be117?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1741648711665-e1a8003b7891?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      ],
+      "faqs": [
+        {
+          "question": "What services are included?",
+          "answer": "We offer a wide range of services including consultations and repairs."
+        }
+      ],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    }
+  ]
+}

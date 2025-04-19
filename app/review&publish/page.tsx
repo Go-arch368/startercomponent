@@ -1,10 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Button } from "@heroui/button";
 import businessData from "@/data/businessData.json";
-
+import categoryandsubcategory from "@/data/category and subcategory.json";
 const countryCodes = [
   { code: "+1", country: "US" },
   { code: "+44", country: "UK" },
@@ -13,16 +13,24 @@ const countryCodes = [
   { code: "+86", country: "China" },
 ];
 
+const FORM_DATA_KEY = "galleryFaqsCtaFormData";
+const BUSINESS_DATA_KEY = "businessData";
+
 const GalleryFAQsAndCTA = () => {
   const router = useRouter();
+  const [initialized, setInitialized] = useState(false);
   const [formData, setFormData] = useState({
     subcategories: [
       {
         businesses: [
           {
-            gallery: [...businessData.subcategories[0].businesses[0].gallery],
-            faqs: [...businessData.subcategories[0].businesses[0].faqs],
-            cta: { ...businessData.subcategories[0].businesses[0].cta },
+            gallery: [] as string[],
+            faqs: [] as { question: string; answer: string }[],
+            cta: {
+              call: "",
+              bookUrl: "",
+              getDirections: "",
+            },
             services: [],
             timings: {},
           },
@@ -34,6 +42,38 @@ const GalleryFAQsAndCTA = () => {
   const [isPublishing, setIsPublishing] = useState(false);
 
   const initialBusiness = businessData.subcategories[0].businesses[0];
+
+  useEffect(() => {
+    if (initialized) return;
+
+    const savedFormData = localStorage.getItem(FORM_DATA_KEY);
+    if (savedFormData) {
+      setFormData(JSON.parse(savedFormData));
+    } else {
+      setFormData({
+        subcategories: [
+          {
+            businesses: [
+              {
+                gallery: [...initialBusiness.gallery],
+                faqs: [...initialBusiness.faqs],
+                cta: { ...initialBusiness.cta },
+                services: [],
+                timings: {},
+              },
+            ],
+          },
+        ],
+      });
+    }
+    setInitialized(true);
+  }, [initialized]);
+
+  useEffect(() => {
+    if (initialized) {
+      localStorage.setItem(FORM_DATA_KEY, JSON.stringify(formData));
+    }
+  }, [formData, initialized]);
 
   const updateFormData = (path: string, value: any) => {
     const keys = path.split(".");
@@ -48,12 +88,7 @@ const GalleryFAQsAndCTA = () => {
     setFormData(newData);
   };
 
-  const handleArrayChange = (
-    arrayPath: string,
-    index: number,
-    field: string,
-    value: any
-  ) => {
+  const handleArrayChange = (arrayPath: string, index: number, field: string, value: any) => {
     const newData = JSON.parse(JSON.stringify(formData));
     const keys = arrayPath.split(".");
     let current = newData;
@@ -104,17 +139,18 @@ const GalleryFAQsAndCTA = () => {
 
   const handlePublish = async () => {
     setIsPublishing(true);
-    
-    const welcomeData = JSON.parse(localStorage.getItem("welcome") || "{}");
 
+    const welcomeData = JSON.parse(localStorage.getItem("welcome") || "{}");
     const business = businessData.subcategories[0].businesses[0];
+    
     if (!business.services || !Array.isArray(business.services)) {
       console.error("Services is not an array");
       setIsPublishing(false);
       return;
     }
 
-    const postData = {
+    // Create complete business data object
+    const completeBusinessData = {
       welcome: {
         category: welcomeData.category || "",
         subcategory: welcomeData.subcategory || "",
@@ -135,14 +171,21 @@ const GalleryFAQsAndCTA = () => {
     };
 
     try {
-      const response = await axios.post("http://localhost:4000/businesses", postData);
-
+      // Store complete data in localStorage before API call
+      localStorage.setItem(BUSINESS_DATA_KEY, JSON.stringify(completeBusinessData));
+      
+      const response = await axios.post("http://localhost:4000/businesses", completeBusinessData);
 
       console.log("API Response:", response.data);
+      
+      // Store API response in localStorage
+      localStorage.setItem("apiResponse", JSON.stringify(response.data));
+      
       alert(
         "Business published successfully!\nAPI Response:\n" +
           JSON.stringify(response.data, null, 2)
       );
+      
       router.push("/review&publish");
     } catch (error) {
       console.error("Error publishing business:", error);
