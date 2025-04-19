@@ -2,103 +2,128 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/button";
+import { Pencil } from "lucide-react";
 import businessData from "@/data/businessData.json";
 
 export default function BusinessInformation() {
   const router = useRouter();
-  const [formData, setFormData] = useState(() => {
-    // Load persisted data from localStorage or use default
-    const savedData = localStorage.getItem("businessFormData");
-    return savedData
-      ? JSON.parse(savedData)
-      : {
-          subcategories: [
-            {
-              businesses: [
-                {
-                  businessName: businessData.subcategories[0].businesses[0].businessName,
-                  description: businessData.subcategories[0].businesses[0].description,
-                },
-              ],
-            },
-          ],
-        };
+  const [hasLocalData, setHasLocalData] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    businessName: "",
+    description: ""
   });
 
-  const initialBusiness = businessData.subcategories[0].businesses[0];
-
-  // Save formData to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("businessFormData", JSON.stringify(formData));
-  }, [formData]);
+    const apiResponse = localStorage.getItem("apiResponse");
+    const businessFormData = localStorage.getItem("businessFormData");
 
-  const updateFormData = (path: string, value: any) => {
-    const keys = path.split(".");
-    const newData = JSON.parse(JSON.stringify(formData));
-
-    let current = newData;
-    for (let i = 0; i < keys.length - 1; i++) {
-      current = current[keys[i]];
+    if (apiResponse || businessFormData) {
+      setHasLocalData(true);
+      try {
+        const savedData = apiResponse 
+          ? JSON.parse(apiResponse).business 
+          : JSON.parse(businessFormData || "{}").subcategories[0].businesses[0];
+        
+        setFormData({
+          businessName: savedData.businessName || businessData.subcategories[0].businesses[0].businessName,
+          description: savedData.description || businessData.subcategories[0].businesses[0].description
+        });
+      } catch (error) {
+        console.error("Error parsing saved data:", error);
+        setFormData(businessData.subcategories[0].businesses[0]);
+      }
+    } else {
+      setFormData(businessData.subcategories[0].businesses[0]);
     }
-    current[keys[keys.length - 1]] = value;
+  }, []);
 
-    setFormData(newData);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleNext = () => {
-    // Save to localStorage explicitly (optional, as useEffect already handles it)
-    localStorage.setItem("businessFormData", JSON.stringify(formData));
-    // Navigate to the next page
+    if (!hasLocalData || isEditing) {
+      const dataToSave = {
+        subcategories: [{
+          businesses: [{
+            businessName: formData.businessName,
+            description: formData.description
+          }]
+        }]
+      };
+      localStorage.setItem("businessFormData", JSON.stringify(dataToSave));
+      setHasLocalData(true);
+      setIsEditing(false);
+    }
     router.push("/location");
+  };
+
+  const toggleEdit = () => {
+    setIsEditing(!isEditing);
   };
 
   return (
     <main role="main" className="max-w-4xl mx-auto p-5">
-      <form className="bg-gray-50 rounded-lg shadow-sm p-6" data-testid="business-form">
+      <div className="bg-gray-50 rounded-lg shadow-sm p-6">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Business Information</h2>
 
-        {/* Basic Information */}
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Basic Information</h3>
+          
+          {/* Business Name Field */}
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex-1 min-w-[250px]">
-              <label
-                htmlFor="business-name"
-                className="block mb-2 font-medium text-gray-700 text-base"
-              >
+              <label className="block mb-2 font-medium text-gray-700">
                 Business Name:
               </label>
-              <input
-                id="business-name"
-                type="text"
-                placeholder={initialBusiness.businessName}
-                value={formData.subcategories[0].businesses[0].businessName || ""}
-                onChange={(e) =>
-                  updateFormData("subcategories.0.businesses.0.businessName", e.target.value)
-                }
-                className="w-full p-2 border border-gray-300 rounded-md text-base focus:ring-2 focus:ring-blue-500"
-                required
-              />
+              <div className="relative">
+                <input
+                  name="businessName"
+                  type="text"
+                  value={formData.businessName}
+                  onChange={handleInputChange}
+                  className="w-full p-2 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  disabled={hasLocalData && !isEditing}
+                />
+                {hasLocalData && !isEditing && (
+                  <button 
+                    onClick={toggleEdit}
+                    className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                    aria-label="Edit business name"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
+
+          {/* Description Field */}
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[250px]">
-              <label
-                htmlFor="description"
-                className="block mb-2 font-medium text-gray-700 text-base"
-              >
+              <label className="block mb-2 font-medium text-gray-700">
                 Description:
               </label>
-              <textarea
-                id="description"
-                placeholder={initialBusiness.description}
-                value={formData.subcategories[0].businesses[0].description || ""}
-                onChange={(e) =>
-                  updateFormData("subcategories.0.businesses.0.description", e.target.value)
-                }
-                className="w-full p-2 border border-gray-300 rounded-md text-base h-24 focus:ring-2 focus:ring-blue-500"
-                required
-              />
+              <div className="relative">
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className="w-full p-2 pr-10 border border-gray-300 rounded-md h-24 focus:ring-2 focus:ring-blue-500"
+                  disabled={hasLocalData && !isEditing}
+                />
+                {hasLocalData && !isEditing && (
+                  <button 
+                    onClick={toggleEdit}
+                    className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                    aria-label="Edit description"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -115,10 +140,10 @@ export default function BusinessInformation() {
             color="primary"
             onClick={handleNext}
           >
-            Next
+            {isEditing ? "Save & Next" : "Next"}
           </Button>
         </div>
-      </form>
+      </div>
     </main>
   );
 }

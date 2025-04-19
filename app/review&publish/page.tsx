@@ -84,7 +84,7 @@ const GalleryFAQsAndCTA = () => {
 
   const initialBusiness = businessData.subcategories[0].businesses[0];
 
-  // Load initial data and merge from previous steps
+
   useEffect(() => {
     if (initialized) return;
 

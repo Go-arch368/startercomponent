@@ -2,62 +2,107 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/button";
+import { Pencil } from "lucide-react";
 import businessData from "@/data/businessData.json";
 
 const Location = () => {
   const router = useRouter();
-  const [formData, setFormData] = useState(() => {
-    // Load persisted data from localStorage or use default
-    const savedData = localStorage.getItem("locationFormData");
-    return savedData
-      ? JSON.parse(savedData)
-      : {
-          subcategories: [
-            {
-              businesses: [
-                {
-                  location: { ...businessData.subcategories[0].businesses[0].location },
-                },
-              ],
-            },
-          ],
-        };
+  const [hasLocalData, setHasLocalData] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    location: {
+      address: "",
+      city: "",
+      state: "",
+      postalCode: ""
+    }
   });
 
-  const initialBusiness = businessData.subcategories[0].businesses[0];
-
-  // Save formData to localStorage whenever it changes
+  // Check for existing data on component mount
   useEffect(() => {
-    localStorage.setItem("locationFormData", JSON.stringify(formData));
-  }, [formData]);
+    const apiResponse = localStorage.getItem("apiResponse");
+    const locationFormData = localStorage.getItem("locationFormData");
 
-  const updateFormData = (path: string, value: string | number | boolean) => {
-    const keys = path.split(".");
-    const newData = JSON.parse(JSON.stringify(formData));
-
-    let current = newData;
-    for (let i = 0; i < keys.length - 1; i++) {
-      current = current[keys[i]];
+    if (apiResponse || locationFormData) {
+      setHasLocalData(true);
+      try {
+        const savedData = apiResponse 
+          ? JSON.parse(apiResponse).location 
+          : JSON.parse(locationFormData || "{}").subcategories[0].businesses[0].location;
+        
+        setFormData({
+          location: {
+            address: savedData.address || businessData.subcategories[0].businesses[0].location.address,
+            city: savedData.city || businessData.subcategories[0].businesses[0].location.city,
+            state: savedData.state || businessData.subcategories[0].businesses[0].location.state,
+            postalCode: savedData.postalCode || businessData.subcategories[0].businesses[0].location.postalCode
+          }
+        });
+      } catch (error) {
+        console.error("Error parsing saved data:", error);
+        setFormData({
+          location: businessData.subcategories[0].businesses[0].location
+        });
+      }
+    } else {
+      setFormData({
+        location: businessData.subcategories[0].businesses[0].location
+      });
     }
-    current[keys[keys.length - 1]] = value;
+  }, []);
 
-    setFormData(newData);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      location: {
+        ...prev.location,
+        [name]: value
+      }
+    }));
   };
 
   const handleNext = () => {
-    // Save to localStorage explicitly (optional, as useEffect handles it)
-    localStorage.setItem("locationFormData", JSON.stringify(formData));
-    // Navigate to the next page
+    if (!hasLocalData || isEditing) {
+      const dataToSave = {
+        subcategories: [{
+          businesses: [{
+            location: formData.location
+          }]
+        }]
+      };
+      localStorage.setItem("locationFormData", JSON.stringify(dataToSave));
+      setHasLocalData(true);
+      setIsEditing(false);
+    }
     router.push("/contact&timings");
+  };
+
+  const toggleEdit = () => {
+    setIsEditing(!isEditing);
   };
 
   return (
     <div className="max-w-4xl mx-auto p-5">
-      <form data-testid="location-form" className="bg-gray-50 rounded-lg shadow-sm p-6">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Business Location</h2>
+      <div className="bg-gray-50 rounded-lg shadow-sm p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Business Location</h2>
+          {hasLocalData && !isEditing && (
+            <button 
+              onClick={toggleEdit}
+              className="text-gray-500 hover:text-gray-700 flex items-center gap-1"
+              aria-label="Edit location"
+            >
+              <Pencil className="w-4 h-4" />
+              <span>Edit</span>
+            </button>
+          )}
+        </div>
 
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Location</h3>
+          
+          {/* Address Field */}
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex-1 min-w-[250px]">
               <label htmlFor="address" className="block mb-2 font-medium text-gray-700">
@@ -65,73 +110,58 @@ const Location = () => {
               </label>
               <input
                 id="address"
+                name="address"
                 type="text"
-                placeholder={initialBusiness.location.address}
-                value={formData.subcategories[0].businesses[0].location.address || ""}
-                onChange={(e) =>
-                  updateFormData("subcategories.0.businesses.0.location.address", e.target.value)
-                }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
-                required
+                value={formData.location.address}
+                onChange={handleInputChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                disabled={hasLocalData && !isEditing}
               />
             </div>
             <div className="flex-1 min-w-[250px]">
-              <label
-                htmlFor="city"
-                className="block mb-2 font-medium text-gray-700"
-              >
+              <label htmlFor="city" className="block mb-2 font-medium text-gray-700">
                 City:
               </label>
               <input
                 id="city"
+                name="city"
                 type="text"
-                placeholder={initialBusiness.location.city}
-                value={formData.subcategories[0].businesses[0].location.city || ""}
-                onChange={(e) =>
-                  updateFormData("subcategories.0.businesses.0.location.city", e.target.value)
-                }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
-                required
+                value={formData.location.city}
+                onChange={handleInputChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                disabled={hasLocalData && !isEditing}
               />
             </div>
           </div>
+
+          {/* State and Postal Code Fields */}
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[250px]">
-              <label
-                htmlFor="state"
-                className="block mb-2 font-medium text-gray-700"
-              >
+              <label htmlFor="state" className="block mb-2 font-medium text-gray-700">
                 State:
               </label>
               <input
                 id="state"
+                name="state"
                 type="text"
-                placeholder={initialBusiness.location.state}
-                value={formData.subcategories[0].businesses[0].location.state || ""}
-                onChange={(e) =>
-                  updateFormData("subcategories.0.businesses.0.location.state", e.target.value)
-                }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
-                required
+                value={formData.location.state}
+                onChange={handleInputChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                disabled={hasLocalData && !isEditing}
               />
             </div>
             <div className="flex-1 min-w-[250px]">
-              <label
-                htmlFor="postalCode"
-                className="block mb-2 font-medium text-gray-700"
-              >
+              <label htmlFor="postalCode" className="block mb-2 font-medium text-gray-700">
                 Postal Code:
               </label>
               <input
                 id="postalCode"
+                name="postalCode"
                 type="text"
-                placeholder={initialBusiness.location.postalCode}
-                value={formData.subcategories[0].businesses[0].location.postalCode || ""}
-                onChange={(e) =>
-                  updateFormData("subcategories.0.businesses.0.location.postalCode", e.target.value)
-                }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
-                required
+                value={formData.location.postalCode}
+                onChange={handleInputChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                disabled={hasLocalData && !isEditing}
               />
             </div>
           </div>
@@ -149,10 +179,10 @@ const Location = () => {
             color="primary"
             onClick={handleNext}
           >
-            Next
+            {isEditing ? "Save & Next" : "Next"}
           </Button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };
