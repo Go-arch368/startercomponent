@@ -7,8 +7,8 @@ import businessData from "@/data/businessData.json";
 
 export default function BusinessInformation() {
   const router = useRouter();
-  const [isEditing, setIsEditing] = useState(false);
   const [hasLocalData, setHasLocalData] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [formData, setFormData] = useState({
     businessName: "",
@@ -34,7 +34,7 @@ export default function BusinessInformation() {
         console.error("Error parsing apiResponse:", error);
       }
     } else if (apiResponse === '""' || businessFormData) {
-      // Empty apiResponse or businessFormData: use businessFormData and set read-only
+      // Empty apiResponse or businessFormData: use businessFormData and set read-only for empty apiResponse
       try {
         dataSource = businessFormData
           ? JSON.parse(businessFormData).subcategories?.[0]?.businesses?.[0] || {}
@@ -79,17 +79,29 @@ export default function BusinessInformation() {
     router.push("/location");
   };
 
-  const toggleEdit = () => setIsEditing(true);
+  const toggleEdit = () => setIsEditing(!isEditing);
 
   return (
     <main className="max-w-4xl mx-auto p-5">
       <div className="bg-gray-50 rounded-lg shadow-sm p-6">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Business Information</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Business Information</h2>
+          {(hasLocalData || isReadOnly) && !isEditing && (
+            <button
+              onClick={toggleEdit}
+              className="text-gray-500 hover:text-gray-700 flex items-center gap-1"
+              aria-label="Edit business information"
+            >
+              <Pencil className="w-4 h-4" />
+              <span>Edit</span>
+            </button>
+          )}
+        </div>
 
         {/* Read-Only Indicator */}
         {isReadOnly && (
           <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
-            This form is in read-only mode because the data has been published or is empty. Click the pencil icon to edit.
+            This form is in read-only mode because the data has been published or is empty. Click the edit button to modify.
           </div>
         )}
 
@@ -105,18 +117,9 @@ export default function BusinessInformation() {
                 type="text"
                 value={formData.businessName}
                 onChange={handleInputChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                 disabled={(hasLocalData || isReadOnly) && !isEditing}
-                className="w-full p-2 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
               />
-              {(hasLocalData || isReadOnly) && !isEditing && (
-                <button
-                  onClick={toggleEdit}
-                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-                  aria-label="Edit business name"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-              )}
             </div>
           </div>
 
@@ -128,18 +131,9 @@ export default function BusinessInformation() {
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
+                className="w-full p-2 border border-gray-300 rounded-md h-24 focus:ring-2 focus:ring-blue-500"
                 disabled={(hasLocalData || isReadOnly) && !isEditing}
-                className="w-full p-2 pr-10 border border-gray-300 rounded-md h-24 focus:ring-2 focus:ring-blue-500"
               />
-              {(hasLocalData || isReadOnly) && !isEditing && (
-                <button
-                  onClick={toggleEdit}
-                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-                  aria-label="Edit description"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-              )}
             </div>
           </div>
         </div>

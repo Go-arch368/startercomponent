@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -17,8 +16,7 @@ const countryCodes = [
 
 const ContactAndTimings = () => {
   const router = useRouter();
-  const [hasApiResponse, setHasApiResponse] = useState(false);
-  const [isReadOnly, setIsReadOnly] = useState(false);
+  const [hasPublishedData, setHasPublishedData] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(() => {
     const initialBusiness = businessData.subcategories[0].businesses[0];
@@ -52,6 +50,10 @@ const ContactAndTimings = () => {
     const savedCallCountryCode = localStorage.getItem("callCountryCode");
     const savedClosedDays = localStorage.getItem("closedDays");
 
+    // Check if we have published data (apiResponse exists and is not empty)
+    const publishedDataExists = apiResponse && apiResponse !== '""';
+    setHasPublishedData(!!publishedDataExists);
+
     let dataSource: {
       contact?: { phone?: string; email?: string; website?: string };
       timings?: Record<string, string>;
@@ -66,8 +68,8 @@ const ContactAndTimings = () => {
       ])
     );
 
-    if (apiResponse && apiResponse !== '""') {
-      // Non-empty apiResponse: use published data and set read-only
+    if (publishedDataExists) {
+      // Use published data from apiResponse
       try {
         const parsed = JSON.parse(apiResponse);
         if (parsed.contact && parsed.timings && parsed.cta) {
@@ -76,8 +78,6 @@ const ContactAndTimings = () => {
             timings: parsed.timings,
             cta: parsed.cta,
           };
-          setHasApiResponse(true);
-          setIsReadOnly(true);
           // Extract phone country code
           const phone = parsed.contact?.phone;
           if (phone) {
@@ -98,14 +98,10 @@ const ContactAndTimings = () => {
       } catch (error) {
         console.error("Error parsing apiResponse:", error);
       }
-    } else if (apiResponse === '""' || contactAndTimingsFormData) {
-      // Empty apiResponse or form data: use form data and set read-only for empty apiResponse
+    } else if (contactAndTimingsFormData) {
+      // Use draft data from form data
       try {
-        dataSource = contactAndTimingsFormData
-          ? JSON.parse(contactAndTimingsFormData).subcategories?.[0]?.businesses?.[0] || {}
-          : {};
-        setHasApiResponse(true);
-        setIsReadOnly(apiResponse === '""');
+        dataSource = JSON.parse(contactAndTimingsFormData).subcategories?.[0]?.businesses?.[0] || {};
         // Use saved country codes and closed days
         phoneCode = savedPhoneCountryCode || countryCodes[0].code;
         callCode = savedCallCountryCode || countryCodes[0].code;
@@ -153,20 +149,11 @@ const ContactAndTimings = () => {
     setClosedDays(closedDaysData);
   }, []);
 
-  // Save to localStorage when editing
-  useEffect(() => {
-    if (hasApiResponse && !isEditing) return;
-
-    localStorage.setItem("contactAndTimingsFormData", JSON.stringify(formData));
-    localStorage.setItem("phoneCountryCode", phoneCountryCode);
-    localStorage.setItem("callCountryCode", callCountryCode);
-    localStorage.setItem("closedDays", JSON.stringify(closedDays));
-  }, [formData, phoneCountryCode, callCountryCode, closedDays, hasApiResponse, isEditing]);
-
-  const initialBusiness = businessData.subcategories[0].businesses[0];
+  // Determine if fields should be readonly
+  const isReadOnly = hasPublishedData && !isEditing;
 
   const updateFormData = (path: string, value: any) => {
-    if (hasApiResponse && !isEditing) return; // Allow edits only in edit mode
+    if (isReadOnly) return; // Don't allow edits in readonly mode
 
     const keys = path.split(".");
     const newData = JSON.parse(JSON.stringify(formData));
@@ -220,7 +207,7 @@ const ContactAndTimings = () => {
   };
 
   const handleTimeChange = (day: string, type: string, value: string) => {
-    if ((hasApiResponse && !isEditing) || closedDays[day]) return;
+    if (isReadOnly || closedDays[day]) return;
 
     const timings = { ...formData.subcategories[0].businesses[0].timings };
     const { open, close } = getTimeValues(timings[day as keyof typeof timings]);
@@ -231,7 +218,7 @@ const ContactAndTimings = () => {
   };
 
   const handleClosedChange = (day: string) => {
-    if (hasApiResponse && !isEditing) return;
+    if (isReadOnly) return;
 
     setClosedDays((prev: Record<string, boolean>) => ({ ...prev, [day]: !prev[day] }));
     updateFormData(
@@ -241,13 +228,12 @@ const ContactAndTimings = () => {
   };
 
   const handleNext = () => {
-    if (!hasApiResponse || isEditing) {
+    if (!hasPublishedData || isEditing) {
       // Save to localStorage explicitly
       localStorage.setItem("contactAndTimingsFormData", JSON.stringify(formData));
       localStorage.setItem("phoneCountryCode", phoneCountryCode);
       localStorage.setItem("callCountryCode", callCountryCode);
       localStorage.setItem("closedDays", JSON.stringify(closedDays));
-      setIsEditing(false);
     }
     router.push("/services");
   };
@@ -280,6 +266,7 @@ const ContactAndTimings = () => {
         placeholder={placeholder}
         className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
         required={required}
+        readOnly={isReadOnly}
       />
     </div>
   );
@@ -292,14 +279,14 @@ const ContactAndTimings = () => {
         data-testid="contact-timings-form"
       >
         <p id="form-instructions" className="sr-only">
-          {(hasApiResponse || isReadOnly) && !isEditing
+          {isReadOnly
             ? "Viewing contact information and business hours"
             : "Complete the contact information, call to action, and business hours"}
         </p>
 
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Contact and Timings</h2>
-          {(hasApiResponse || isReadOnly) && !isEditing && (
+          {isReadOnly && (
             <button
               onClick={toggleEdit}
               className="text-gray-500 hover:text-gray-700 flex items-center gap-1"
@@ -314,7 +301,13 @@ const ContactAndTimings = () => {
         {/* Read-Only Indicator */}
         {isReadOnly && (
           <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
-            This form is in read-only mode because the data has been published or is empty. Click the edit button to modify.
+            This form is in read-only mode because the data has been published.
+            <button 
+              onClick={toggleEdit}
+              className="ml-2 text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Click here to edit
+            </button>
           </div>
         )}
 
@@ -322,7 +315,7 @@ const ContactAndTimings = () => {
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Contact Information</h3>
 
-          {(hasApiResponse || isReadOnly) && !isEditing ? (
+          {isReadOnly ? (
             <>
               {renderReadOnlyField(
                 formData.subcategories[0].businesses[0].contact.phone,
@@ -349,7 +342,7 @@ const ContactAndTimings = () => {
                     onChange={(e) => setPhoneCountryCode(e.target.value)}
                     className="w-24 p-2 border border-gray-300 rounded-l-md text-sm focus:ring-2 focus:ring-blue-500"
                     aria-label="Country code"
-                    disabled={(hasApiResponse || isReadOnly) && !isEditing}
+                    disabled={isReadOnly}
                   >
                     {countryCodes.map((country) => (
                       <option key={country.code} value={country.code}>
@@ -359,7 +352,7 @@ const ContactAndTimings = () => {
                   </select>
                   <input
                     type="tel"
-                    placeholder={initialBusiness.contact.phone.replace("+1-", "")}
+                    placeholder={businessData.subcategories[0].businesses[0].contact.phone.replace("+1-", "")}
                     value={formData.subcategories[0].businesses[0].contact.phone.replace(
                       `${phoneCountryCode}-`,
                       ""
@@ -373,7 +366,7 @@ const ContactAndTimings = () => {
                     className="flex-1 p-2 border border-gray-300 rounded-r-md text-sm focus:ring-2 focus:ring-blue-500"
                     required
                     aria-label="Phone number"
-                    disabled={(hasApiResponse || isReadOnly) && !isEditing}
+                    readOnly={isReadOnly}
                   />
                 </div>
               </div>
@@ -381,27 +374,27 @@ const ContactAndTimings = () => {
                 <label className="block mb-2 font-medium text-gray-700">Email:</label>
                 <input
                   type="email"
-                  placeholder={initialBusiness.contact.email}
+                  placeholder={businessData.subcategories[0].businesses[0].contact.email}
                   value={formData.subcategories[0].businesses[0].contact.email || ""}
                   onChange={(e) =>
                     updateFormData("subcategories.0.businesses.0.contact.email", e.target.value)
                   }
                   className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
                   required
-                  disabled={(hasApiResponse || isReadOnly) && !isEditing}
+                  readOnly={isReadOnly}
                 />
               </div>
               <div className="flex-1 min-w-[250px]">
                 <label className="block mb-2 font-medium text-gray-700">Website:</label>
                 <input
                   type="url"
-                  placeholder={initialBusiness.contact.website}
+                  placeholder={businessData.subcategories[0].businesses[0].contact.website}
                   value={formData.subcategories[0].businesses[0].contact.website || ""}
                   onChange={(e) =>
                     updateFormData("subcategories.0.businesses.0.contact.website", e.target.value)
                   }
                   className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
-                  disabled={(hasApiResponse || isReadOnly) && !isEditing}
+                  readOnly={isReadOnly}
                 />
               </div>
             </div>
@@ -412,7 +405,7 @@ const ContactAndTimings = () => {
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Call to Action</h3>
 
-          {(hasApiResponse || isReadOnly) && !isEditing ? (
+          {isReadOnly ? (
             <>
               {renderReadOnlyField(
                 formData.subcategories[0].businesses[0].cta.call,
@@ -439,7 +432,7 @@ const ContactAndTimings = () => {
                     onChange={(e) => setCallCountryCode(e.target.value)}
                     className="w-24 p-2 border border-gray-300 rounded-l-md text-sm focus:ring-2 focus:ring-blue-500"
                     aria-label="Country code"
-                    disabled={(hasApiResponse || isReadOnly) && !isEditing}
+                    disabled={isReadOnly}
                   >
                     {countryCodes.map((country) => (
                       <option key={country.code} value={country.code}>
@@ -449,7 +442,7 @@ const ContactAndTimings = () => {
                   </select>
                   <input
                     type="tel"
-                    placeholder={initialBusiness.cta.call.replace("+1-", "")}
+                    placeholder={businessData.subcategories[0].businesses[0].cta.call.replace("+1-", "")}
                     value={formData.subcategories[0].businesses[0].cta.call.replace(
                       `${callCountryCode}-`,
                       ""
@@ -462,7 +455,7 @@ const ContactAndTimings = () => {
                     }
                     className="flex-1 p-2 border border-gray-300 rounded-r-md text-sm focus:ring-2 focus:ring-blue-500"
                     aria-label="Call number"
-                    disabled={(hasApiResponse || isReadOnly) && !isEditing}
+                    readOnly={isReadOnly}
                   />
                 </div>
               </div>
@@ -470,26 +463,26 @@ const ContactAndTimings = () => {
                 <label className="block mb-2 font-medium text-gray-700">Booking URL:</label>
                 <input
                   type="text"
-                  placeholder={initialBusiness.cta.bookUrl}
+                  placeholder={businessData.subcategories[0].businesses[0].cta.bookUrl}
                   value={formData.subcategories[0].businesses[0].cta.bookUrl || ""}
                   onChange={(e) =>
                     updateFormData("subcategories.0.businesses.0.cta.bookUrl", e.target.value)
                   }
                   className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
-                  disabled={(hasApiResponse || isReadOnly) && !isEditing}
+                  readOnly={isReadOnly}
                 />
               </div>
               <div className="flex-1 min-w-[250px]">
                 <label className="block mb-2 font-medium text-gray-700">Get Directions URL:</label>
                 <input
                   type="url"
-                  placeholder={initialBusiness.cta.getDirections}
+                  placeholder={businessData.subcategories[0].businesses[0].cta.getDirections}
                   value={formData.subcategories[0].businesses[0].cta.getDirections || ""}
                   onChange={(e) =>
                     updateFormData("subcategories.0.businesses.0.cta.getDirections", e.target.value)
                   }
                   className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
-                  disabled={(hasApiResponse || isReadOnly) && !isEditing}
+                  readOnly={isReadOnly}
                 />
               </div>
             </div>
@@ -508,7 +501,7 @@ const ContactAndTimings = () => {
                 );
                 const dayTiming = formData.subcategories[0].businesses[0].timings[day];
 
-                return (hasApiResponse || isReadOnly) && !isEditing ? (
+                return isReadOnly ? (
                   <div key={day} className="mb-4">
                     <label className="block mb-1 font-medium text-gray-700">
                       {day.charAt(0).toUpperCase() + day.slice(1)}:
@@ -530,7 +523,7 @@ const ContactAndTimings = () => {
                           checked={closedDays[day]}
                           onChange={() => handleClosedChange(day)}
                           className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-                          disabled={(hasApiResponse || isReadOnly) && !isEditing}
+                          disabled={isReadOnly}
                         />
                         <label htmlFor={`closed-${day}`} className="text-sm text-gray-600">
                           Closed
@@ -549,7 +542,7 @@ const ContactAndTimings = () => {
                               value={open}
                               onChange={(e) => handleTimeChange(day, "open", e.target.value)}
                               className="w-full pl-8 p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
-                              disabled={((hasApiResponse || isReadOnly) && !isEditing) || closedDays[day]}
+                              disabled={isReadOnly || closedDays[day]}
                             />
                           </div>
                           <div className="relative flex-1">
@@ -563,7 +556,7 @@ const ContactAndTimings = () => {
                               value={close}
                               onChange={(e) => handleTimeChange(day, "close", e.target.value)}
                               className="w-full pl-8 p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
-                              disabled={((hasApiResponse || isReadOnly) && !isEditing) || closedDays[day]}
+                              disabled={isReadOnly || closedDays[day]}
                             />
                           </div>
                         </div>
@@ -590,7 +583,7 @@ const ContactAndTimings = () => {
             onClick={handleNext}
             type="button"
           >
-            {(hasApiResponse || isReadOnly) && !isEditing ? "Next" : "Save & Next"}
+            {isReadOnly ? "Next" : "Save & Next"}
           </Button>
         </div>
       </form>

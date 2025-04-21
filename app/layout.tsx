@@ -1,15 +1,15 @@
 import "@/styles/globals.css";
 
-// Next.js and other libraries
+
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 
-// App configuration
+import { ModeToggle } from "@/components/mode-toggle";
 import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 
-// Components
+
 import Stepper from "@/components/stepper";
 
 export const metadata: Metadata = {
@@ -36,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head />
       <body className={clsx("min-h-screen bg-background font-sans antialiased", fontSans.variable)}>
         <Providers>
+          <ModeToggle initialHasData={true} />
           <Stepper />
           {children}
         </Providers>
