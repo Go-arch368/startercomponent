@@ -53,6 +53,10 @@ const GalleryFAQsAndCTA = () => {
   const [callCountryCode, setCallCountryCode] = useState<string>(countryCodes[0].code);
   const [isPublishing, setIsPublishing] = useState(false);
 
+  // Check if apiResponse exists in localStorage
+  const apiResponse = JSON.parse(localStorage.getItem("apiResponse") || "{}");
+  const isReadOnly = Object.keys(apiResponse).length > 0; // Read-only if apiResponse is not empty
+
   const initialBusiness = businessData.subcategories[0].businesses[0];
 
   useEffect(() => {
@@ -88,17 +92,20 @@ const GalleryFAQsAndCTA = () => {
                   servicesFormData.subcategories?.[0]?.businesses?.[0]?.services || initialBusiness.services,
                 timings:
                   contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.timings || initialBusiness.timings,
-                gallery: [],
-                faqs: [],
+                gallery: welcomeData.gallery || [],
+                faqs: welcomeData.faqs || [],
                 cta: {
                   call:
                     contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.cta?.call ||
+                    welcomeData.cta?.call ||
                     initialBusiness.cta.call,
                   bookUrl:
                     contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.cta?.bookUrl ||
+                    welcomeData.cta?.bookUrl ||
                     initialBusiness.cta.bookUrl,
                   getDirections:
                     contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.cta?.getDirections ||
+                    welcomeData.cta?.getDirections ||
                     initialBusiness.cta.getDirections,
                 },
               },
@@ -112,14 +119,14 @@ const GalleryFAQsAndCTA = () => {
   }, [initialized]);
 
   useEffect(() => {
-    if (initialized && formData) {
+    if (initialized && formData && !isReadOnly) {
       localStorage.setItem(FORM_DATA_KEY, JSON.stringify(formData));
       localStorage.setItem(CALL_COUNTRY_CODE_KEY, callCountryCode);
     }
-  }, [formData, callCountryCode, initialized]);  
+  }, [formData, callCountryCode, initialized, isReadOnly]);
 
   const updateFormData = (path: string, value: any) => {
-    if (!formData) return;
+    if (!formData || isReadOnly) return;
     const keys = path.split(".");
     const newData = JSON.parse(JSON.stringify(formData));
     let current = newData;
@@ -133,7 +140,7 @@ const GalleryFAQsAndCTA = () => {
   };
 
   const handleArrayChange = (arrayPath: string, index: number, field: string, value: any) => {
-    if (!formData) return;
+    if (!formData || isReadOnly) return;
     const newData = JSON.parse(JSON.stringify(formData));
     const keys = arrayPath.split(".");
     let current = newData;
@@ -147,7 +154,7 @@ const GalleryFAQsAndCTA = () => {
   };
 
   const addArrayItem = (arrayPath: string, newItem: any) => {
-    if (!formData) return;
+    if (!formData || isReadOnly) return;
     const newData = JSON.parse(JSON.stringify(formData));
     const keys = arrayPath.split(".");
     let current = newData;
@@ -161,7 +168,7 @@ const GalleryFAQsAndCTA = () => {
   };
 
   const removeArrayItem = (arrayPath: string, index: number) => {
-    if (!formData) return;
+    if (!formData || isReadOnly) return;
     const newData = JSON.parse(JSON.stringify(formData));
     const keys = arrayPath.split(".");
     let current = newData;
@@ -175,6 +182,7 @@ const GalleryFAQsAndCTA = () => {
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isReadOnly) return;
     const file = e.target.files?.[0];
     if (!file || !formData) return;
 
@@ -195,7 +203,7 @@ const GalleryFAQsAndCTA = () => {
   };
 
   const handlePublish = async () => {
-    if (!formData) return;
+    if (!formData || isReadOnly) return;
     setIsPublishing(true);
 
     const welcomeData = JSON.parse(localStorage.getItem("apiResponse") || "{}");
@@ -207,8 +215,8 @@ const GalleryFAQsAndCTA = () => {
 
     const completeBusinessData = {
       welcome: {
-        category: welcomeData.welcome.category || "",
-        subcategory: welcomeData.welcome.subcategory || "",
+        category: welcomeData.welcome?.category || "",
+        subcategory: welcomeData.welcome?.subcategory || "",
       },
       business: {
         businessName:
@@ -289,6 +297,13 @@ const GalleryFAQsAndCTA = () => {
           Gallery, FAQs, and Call to Action
         </h2>
 
+        {/* Read-Only Indicator */}
+        {isReadOnly && (
+          <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
+            This form is in read-only mode because the data has been published.
+          </div>
+        )}
+
         {/* Gallery Section */}
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Gallery</h3>
@@ -305,8 +320,9 @@ const GalleryFAQsAndCTA = () => {
                     <button
                       type="button"
                       onClick={() => removeArrayItem("subcategories.0.businesses.0.gallery", index)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition focus:ring-2 focus:ring-red-500"
+                      className={`absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 transition focus:ring-2 focus:ring-red-500 ${isReadOnly ? "opacity-0 cursor-not-allowed" : "opacity-0 group-hover:opacity-100"}`}
                       aria-label={`Remove image ${index + 1}`}
+                      disabled={isReadOnly}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -328,7 +344,7 @@ const GalleryFAQsAndCTA = () => {
               <p className="text-gray-500 mb-4">No images uploaded yet</p>
             )}
             <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
-              <label className="cursor-pointer">
+              <label className={isReadOnly ? "cursor-not-allowed" : "cursor-pointer"}>
                 <input
                   type="file"
                   accept="image/jpeg,image/png"
@@ -336,6 +352,7 @@ const GalleryFAQsAndCTA = () => {
                   className="hidden"
                   id="image-upload"
                   aria-label="Upload image to gallery"
+                  disabled={isReadOnly}
                 />
                 <div className="flex flex-col items-center justify-center">
                   <svg
@@ -353,7 +370,7 @@ const GalleryFAQsAndCTA = () => {
                     />
                   </svg>
                   <p className="mt-2 text-sm text-gray-600">
-                    Drag and drop images here, or click to browse
+                    {isReadOnly ? "Image uploads disabled in read-only mode" : "Drag and drop images here, or click to browse"}
                   </p>
                   <p className="text-xs text-gray-500">
                     Supports JPG, PNG up to 5MB
@@ -379,9 +396,10 @@ const GalleryFAQsAndCTA = () => {
                 <select
                   id="call-code"
                   value={callCountryCode}
-                  onChange={(e) => setCallCountryCode(e.target.value)}
+                  onChange={(e) => !isReadOnly && setCallCountryCode(e.target.value)}
                   className="w-24 p-2 border border-gray-300 rounded-l-md text-sm focus:ring-2 focus:ring-blue-500"
                   aria-label="Country code"
+                  disabled={isReadOnly}
                 >
                   {countryCodes.map((country) => (
                     <option key={country.code} value={country.code}>
@@ -402,6 +420,7 @@ const GalleryFAQsAndCTA = () => {
                   }
                   className="flex-1 p-2 border border-gray-300 rounded-r-md text-sm focus:ring-2 focus:ring-blue-500"
                   aria-label="Call number"
+                  readOnly={isReadOnly}
                 />
               </div>
             </div>
@@ -418,6 +437,7 @@ const GalleryFAQsAndCTA = () => {
                   updateFormData("subcategories.0.businesses.0.cta.bookUrl", e.target.value)
                 }
                 className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
+                readOnly={isReadOnly}
               />
             </div>
           </div>
@@ -435,6 +455,7 @@ const GalleryFAQsAndCTA = () => {
                   updateFormData("subcategories.0.businesses.0.cta.getDirections", e.target.value)
                 }
                 className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
+                readOnly={isReadOnly}
               />
             </div>
           </div>
@@ -470,6 +491,7 @@ const GalleryFAQsAndCTA = () => {
                       )
                     }
                     className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
+                    readOnly={isReadOnly}
                   />
                 </div>
                 <div>
@@ -492,14 +514,16 @@ const GalleryFAQsAndCTA = () => {
                       )
                     }
                     className="w-full p-2 border border-gray-300 rounded-md text-sm h-24 focus:ring-2 focus:ring-blue-500"
+                    readOnly={isReadOnly}
                   />
                 </div>
                 {currentBusiness.faqs.length > 1 && (
                   <button
                     type="button"
                     onClick={() => removeArrayItem("subcategories.0.businesses.0.faqs", index)}
-                    className="mt-2 text-red-800 text-sm hover:text-red-900 focus:ring-2 focus:ring-red-500"
+                    className={`mt-2 text-sm ${isReadOnly ? "text-gray-400 cursor-not-allowed" : "text-red-800 hover:text-red-900 focus:ring-2 focus:ring-red-500"}`}
                     aria-label={`Remove FAQ ${index + 1}`}
+                    disabled={isReadOnly}
                   >
                     Remove FAQ
                   </button>
@@ -515,8 +539,9 @@ const GalleryFAQsAndCTA = () => {
                 answer: "",
               })
             }
-            className="bg-green-700 text-white px-4 py-2 rounded-md text-sm hover:bg-green-800 transition focus:ring-2 focus:ring-green-700"
+            className={`px-4 py-2 rounded-md text-sm transition focus:ring-2 focus:ring-green-700 ${isReadOnly ? "bg-gray-400 text-white cursor-not-allowed" : "bg-green-700 text-white hover:bg-green-800"}`}
             aria-label="Add new FAQ"
+            disabled={isReadOnly}
           >
             + Add FAQ
           </button>
@@ -531,11 +556,11 @@ const GalleryFAQsAndCTA = () => {
             Back
           </Button>
           <Button
-            className="w-full sm:w-auto focus:ring-2 focus:ring-blue-500"
+            className={`w-full sm:w-auto focus:ring-2 focus:ring-blue-500 ${isReadOnly ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600"}`}
             color="primary"
             onClick={handlePublish}
             type="button"
-            disabled={isPublishing}
+            disabled={isReadOnly || isPublishing}
             aria-label={isPublishing ? "Publishing in progress" : "Publish business"}
           >
             {isPublishing ? "Publishing..." : "Publish"}
