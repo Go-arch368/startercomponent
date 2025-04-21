@@ -3519,6 +3519,342 @@
         "bookUrl": "/book/car_repair_001",
         "getDirections": "https://maps.google.com"
       }
+    },
+    {
+      "id": "63f7",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "gowtham",
+          "price": "$50+"
+        },
+        {
+          "name": "gwotham",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "92a0",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+"
+        },
+        {
+          "name": "",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "771d",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "Gowtham",
+          "price": "$50+"
+        },
+        {
+          "name": "Gowtham",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "6715",
+      "welcome": {
+        "category": "Entertainment & Media",
+        "subcategory": "Event Management"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "gowtham",
+          "price": "$50+"
+        },
+        {
+          "name": "gowtham",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "96b1",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "sdlkfsdakljflk",
+          "price": "$50+"
+        },
+        {
+          "name": "sdklfalkjdsfalkd",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "c394",
+      "welcome": {
+        "category": "Government & Community",
+        "subcategory": "Community Centers"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "hey ",
+          "price": "$50+"
+        },
+        {
+          "name": "jyedsfdlkjsa",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "ad0e",
+      "welcome": {
+        "category": "Sports & Recreation",
+        "subcategory": "Sports Leagues"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "heifkdsa",
+          "price": "$50+"
+        },
+        {
+          "name": "ljdsfladsljfdsafdsfk dsfdsafsdfsdfj ajfdsaj ",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
     }
   ]
 }
