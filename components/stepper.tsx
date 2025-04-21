@@ -1,3 +1,4 @@
+
 "use client";
 import clsx from "clsx";
 import React, { useState, useEffect } from "react";
@@ -23,13 +24,20 @@ const steps = [
 ];
 
 export default function Stepper() {
+  const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
   const currentStep = steps.findIndex((step) => step.path === pathname) === -1 ? 0 : steps.findIndex((step) => step.path === pathname);
   const router = useRouter();
   const [hasData, setHasData] = useState<{ [key: string]: boolean }>({});
   const [isPublished, setIsPublished] = useState(false);
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const checkData = () => {
+    if (!isMounted) return;
+
     const apiResponse = localStorage.getItem("apiResponse");
     let apiData: { [key: string]: any } = {};
     let hasApiResponse = false;
@@ -45,8 +53,8 @@ export default function Stepper() {
     setIsPublished(hasApiResponse);
 
     const dataPresence = steps.reduce((acc, step) => {
-      const formDataExists = step.storageKey 
-        ? !!localStorage.getItem(step.storageKey) && localStorage.getItem(step.storageKey) !== '""' 
+      const formDataExists = step.storageKey
+        ? !!localStorage.getItem(step.storageKey) && localStorage.getItem(step.storageKey) !== '""'
         : false;
 
       let apiDataExists = false;
@@ -68,6 +76,8 @@ export default function Stepper() {
   };
 
   useEffect(() => {
+    if (!isMounted) return;
+
     checkData();
     const handleStorageChange = (e: StorageEvent) => {
       if (e.storageArea === localStorage && steps.some(step => step.storageKey === e.key || e.key === "apiResponse")) {
@@ -77,7 +87,25 @@ export default function Stepper() {
 
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+  }, [isMounted]);
+
+  if (!isMounted) {
+    return (
+      <div className="w-full py-6">
+        <div className="mx-auto max-w-4xl animate-pulse">
+          <div className="h-8 w-1/3 rounded bg-gray-200 mb-4"></div>
+          <div className="flex justify-between">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex flex-col items-center">
+                <div className="h-8 w-8 rounded-full bg-gray-200"></div>
+                <div className="mt-2 h-4 w-16 rounded bg-gray-200"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const getVisibleSteps = () => {
     if (currentStep <= 1) return steps.slice(0, 3);
@@ -103,11 +131,13 @@ export default function Stepper() {
     const hasStepData = hasData[steps[index].path];
 
     const circleClasses = clsx(
-      "z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-semibold bg-white cursor-pointer",
+      "z-10 flex items-center justify-center rounded-full border-2 text-sm font-semibold bg-white cursor-pointer",
       {
+        "h-9 w-9": isCurrent, // Larger radius for current step
+        "h-8 w-8": !isCurrent, // Default size for other steps
         "border-green-700 text-green-700": hasStepData && isPublished,
         "border-orange-500 text-orange-500": !hasStepData,
-        "border-blue-600 text-blue-600": isCurrent && hasStepData && !isPublished,
+        "border-blue-800 text-blue-800": isCurrent && hasStepData && !isPublished, // Darker blue for current step
         "border-gray-300 text-gray-400": !isCurrent && hasStepData && !isPublished,
       }
     );
@@ -122,7 +152,7 @@ export default function Stepper() {
         onKeyDown={(e) => handleKeyDown(e, index)}
         aria-label={`Go to ${steps[index].label} step`}
       >
-        <Icon size={18} aria-hidden="true" />
+        <Icon size={20} aria-hidden="true" /> {/* Increased icon size */}
       </div>
     );
   };
@@ -136,7 +166,7 @@ export default function Stepper() {
       {
         "text-green-700": hasStepData && isPublished,
         "text-orange-500": !hasStepData,
-        "text-blue-600": isCurrent && hasStepData && !isPublished,
+        "text-blue-800": isCurrent && hasStepData && !isPublished, // Darker blue for current step
         "text-gray-600": !isCurrent && hasStepData && !isPublished,
       }
     );
@@ -152,7 +182,7 @@ export default function Stepper() {
           <span
             className={clsx(
               "ml-1 flex h-6 w-6 items-center justify-center rounded-full text-white flex-shrink-0",
-              isPublished ? "bg-green-700" : "bg-blue-600"
+              isPublished ? "bg-green-700" : "bg-blue-800" // Darker blue for checkmark
             )}
             aria-hidden="true"
           >
@@ -188,7 +218,7 @@ export default function Stepper() {
                 <motion.div
                   key={step.label}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="relative flex min-w-[60px] flex-1 flex-col items-center"
+                  className="relative flex min-w-[70px] flex-1 flex-col items-center" // Increased min-w for more gap
                   exit={{ opacity: 0, scale: 0.95 }}
                   initial={{ opacity: 0, scale: 0.95 }}
                   layout
@@ -202,11 +232,11 @@ export default function Stepper() {
                           ? "bg-green-700"
                           : !hasData[steps[globalIndex].path] || !hasData[steps[globalIndex + 1].path]
                           ? "bg-orange-500"
-                          : "bg-blue-600"
+                          : "bg-blue-800" // Darker blue for connector
                       )}
                       style={{
-                        left: "calc(50% + 1rem)",
-                        right: "calc(-50% + 1rem)",
+                        left: "calc(50% + 1.5rem)", // Increased gap around connector
+                        right: "calc(-50% + 1.5rem)",
                       }}
                     />
                   )}
@@ -228,7 +258,7 @@ export default function Stepper() {
                 hasData[step.path]
                   ? isPublished
                     ? "bg-green-700"
-                    : "bg-blue-600"
+                    : "bg-blue-800" // Darker blue for dots
                   : "bg-orange-500"
               )}
             />
@@ -242,11 +272,11 @@ export default function Stepper() {
           Step {currentStep + 1} of {steps.length}
         </p>
 
-        <div className="relative flex w-full max-w-4xl items-center justify-between">
+        <div className="relative flex w-full max-w-5xl items-center justify-between"> {/* Increased max-w for more gap */}
           {steps.map((step, index) => (
             <div
               key={step.label}
-              className="relative z-10 flex min-w-[60px] flex-1 flex-col items-center"
+              className="relative z-10 flex min-w-[80px] flex-1 flex-col items-center" // Increased min-w for more gap
             >
               {index < steps.length - 1 && (
                 <div
@@ -255,12 +285,12 @@ export default function Stepper() {
                     hasData[steps[index].path] && hasData[steps[index + 1].path]
                       ? isPublished
                         ? "bg-green-700"
-                        : "bg-blue-600"
+                        : "bg-blue-800" // Darker blue for connector
                       : "bg-orange-500"
                   )}
                   style={{
-                    left: "calc(50% + 1rem)",
-                    right: "calc(-50% + 1rem)",
+                    left: "calc(50% + 1.5rem)", // Increased gap around connector
+                    right: "calc(-50% + 1.5rem)",
                   }}
                 />
               )}

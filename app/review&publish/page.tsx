@@ -16,6 +16,7 @@ const countryCodes = [
 const FORM_DATA_KEY = "galleryFaqsCtaFormData";
 const CALL_COUNTRY_CODE_KEY = "callCountryCode";
 const BUSINESS_DATA_KEY = "businessData";
+const PUBLISH_FORM_DATA_KEY = "publishFormData";
 
 interface FAQ {
   question: string;
@@ -52,15 +53,16 @@ const GalleryFAQsAndCTA = () => {
   const [formData, setFormData] = useState<FormData | null>(null);
   const [callCountryCode, setCallCountryCode] = useState<string>(countryCodes[0].code);
   const [isPublishing, setIsPublishing] = useState(false);
-
-  // Check if apiResponse exists in localStorage
-  const apiResponse = JSON.parse(localStorage.getItem("apiResponse") || "{}");
-  const isReadOnly = Object.keys(apiResponse).length > 0; // Read-only if apiResponse is not empty
+  const [isReadOnly, setIsReadOnly] = useState(false);
 
   const initialBusiness = businessData.subcategories[0].businesses[0];
 
   useEffect(() => {
     if (initialized || typeof window === "undefined") return;
+
+    // Check apiResponse in localStorage
+    const apiResponse = localStorage.getItem("apiResponse");
+    setIsReadOnly(!!apiResponse && apiResponse !== "{}" && apiResponse !== '""');
 
     const savedFormData = localStorage.getItem(FORM_DATA_KEY);
     const savedCallCode = localStorage.getItem(CALL_COUNTRY_CODE_KEY);
@@ -206,8 +208,12 @@ const GalleryFAQsAndCTA = () => {
     if (!formData) return;
     setIsPublishing(true);
 
+    // Save to publishFormData to turn Review & Publish step orange
+    localStorage.setItem(PUBLISH_FORM_DATA_KEY, JSON.stringify({ published: true }));
+    console.log("Saved publishFormData:", { published: true });
+
     const welcomeData = JSON.parse(localStorage.getItem("apiResponse") || "{}");
-    const businessFormData = JSON.parse(localStorage.getItem("businessFormData") || "{}");
+    const businessFormData = JSON.parse(localStorage.getItem("businessInfoFormData") || "{}");
     const locationFormData = JSON.parse(localStorage.getItem("locationFormData") || "{}");
     const contactAndTimingsFormData = JSON.parse(localStorage.getItem("contactAndTimingsFormData") || "{}");
     const servicesFormData = JSON.parse(localStorage.getItem("servicesFormData") || "{}");
@@ -215,35 +221,17 @@ const GalleryFAQsAndCTA = () => {
 
     const completeBusinessData = {
       welcome: {
-        category: welcomeData.welcome?.category || "",
-        subcategory: welcomeData.welcome?.subcategory || "",
+        category: welcomeData.welcome.category || "",
+        subcategory: welcomeData.welcome.subcategory || "",
       },
       business: {
-        businessName:
-          businessFormData.subcategories?.[0]?.businesses?.[0]?.businessName ||
-          currentBusiness.businessName ||
-          "",
-        description:
-          businessFormData.subcategories?.[0]?.businesses?.[0]?.description ||
-          currentBusiness.description ||
-          "",
+        businessName: businessFormData.businessName || currentBusiness.businessName || "",
+        description: businessFormData.description || currentBusiness.description || "",
       },
-      location:
-        locationFormData.subcategories?.[0]?.businesses?.[0]?.location ||
-        currentBusiness.location ||
-        {},
-      contact:
-        contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.contact ||
-        currentBusiness.contact ||
-        {},
-      services:
-        servicesFormData.subcategories?.[0]?.businesses?.[0]?.services ||
-        currentBusiness.services ||
-        [],
-      timings:
-        contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.timings ||
-        currentBusiness.timings ||
-        {},
+      location: locationFormData || currentBusiness.location || {},
+      contact: contactAndTimingsFormData.phone ? { phone: contactAndTimingsFormData.phone } : currentBusiness.contact || {},
+      services: servicesFormData.length > 0 ? servicesFormData : currentBusiness.services || [],
+      timings: contactAndTimingsFormData.timings || currentBusiness.timings || {},
       gallery: currentBusiness.gallery || [],
       faqs: currentBusiness.faqs || [],
       cta: {
@@ -261,16 +249,17 @@ const GalleryFAQsAndCTA = () => {
       localStorage.setItem("apiResponse", JSON.stringify(response.data));
 
       // Clear localStorage keys
-      localStorage.removeItem("welcome");
-      localStorage.removeItem("businessFormData");
+      localStorage.removeItem("welcomeFormData");
+      localStorage.removeItem("businessInfoFormData");
       localStorage.removeItem("locationFormData");
       localStorage.removeItem("contactAndTimingsFormData");
       localStorage.removeItem("servicesFormData");
       localStorage.removeItem(FORM_DATA_KEY);
       localStorage.removeItem(CALL_COUNTRY_CODE_KEY);
+      localStorage.removeItem(PUBLISH_FORM_DATA_KEY);
 
       alert("Business published successfully!");
-      router.push("/review&publish");
+      router.push("/review&publish"); // Stay on page or redirect as needed
     } catch (error) {
       console.error("Error publishing business:", error);
       alert("Failed to publish business. Please try again.");

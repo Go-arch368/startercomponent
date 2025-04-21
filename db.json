@@ -3855,6 +3855,308 @@
         "bookUrl": "/book/car_repair_001",
         "getDirections": "https://maps.google.com"
       }
+    },
+    {
+      "id": "245c",
+      "welcome": {
+        "category": "Sports & Recreation",
+        "subcategory": "Sports Leagues"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+"
+        },
+        {
+          "name": "",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "cb66",
+      "welcome": {
+        "category": "Sports & Recreation",
+        "subcategory": "Sports Leagues"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "address": "123 Main Street",
+        "city": "Sample City",
+        "state": "Sample State",
+        "postalCode": "000000"
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "slkdDSlk",
+          "price": "$50+"
+        },
+        {
+          "name": "sldkdslkjf",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "682b",
+      "welcome": {
+        "category": "",
+        "subcategory": ""
+      },
+      "business": {
+        "businessName": "Business is being established in 1984",
+        "description": "The top rated car is being booked over an overview idealogy of an drama right"
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "NOchipatti",
+                  "city": "Namakkal",
+                  "state": "Tamil Nadu",
+                  "postalCode": "637017"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "fadsfdsfdskljf",
+          "price": "$50+"
+        },
+        {
+          "name": "lsdkfaldsfljdslkjfd",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "fe0d",
+      "welcome": {
+        "category": "",
+        "subcategory": ""
+      },
+      "business": {
+        "businessName": "Business is being established in 1984",
+        "description": "The top rated car is being booked over an overview idealogy of an drama right"
+      },
+      "location": {},
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "c14a",
+      "welcome": {
+        "category": "Safety & Security",
+        "subcategory": "Fire Departments"
+      },
+      "business": {
+        "businessName": "Business is being established in 1984",
+        "description": "The top rated car is being booked over an overview idealogy of an drama right"
+      },
+      "location": {},
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "36a8",
+      "welcome": {
+        "category": "Safety & Security",
+        "subcategory": "Fire Departments"
+      },
+      "business": {
+        "businessName": "Business is being established in 1984",
+        "description": "The top rated car is being booked over an overview idealogy of an drama right"
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "Nochipatti",
+                  "city": "Namakkal",
+                  "state": "Tamil Nadu",
+                  "postalCode": "637017"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "gowtham",
+          "price": "$50+"
+        },
+        {
+          "name": "gowtham",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
     }
   ]
 }
