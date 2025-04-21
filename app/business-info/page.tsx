@@ -9,48 +9,68 @@ export default function BusinessInformation() {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [hasLocalData, setHasLocalData] = useState(false);
+  const [isReadOnly, setIsReadOnly] = useState(false);
   const [formData, setFormData] = useState({
     businessName: "",
-    description: ""
+    description: "",
   });
 
   useEffect(() => {
     const apiResponse = localStorage.getItem("apiResponse");
     const businessFormData = localStorage.getItem("businessFormData");
 
-    if (apiResponse || businessFormData) {
-      setHasLocalData(true);
-      try {
-        const savedData = apiResponse 
-          ? JSON.parse(apiResponse).business 
-          : JSON.parse(businessFormData || "{}").subcategories?.[0]?.businesses?.[0] || {};
+    let dataSource: { businessName?: string; description?: string } = {};
 
-        setFormData({
-          businessName: savedData.businessName || "",
-          description: savedData.description || ""
-        });
+    if (apiResponse && apiResponse !== '""') {
+      // Non-empty apiResponse: use published data and set read-only
+      try {
+        const parsedApiResponse = JSON.parse(apiResponse);
+        if (parsedApiResponse.business) {
+          dataSource = parsedApiResponse.business;
+          setHasLocalData(true);
+          setIsReadOnly(true);
+        }
       } catch (error) {
-        console.error("Error parsing saved data:", error);
+        console.error("Error parsing apiResponse:", error);
       }
-    } else {
-      setFormData(businessData.subcategories[0].businesses[0]);
+    } else if (apiResponse === '""' || businessFormData) {
+      // Empty apiResponse or businessFormData: use businessFormData and set read-only
+      try {
+        dataSource = businessFormData
+          ? JSON.parse(businessFormData).subcategories?.[0]?.businesses?.[0] || {}
+          : {};
+        setHasLocalData(true);
+        setIsReadOnly(apiResponse === '""');
+      } catch (error) {
+        console.error("Error parsing businessFormData:", error);
+      }
     }
+
+    // Fallback to default data if no valid data is found
+    setFormData({
+      businessName: dataSource.businessName || businessData.subcategories[0].businesses[0].businessName,
+      description: dataSource.description || businessData.subcategories[0].businesses[0].description,
+    });
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleNext = () => {
     if (!hasLocalData || isEditing) {
       const dataToSave = {
-        subcategories: [{
-          businesses: [{
-            businessName: formData.businessName,
-            description: formData.description
-          }]
-        }]
+        subcategories: [
+          {
+            businesses: [
+              {
+                businessName: formData.businessName,
+                description: formData.description,
+              },
+            ],
+          },
+        ],
       };
       localStorage.setItem("businessFormData", JSON.stringify(dataToSave));
       setHasLocalData(true);
@@ -66,6 +86,13 @@ export default function BusinessInformation() {
       <div className="bg-gray-50 rounded-lg shadow-sm p-6">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Business Information</h2>
 
+        {/* Read-Only Indicator */}
+        {isReadOnly && (
+          <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
+            This form is in read-only mode because the data has been published or is empty. Click the pencil icon to edit.
+          </div>
+        )}
+
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Basic Information</h3>
 
@@ -78,10 +105,10 @@ export default function BusinessInformation() {
                 type="text"
                 value={formData.businessName}
                 onChange={handleInputChange}
-                disabled={hasLocalData && !isEditing}
+                disabled={(hasLocalData || isReadOnly) && !isEditing}
                 className="w-full p-2 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
               />
-              {hasLocalData && !isEditing && (
+              {(hasLocalData || isReadOnly) && !isEditing && (
                 <button
                   onClick={toggleEdit}
                   className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
@@ -101,10 +128,10 @@ export default function BusinessInformation() {
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                disabled={hasLocalData && !isEditing}
+                disabled={(hasLocalData || isReadOnly) && !isEditing}
                 className="w-full p-2 pr-10 border border-gray-300 rounded-md h-24 focus:ring-2 focus:ring-blue-500"
               />
-              {hasLocalData && !isEditing && (
+              {(hasLocalData || isReadOnly) && !isEditing && (
                 <button
                   onClick={toggleEdit}
                   className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
@@ -129,7 +156,7 @@ export default function BusinessInformation() {
             color="primary"
             onClick={handleNext}
           >
-            {hasLocalData && !isEditing ? "Next" : "Save & Next"}
+            {(hasLocalData || isReadOnly) && !isEditing ? "Next" : "Save & Next"}
           </Button>
         </div>
       </div>

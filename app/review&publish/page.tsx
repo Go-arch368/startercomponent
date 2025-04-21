@@ -203,7 +203,7 @@ const GalleryFAQsAndCTA = () => {
   };
 
   const handlePublish = async () => {
-    if (!formData || isReadOnly) return;
+    if (!formData) return;
     setIsPublishing(true);
 
     const welcomeData = JSON.parse(localStorage.getItem("apiResponse") || "{}");
@@ -300,7 +300,7 @@ const GalleryFAQsAndCTA = () => {
         {/* Read-Only Indicator */}
         {isReadOnly && (
           <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
-            This form is in read-only mode because the data has been published.
+            This form is in read-only mode because the data has been published. You can still re-publish the data.
           </div>
         )}
 
@@ -556,11 +556,11 @@ const GalleryFAQsAndCTA = () => {
             Back
           </Button>
           <Button
-            className={`w-full sm:w-auto focus:ring-2 focus:ring-blue-500 ${isReadOnly ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600"}`}
+            className="w-full sm:w-auto focus:ring-2 focus:ring-blue-500 bg-blue-600"
             color="primary"
             onClick={handlePublish}
             type="button"
-            disabled={isReadOnly || isPublishing}
+            disabled={isPublishing}
             aria-label={isPublishing ? "Publishing in progress" : "Publish business"}
           >
             {isPublishing ? "Publishing..." : "Publish"}

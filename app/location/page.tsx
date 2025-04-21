@@ -9,67 +9,86 @@ const Location = () => {
   const router = useRouter();
   const [hasLocalData, setHasLocalData] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isReadOnly, setIsReadOnly] = useState(false);
   const [formData, setFormData] = useState({
     location: {
       address: "",
       city: "",
       state: "",
-      postalCode: ""
-    }
+      postalCode: "",
+    },
   });
-
 
   useEffect(() => {
     const apiResponse = localStorage.getItem("apiResponse");
     const locationFormData = localStorage.getItem("locationFormData");
 
-    if (apiResponse || locationFormData) {
-      setHasLocalData(true);
+    let dataSource: {
+      address?: string;
+      city?: string;
+      state?: string;
+      postalCode?: string;
+    } = {};
+
+    if (apiResponse && apiResponse !== '""') {
+      // Non-empty apiResponse: use published data and set read-only
       try {
-        const savedData = apiResponse 
-          ? JSON.parse(apiResponse).location 
-          : JSON.parse(locationFormData || "{}").subcategories[0].businesses[0].location;
-        
-        setFormData({
-          location: {
-            address: savedData.address || businessData.subcategories[0].businesses[0].location.address,
-            city: savedData.city || businessData.subcategories[0].businesses[0].location.city,
-            state: savedData.state || businessData.subcategories[0].businesses[0].location.state,
-            postalCode: savedData.postalCode || businessData.subcategories[0].businesses[0].location.postalCode
-          }
-        });
+        const parsedApiResponse = JSON.parse(apiResponse);
+        if (parsedApiResponse.location) {
+          dataSource = parsedApiResponse.location;
+          setHasLocalData(true);
+          setIsReadOnly(true);
+        }
       } catch (error) {
-        console.error("Error parsing saved data:", error);
-        setFormData({
-          location: businessData.subcategories[0].businesses[0].location
-        });
+        console.error("Error parsing apiResponse:", error);
       }
-    } else {
-      setFormData({
-        location: businessData.subcategories[0].businesses[0].location
-      });
+    } else if (apiResponse === '""' || locationFormData) {
+      // Empty apiResponse or locationFormData: use locationFormData and set read-only for empty apiResponse
+      try {
+        dataSource = locationFormData
+          ? JSON.parse(locationFormData).subcategories?.[0]?.businesses?.[0]?.location || {}
+          : {};
+        setHasLocalData(true);
+        setIsReadOnly(apiResponse === '""');
+      } catch (error) {
+        console.error("Error parsing locationFormData:", error);
+      }
     }
+
+    // Fallback to default data if no valid data is found
+    setFormData({
+      location: {
+        address: dataSource.address || businessData.subcategories[0].businesses[0].location.address,
+        city: dataSource.city || businessData.subcategories[0].businesses[0].location.city,
+        state: dataSource.state || businessData.subcategories[0].businesses[0].location.state,
+        postalCode: dataSource.postalCode || businessData.subcategories[0].businesses[0].location.postalCode,
+      },
+    });
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       location: {
         ...prev.location,
-        [name]: value
-      }
+        [name]: value,
+      },
     }));
   };
 
   const handleNext = () => {
     if (!hasLocalData || isEditing) {
       const dataToSave = {
-        subcategories: [{
-          businesses: [{
-            location: formData.location
-          }]
-        }]
+        subcategories: [
+          {
+            businesses: [
+              {
+                location: formData.location,
+              },
+            ],
+          },
+        ],
       };
       localStorage.setItem("locationFormData", JSON.stringify(dataToSave));
       setHasLocalData(true);
@@ -87,8 +106,8 @@ const Location = () => {
       <div className="bg-gray-50 rounded-lg shadow-sm p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Business Location</h2>
-          {hasLocalData && !isEditing && (
-            <button 
+          {(hasLocalData || isReadOnly) && !isEditing && (
+            <button
               onClick={toggleEdit}
               className="text-gray-500 hover:text-gray-700 flex items-center gap-1"
               aria-label="Edit location"
@@ -99,9 +118,16 @@ const Location = () => {
           )}
         </div>
 
+        {/* Read-Only Indicator */}
+        {isReadOnly && (
+          <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
+            This form is in read-only mode because the data has been published or is empty. Click the edit button to modify.
+          </div>
+        )}
+
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Location</h3>
-          
+
           {/* Address Field */}
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex-1 min-w-[250px]">
@@ -115,7 +141,7 @@ const Location = () => {
                 value={formData.location.address}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                disabled={hasLocalData && !isEditing}
+                disabled={(hasLocalData || isReadOnly) && !isEditing}
               />
             </div>
             <div className="flex-1 min-w-[250px]">
@@ -129,7 +155,7 @@ const Location = () => {
                 value={formData.location.city}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                disabled={hasLocalData && !isEditing}
+                disabled={(hasLocalData || isReadOnly) && !isEditing}
               />
             </div>
           </div>
@@ -147,7 +173,7 @@ const Location = () => {
                 value={formData.location.state}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                disabled={hasLocalData && !isEditing}
+                disabled={(hasLocalData || isReadOnly) && !isEditing}
               />
             </div>
             <div className="flex-1 min-w-[250px]">
@@ -161,7 +187,7 @@ const Location = () => {
                 value={formData.location.postalCode}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                disabled={hasLocalData && !isEditing}
+                disabled={(hasLocalData || isReadOnly) && !isEditing}
               />
             </div>
           </div>
@@ -179,7 +205,7 @@ const Location = () => {
             color="primary"
             onClick={handleNext}
           >
-            {isEditing ? "Save & Next" : "Next"}
+            {(hasLocalData || isReadOnly) && !isEditing ? "Next" : "Save & Next"}
           </Button>
         </div>
       </div>
