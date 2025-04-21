@@ -25,7 +25,6 @@ const currencyCodes = [
 const Services = () => {
   const router = useRouter();
   const [formData, setFormData] = useState(() => {
-    // Load persisted formData from localStorage
     const savedData = localStorage.getItem("servicesFormData");
     return savedData
       ? JSON.parse(savedData)
@@ -45,10 +44,15 @@ const Services = () => {
         };
   });
 
-  // Save formData to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("servicesFormData", JSON.stringify(formData));
   }, [formData]);
+
+  // Fetch the API response from localStorage
+  const apiResponse = JSON.parse(localStorage.getItem("apiResponse") || "{}");
+
+  // Merge API response services with the formData services (if present)
+  const apiServices = apiResponse?.services || [];
 
   const initialBusiness = businessData.subcategories[0].businesses[0];
 
@@ -85,9 +89,7 @@ const Services = () => {
   };
 
   const handleNext = () => {
-    // Save to localStorage explicitly (optional, as useEffect handles it)
     localStorage.setItem("servicesFormData", JSON.stringify(formData));
-    // Navigate to the next page
     router.push("/review&publish");
   };
 
@@ -107,62 +109,67 @@ const Services = () => {
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Services</h3>
           <div className="mb-4">
-            {formData.subcategories[0].businesses[0].services.map((service, index: number) => (
-              <div
-                key={index}
-                className="mb-4 p-3 border border-gray-500 rounded-md bg-white"
-              >
-                <div className="flex flex-wrap gap-4 mb-3">
-                  <div className="flex-1 min-w-[250px]">
-                    <label
-                      htmlFor={`service-name-${index}`}
-                      className="block mb-2 font-medium text-gray-900"
-                    >
-                      Service Name:
-                    </label>
-                    <input
-                      type="text"
-                      id={`service-name-${index}`}
-                      placeholder={initialBusiness.services[index]?.name || "Enter service name"}
-                      value={service.name || ""}
-                      onChange={(e) => handleServiceChange(index, "name", e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
-                      required
-                    />
+            {formData.subcategories[0].businesses[0].services.map((service, index: number) => {
+              const apiService = apiServices[index] || {};
+              return (
+                <div
+                  key={index}
+                  className="mb-4 p-3 border border-gray-500 rounded-md bg-white"
+                >
+                  <div className="flex flex-wrap gap-4 mb-3">
+                    <div className="flex-1 min-w-[250px]">
+                      <label
+                        htmlFor={`service-name-${index}`}
+                        className="block mb-2 font-medium text-gray-900"
+                      >
+                        Service Name:
+                      </label>
+                      <input
+                        type="text"
+                        id={`service-name-${index}`}
+                        placeholder={apiService.name || "Enter service name"}
+                        value={service.name || ""}
+                        onChange={(e) => handleServiceChange(index, "name", e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
+                        required
+                        readOnly={!!apiService.name}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-[150px]">
+                      <label
+                        htmlFor={`service-price-${index}`}
+                        className="block mb-2 font-medium text-gray-900"
+                      >
+                        Price:
+                      </label>
+                      <select
+                        id={`service-price-${index}`}
+                        value={service.price || "USD $50"}
+                        onChange={(e) => handleServiceChange(index, "price", e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
+                        disabled={!!apiService.price}
+                      >
+                        {currencyCodes.map((currency) => (
+                          <option key={currency.code} value={currency.code}>
+                            {currency.code} ({currency.country})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-[150px]">
-                    <label
-                      htmlFor={`service-price-${index}`}
-                      className="block mb-2 font-medium text-gray-900"
+                  {formData.subcategories[0].businesses[0].services.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeService(index)}
+                      className="mt-2 text-red-700 text-sm hover:text-red-900 focus:ring-2 focus:ring-red-700"
+                      aria-label={`Remove service ${index + 1}`}
                     >
-                      Price:
-                    </label>
-                    <select
-                      id={`service-price-${index}`}
-                      value={service.price || "USD $50"}
-                      onChange={(e) => handleServiceChange(index, "price", e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
-                    >
-                      {currencyCodes.map((currency) => (
-                        <option key={currency.code} value={currency.code}>
-                          {currency.code} ({currency.country})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                      Remove Service
+                    </button>
+                  )}
                 </div>
-                {formData.subcategories[0].businesses[0].services.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeService(index)}
-                    className="mt-2 text-red-700 text-sm hover:text-red-900 focus:ring-2 focus:ring-red-700"
-                    aria-label={`Remove service ${index + 1}`}
-                  >
-                    Remove Service
-                  </button>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
           <button
             type="button"

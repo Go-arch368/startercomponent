@@ -49,55 +49,26 @@ interface FormData {
 const GalleryFAQsAndCTA = () => {
   const router = useRouter();
   const [initialized, setInitialized] = useState(false);
-  const [formData, setFormData] = useState<FormData>(() => {
-    const savedData = localStorage.getItem(FORM_DATA_KEY);
-    return savedData
-      ? JSON.parse(savedData)
-      : {
-          subcategories: [
-            {
-              businesses: [
-                {
-                  businessName: "",
-                  description: "",
-                  location: {},
-                  contact: {},
-                  services: [],
-                  timings: {},
-                  gallery: [],
-                  faqs: [],
-                  cta: {
-                    call: "",
-                    bookUrl: "",
-                    getDirections: "",
-                  },
-                },
-              ],
-            },
-          ],
-        };
-  });
-  const [callCountryCode, setCallCountryCode] = useState(() => {
-    return localStorage.getItem(CALL_COUNTRY_CODE_KEY) || countryCodes[0].code;
-  });
+  const [formData, setFormData] = useState<FormData | null>(null);
+  const [callCountryCode, setCallCountryCode] = useState<string>(countryCodes[0].code);
   const [isPublishing, setIsPublishing] = useState(false);
 
   const initialBusiness = businessData.subcategories[0].businesses[0];
 
-
   useEffect(() => {
-    if (initialized) return;
+    if (initialized || typeof window === "undefined") return;
 
     const savedFormData = localStorage.getItem(FORM_DATA_KEY);
+    const savedCallCode = localStorage.getItem(CALL_COUNTRY_CODE_KEY);
+    if (savedCallCode) setCallCountryCode(savedCallCode);
+
     if (savedFormData) {
       setFormData(JSON.parse(savedFormData));
     } else {
-      const welcomeData = JSON.parse(localStorage.getItem("welcome") || "{}");
+      const welcomeData = JSON.parse(localStorage.getItem("apiResponse") || "{}");
       const businessFormData = JSON.parse(localStorage.getItem("businessFormData") || "{}");
       const locationFormData = JSON.parse(localStorage.getItem("locationFormData") || "{}");
-      const contactAndTimingsFormData = JSON.parse(
-        localStorage.getItem("contactAndTimingsFormData") || "{}"
-      );
+      const contactAndTimingsFormData = JSON.parse(localStorage.getItem("contactAndTimingsFormData") || "{}");
       const servicesFormData = JSON.parse(localStorage.getItem("servicesFormData") || "{}");
 
       setFormData({
@@ -106,23 +77,17 @@ const GalleryFAQsAndCTA = () => {
             businesses: [
               {
                 businessName:
-                  businessFormData.subcategories?.[0]?.businesses?.[0]?.businessName ||
-                  initialBusiness.businessName,
+                  businessFormData.subcategories?.[0]?.businesses?.[0]?.businessName || initialBusiness.businessName,
                 description:
-                  businessFormData.subcategories?.[0]?.businesses?.[0]?.description ||
-                  initialBusiness.description,
+                  businessFormData.subcategories?.[0]?.businesses?.[0]?.description || initialBusiness.description,
                 location:
-                  locationFormData.subcategories?.[0]?.businesses?.[0]?.location ||
-                  initialBusiness.location,
+                  locationFormData.subcategories?.[0]?.businesses?.[0]?.location || initialBusiness.location,
                 contact:
-                  contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.contact ||
-                  initialBusiness.contact,
+                  contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.contact || initialBusiness.contact,
                 services:
-                  servicesFormData.subcategories?.[0]?.businesses?.[0]?.services ||
-                  initialBusiness.services,
+                  servicesFormData.subcategories?.[0]?.businesses?.[0]?.services || initialBusiness.services,
                 timings:
-                  contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.timings ||
-                  initialBusiness.timings,
+                  contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.timings || initialBusiness.timings,
                 gallery: [],
                 faqs: [],
                 cta: {
@@ -133,8 +98,8 @@ const GalleryFAQsAndCTA = () => {
                     contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.cta?.bookUrl ||
                     initialBusiness.cta.bookUrl,
                   getDirections:
-                    contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.cta
-                      ?.getDirections || initialBusiness.cta.getDirections,
+                    contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.cta?.getDirections ||
+                    initialBusiness.cta.getDirections,
                 },
               },
             ],
@@ -142,18 +107,19 @@ const GalleryFAQsAndCTA = () => {
         ],
       });
     }
+
     setInitialized(true);
   }, [initialized]);
 
-  // Save formData and callCountryCode to localStorage
   useEffect(() => {
-    if (initialized) {
+    if (initialized && formData) {
       localStorage.setItem(FORM_DATA_KEY, JSON.stringify(formData));
       localStorage.setItem(CALL_COUNTRY_CODE_KEY, callCountryCode);
     }
-  }, [formData, callCountryCode, initialized]);
+  }, [formData, callCountryCode, initialized]);  
 
   const updateFormData = (path: string, value: any) => {
+    if (!formData) return;
     const keys = path.split(".");
     const newData = JSON.parse(JSON.stringify(formData));
     let current = newData;
@@ -167,6 +133,7 @@ const GalleryFAQsAndCTA = () => {
   };
 
   const handleArrayChange = (arrayPath: string, index: number, field: string, value: any) => {
+    if (!formData) return;
     const newData = JSON.parse(JSON.stringify(formData));
     const keys = arrayPath.split(".");
     let current = newData;
@@ -180,6 +147,7 @@ const GalleryFAQsAndCTA = () => {
   };
 
   const addArrayItem = (arrayPath: string, newItem: any) => {
+    if (!formData) return;
     const newData = JSON.parse(JSON.stringify(formData));
     const keys = arrayPath.split(".");
     let current = newData;
@@ -193,6 +161,7 @@ const GalleryFAQsAndCTA = () => {
   };
 
   const removeArrayItem = (arrayPath: string, index: number) => {
+    if (!formData) return;
     const newData = JSON.parse(JSON.stringify(formData));
     const keys = arrayPath.split(".");
     let current = newData;
@@ -207,7 +176,8 @@ const GalleryFAQsAndCTA = () => {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !formData) return;
+
     if (file.size > 5 * 1024 * 1024) {
       alert("File size exceeds 5MB limit.");
       return;
@@ -216,6 +186,7 @@ const GalleryFAQsAndCTA = () => {
       alert("Only JPG and PNG files are supported.");
       return;
     }
+
     const reader = new FileReader();
     reader.onloadend = () => {
       addArrayItem("subcategories.0.businesses.0.gallery", reader.result);
@@ -224,23 +195,20 @@ const GalleryFAQsAndCTA = () => {
   };
 
   const handlePublish = async () => {
+    if (!formData) return;
     setIsPublishing(true);
 
-    
-    const welcomeData = JSON.parse(localStorage.getItem("welcome") || "{}");
+    const welcomeData = JSON.parse(localStorage.getItem("apiResponse") || "{}");
     const businessFormData = JSON.parse(localStorage.getItem("businessFormData") || "{}");
     const locationFormData = JSON.parse(localStorage.getItem("locationFormData") || "{}");
-    const contactAndTimingsFormData = JSON.parse(
-      localStorage.getItem("contactAndTimingsFormData") || "{}"
-    );
+    const contactAndTimingsFormData = JSON.parse(localStorage.getItem("contactAndTimingsFormData") || "{}");
     const servicesFormData = JSON.parse(localStorage.getItem("servicesFormData") || "{}");
     const currentBusiness = formData.subcategories[0].businesses[0];
 
-    // Create complete business data object
     const completeBusinessData = {
       welcome: {
-        category: welcomeData.category || "",
-        subcategory: welcomeData.subcategory || "",
+        category: welcomeData.welcome.category || "",
+        subcategory: welcomeData.welcome.subcategory || "",
       },
       business: {
         businessName:
@@ -278,18 +246,13 @@ const GalleryFAQsAndCTA = () => {
     };
 
     try {
-     
       localStorage.setItem(BUSINESS_DATA_KEY, JSON.stringify(completeBusinessData));
-
-    
       const response = await axios.post("http://localhost:4000/businesses", completeBusinessData);
 
       console.log("API Response:", response.data);
-
-      
       localStorage.setItem("apiResponse", JSON.stringify(response.data));
 
-    
+      // Clear localStorage keys
       localStorage.removeItem("welcome");
       localStorage.removeItem("businessFormData");
       localStorage.removeItem("locationFormData");
@@ -307,6 +270,8 @@ const GalleryFAQsAndCTA = () => {
       setIsPublishing(false);
     }
   };
+
+  if (!formData) return <div>Loading...</div>;
 
   const currentBusiness = formData.subcategories[0].businesses[0];
 

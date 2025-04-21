@@ -18,7 +18,7 @@ const Location = () => {
     }
   });
 
-  // Check for existing data on component mount
+
   useEffect(() => {
     const apiResponse = localStorage.getItem("apiResponse");
     const locationFormData = localStorage.getItem("locationFormData");

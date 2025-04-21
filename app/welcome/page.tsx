@@ -2,67 +2,138 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/button";
-import { Pencil } from "lucide-react";
-import categoryandsubcategory from "@/data/category and subcategory.json";
+import fallbackData from "@/data/category and subcategory.json";
+
+function getStoredApiResponse() {
+  try {
+    const item = localStorage.getItem("apiResponse");
+    return item ? JSON.parse(item) : {};
+  } catch (err) {
+    console.error("Invalid localStorage JSON:", err);
+    return {};
+  }
+}
 
 export default function Welcome() {
   const router = useRouter();
-  const [isEditing, setIsEditing] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(() => {
-    return localStorage.getItem("welcomeCategory") || "";
-  });
-  const [selectedSubcategory, setSelectedSubcategory] = useState(() => {
-    return localStorage.getItem("welcomeSubcategory") || "";
-  });
+  const [categoryData, setCategoryData] = useState<{ category: string; subcategories: string[] }[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [isReadOnly, setIsReadOnly] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("welcomeCategory", selectedCategory);
-    localStorage.setItem("welcomeSubcategory", selectedSubcategory);
-  }, [selectedCategory, selectedSubcategory]);
+    const storedApiResponse = getStoredApiResponse();
+    try {
+      if (storedApiResponse?.welcome) {
+        setSelectedCategory(storedApiResponse.welcome.category || "");
+        setSelectedSubcategory(storedApiResponse.welcome.subcategory || "");
+        // If category and subcategory are already set, make it readonly
+        if (storedApiResponse.welcome.category && storedApiResponse.welcome.subcategory) {
+          setIsReadOnly(true);
+        }
+      }
+      
+      // Set category data from fallback if needed
+      if (Array.isArray(storedApiResponse)) {
+        setCategoryData(storedApiResponse);
+      } else {
+        setCategoryData(fallbackData);
+      }
+    } catch (error) {
+      console.error("Invalid JSON in apiResponse:", error);
+      setCategoryData(fallbackData);
+    }
+  }, []);
+
+  const handleEdit = () => {
+    setIsReadOnly(false);
+  };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const category = e.target.value;
-    setSelectedCategory(category);
-    setSelectedSubcategory(""); 
+    const newCategory = e.target.value;
+    setSelectedCategory(newCategory);
+    setSelectedSubcategory("");
+
+    const storedApiResponse = getStoredApiResponse();
+    localStorage.setItem(
+      "apiResponse",
+      JSON.stringify({
+        ...storedApiResponse,
+        welcome: {
+          category: newCategory,
+          subcategory: "",
+        },
+      })
+    );
   };
 
   const handleSubcategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const subcategory = e.target.value;
-    setSelectedSubcategory(subcategory);
+    const newSubcategory = e.target.value;
+    setSelectedSubcategory(newSubcategory);
+
+    const storedApiResponse = getStoredApiResponse();
+    localStorage.setItem(
+      "apiResponse",
+      JSON.stringify({
+        ...storedApiResponse,
+        welcome: {
+          category: selectedCategory,
+          subcategory: newSubcategory,
+        },
+      })
+    );
   };
 
   const getSubcategories = () => {
-    if (!selectedCategory) return [];
-    const categoryObj = categoryandsubcategory.find((cat) => cat.category === selectedCategory);
+    const categoryObj = categoryData.find((cat) => cat.category === selectedCategory);
     return categoryObj ? categoryObj.subcategories : [];
   };
 
   const handleNext = () => {
+    const storedApiResponse = getStoredApiResponse();
+  
+    const updatedData = {
+      ...storedApiResponse,
+      welcome: {
+        category: selectedCategory,
+        subcategory: selectedSubcategory,
+      },
+    };
+  
+    localStorage.setItem("apiResponse", JSON.stringify(updatedData));
     router.push("/business-info");
-  };
-
-  const toggleEditing = () => {
-    setIsEditing(!isEditing);
   };
 
   return (
     <div className="max-w-4xl mx-auto p-5">
       <div className="bg-gray-50 rounded-lg shadow-sm p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Welcome</h2>
-          <button 
-            onClick={toggleEditing}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
-            aria-label={isEditing ? "Cancel editing" : "Edit category"}
-          >
-            <Pencil className="w-5 h-5" />
-          </button>
-        </div>
-        
-        {isEditing ? (
-          /* Edit Section (shown when isEditing is true) */
-          <div className="mb-6 pb-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold mb-4 text-gray-700">Select Business Category</h3>
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">Welcome</h2>
+
+        <div className="mb-6 pb-6 border-b border-gray-200">
+          <h3 className="text-lg font-semibold mb-4 text-gray-700">Business Category</h3>
+          
+          {isReadOnly ? (
+            <div className="space-y-4">
+              <div>
+                <label className="block mb-1 font-medium text-gray-700">Category:</label>
+                <div className="p-2 bg-gray-100 rounded-md">
+                  {selectedCategory || "Not selected"}
+                </div>
+              </div>
+              <div>
+                <label className="block mb-1 font-medium text-gray-700">Subcategory:</label>
+                <div className="p-2 bg-gray-100 rounded-md">
+                  {selectedSubcategory || "Not selected"}
+                </div>
+              </div>
+              <button
+                onClick={handleEdit}
+                className="mt-4 text-sm text-blue-600 hover:text-blue-800 font-medium"
+              >
+                Edit Category
+              </button>
+            </div>
+          ) : (
             <div className="flex flex-wrap gap-4 mb-4">
               <div className="flex-1 min-w-[250px]">
                 <label htmlFor="category-select" className="block mb-2 font-medium text-gray-700">
@@ -76,7 +147,7 @@ export default function Welcome() {
                   required
                 >
                   <option value="">Select a category</option>
-                  {categoryandsubcategory.map((category, index) => (
+                  {categoryData.map((category, index) => (
                     <option key={index} value={category.category}>
                       {category.category}
                     </option>
@@ -96,41 +167,24 @@ export default function Welcome() {
                   disabled={!selectedCategory}
                 >
                   <option value="">Select a subcategory</option>
-                  {getSubcategories().map((subcategory, index) => (
-                    <option key={index} value={subcategory}>
-                      {subcategory}
+                  {getSubcategories().map((subcat, index) => (
+                    <option key={index} value={subcat}>
+                      {subcat}
                     </option>
                   ))}
                 </select>
               </div>
             </div>
-          </div>
-        ) : (
-          /* Preview Section (shown when isEditing is false) */
-          <div className="mb-6 p-4 border border-gray-200 rounded-lg">
-            <h3 className="text-lg font-semibold mb-2 text-gray-700">Business Category</h3>
-            <div className="flex flex-wrap gap-4">
-              <div className="flex-1 min-w-[250px]">
-                <label className="block mb-1 text-sm font-medium text-gray-500">Category:</label>
-                <div className="text-gray-800">
-                  {selectedCategory || "Not selected"}
-                </div>
-              </div>
-              <div className="flex-1 min-w-[250px]">
-                <label className="block mb-1 text-sm font-medium text-gray-500">Subcategory:</label>
-                <div className="text-gray-800">
-                  {selectedSubcategory || "Not selected"}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="flex justify-center">
           <Button
             className="w-full sm:w-auto focus:ring-2 focus:ring-blue-500"
             color="primary"
             onClick={handleNext}
+            type="button"
+            disabled={!selectedCategory || !selectedSubcategory}
           >
             Next
           </Button>

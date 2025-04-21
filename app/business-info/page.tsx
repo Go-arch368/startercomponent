@@ -7,8 +7,8 @@ import businessData from "@/data/businessData.json";
 
 export default function BusinessInformation() {
   const router = useRouter();
-  const [hasLocalData, setHasLocalData] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [hasLocalData, setHasLocalData] = useState(false);
   const [formData, setFormData] = useState({
     businessName: "",
     description: ""
@@ -23,15 +23,14 @@ export default function BusinessInformation() {
       try {
         const savedData = apiResponse 
           ? JSON.parse(apiResponse).business 
-          : JSON.parse(businessFormData || "{}").subcategories[0].businesses[0];
-        
+          : JSON.parse(businessFormData || "{}").subcategories?.[0]?.businesses?.[0] || {};
+
         setFormData({
-          businessName: savedData.businessName || businessData.subcategories[0].businesses[0].businessName,
-          description: savedData.description || businessData.subcategories[0].businesses[0].description
+          businessName: savedData.businessName || "",
+          description: savedData.description || ""
         });
       } catch (error) {
         console.error("Error parsing saved data:", error);
-        setFormData(businessData.subcategories[0].businesses[0]);
       }
     } else {
       setFormData(businessData.subcategories[0].businesses[0]);
@@ -60,70 +59,60 @@ export default function BusinessInformation() {
     router.push("/location");
   };
 
-  const toggleEdit = () => {
-    setIsEditing(!isEditing);
-  };
+  const toggleEdit = () => setIsEditing(true);
 
   return (
-    <main role="main" className="max-w-4xl mx-auto p-5">
+    <main className="max-w-4xl mx-auto p-5">
       <div className="bg-gray-50 rounded-lg shadow-sm p-6">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Business Information</h2>
 
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Basic Information</h3>
-          
+
           {/* Business Name Field */}
-          <div className="flex flex-wrap gap-4 mb-4">
-            <div className="flex-1 min-w-[250px]">
-              <label className="block mb-2 font-medium text-gray-700">
-                Business Name:
-              </label>
-              <div className="relative">
-                <input
-                  name="businessName"
-                  type="text"
-                  value={formData.businessName}
-                  onChange={handleInputChange}
-                  className="w-full p-2 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                  disabled={hasLocalData && !isEditing}
-                />
-                {hasLocalData && !isEditing && (
-                  <button 
-                    onClick={toggleEdit}
-                    className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-                    aria-label="Edit business name"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
+          <div className="mb-4">
+            <label className="block mb-2 font-medium text-gray-700">Business Name:</label>
+            <div className="relative">
+              <input
+                name="businessName"
+                type="text"
+                value={formData.businessName}
+                onChange={handleInputChange}
+                disabled={hasLocalData && !isEditing}
+                className="w-full p-2 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              />
+              {hasLocalData && !isEditing && (
+                <button
+                  onClick={toggleEdit}
+                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                  aria-label="Edit business name"
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
 
           {/* Description Field */}
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[250px]">
-              <label className="block mb-2 font-medium text-gray-700">
-                Description:
-              </label>
-              <div className="relative">
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className="w-full p-2 pr-10 border border-gray-300 rounded-md h-24 focus:ring-2 focus:ring-blue-500"
-                  disabled={hasLocalData && !isEditing}
-                />
-                {hasLocalData && !isEditing && (
-                  <button 
-                    onClick={toggleEdit}
-                    className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-                    aria-label="Edit description"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
+          <div>
+            <label className="block mb-2 font-medium text-gray-700">Description:</label>
+            <div className="relative">
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                disabled={hasLocalData && !isEditing}
+                className="w-full p-2 pr-10 border border-gray-300 rounded-md h-24 focus:ring-2 focus:ring-blue-500"
+              />
+              {hasLocalData && !isEditing && (
+                <button
+                  onClick={toggleEdit}
+                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                  aria-label="Edit description"
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -140,7 +129,7 @@ export default function BusinessInformation() {
             color="primary"
             onClick={handleNext}
           >
-            {isEditing ? "Save & Next" : "Next"}
+            {hasLocalData && !isEditing ? "Next" : "Save & Next"}
           </Button>
         </div>
       </div>
