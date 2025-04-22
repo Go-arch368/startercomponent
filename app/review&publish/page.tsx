@@ -221,8 +221,8 @@ const GalleryFAQsAndCTA = () => {
 
     const completeBusinessData = {
       welcome: {
-        category: welcomeData.welcome.category || "",
-        subcategory: welcomeData.welcome.subcategory || "",
+        category: welcomeData?.welcome?.category || "",
+        subcategory: welcomeData?.welcome?.subcategory || "",
       },
       business: {
         businessName: businessFormData.businessName || currentBusiness.businessName || "",
