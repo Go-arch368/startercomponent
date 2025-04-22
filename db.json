@@ -6024,6 +6024,429 @@
         "bookUrl": "/book/car_repair_001",
         "getDirections": "https://maps.google.com"
       }
+    },
+    {
+      "id": "cfc8",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Stores"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "fsadljfdslkdskf",
+          "price": "$50+"
+        },
+        {
+          "name": "dsfa;lk;lkjf;lkjfkl",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "79dc",
+      "welcome": {
+        "category": "Entertainment & Media",
+        "subcategory": "Convention Halls"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "0dd6",
+      "welcome": {
+        "category": "Entertainment & Media",
+        "subcategory": "Convention Halls"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {},
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "dsafskjdjdsf",
+          "price": "$50+"
+        },
+        {
+          "name": "lkjdsflds;ldsa;lf",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "9f37",
+      "welcome": {
+        "category": "Entertainment & Media",
+        "subcategory": "Convention Halls"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {},
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+"
+        },
+        {
+          "name": "",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "e8ff",
+      "welcome": {
+        "category": "Entertainment & Media",
+        "subcategory": "Movie Theaters"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "62ea",
+      "welcome": {
+        "category": "Entertainment & Media",
+        "subcategory": "Movie Theaters"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {},
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "dsflkflkdsa",
+          "price": "$50+"
+        },
+        {
+          "name": "dlfdsaljdsff;flds;",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "6e53",
+      "welcome": {
+        "category": "Entertainment & Media",
+        "subcategory": "Movie Theaters"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Stree",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+"
+        },
+        {
+          "name": "",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "e0aa",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "gowtham",
+          "price": "$50+"
+        },
+        {
+          "name": "gowhtam",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
     }
   ]
 }

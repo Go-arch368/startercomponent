@@ -37,32 +37,43 @@ const defaultFormData = {
   ],
 };
 
+// Custom hook for localStorage persistence
+function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T) => void] {
+  const [storedValue, setStoredValue] = useState<T>(() => {
+    if (typeof window === 'undefined') {
+      return initialValue;
+    }
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error(error);
+      return initialValue;
+    }
+  });
+
+  const setValue = (value: T) => {
+    try {
+      setStoredValue(value);
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(key, JSON.stringify(value));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return [storedValue, setValue];
+}
+
 const Services = () => {
   const router = useRouter();
-  const [formData, setFormData] = useState(defaultFormData);
-  const [apiResponse, setApiResponse] = useState<any>({});
-
-  // Initialize state from localStorage only on client side
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedData = localStorage.getItem("servicesFormData");
-      if (savedData) {
-        setFormData(JSON.parse(savedData));
-      }
-
-      const apiRes = localStorage.getItem("apiResponse");
-      if (apiRes) {
-        setApiResponse(JSON.parse(apiRes));
-      }
-    }
-  }, []);
-
-  // Save to localStorage whenever formData changes
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem("servicesFormData", JSON.stringify(formData));
-    }
-  }, [formData]);
+  const [formData, setFormData] = useLocalStorage("servicesFormData", defaultFormData);
+  interface ApiResponse {
+    services?: { name: string; price: string }[];
+  }
+  
+  const [apiResponse, setApiResponse] = useLocalStorage<ApiResponse>("apiResponse", {});
 
   const apiServices = apiResponse?.services || [];
 
@@ -99,9 +110,6 @@ const Services = () => {
   };
 
   const handleNext = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem("servicesFormData", JSON.stringify(formData));
-    }
     router.push("/review&publish");
   };
 
