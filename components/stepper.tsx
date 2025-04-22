@@ -1,4 +1,3 @@
-
 "use client";
 import clsx from "clsx";
 import React, { useState, useEffect } from "react";
@@ -129,16 +128,15 @@ export default function Stepper() {
     const Icon = steps[index].icon;
     const isCurrent = index === currentStep;
     const hasStepData = hasData[steps[index].path];
+    const isBeforeCurrent = index < currentStep;
 
     const circleClasses = clsx(
-      "z-10 flex items-center justify-center rounded-full border-2 text-sm font-semibold bg-white cursor-pointer",
+      "z-10 flex items-center justify-center rounded-full border-2 text-sm font-semibold bg-white cursor-pointer transition-all duration-300",
       {
-        "h-9 w-9": isCurrent, // Larger radius for current step
+        "h-10 w-10 border-blue-500 text-blue-500": isCurrent, // Larger and blue for current step
         "h-8 w-8": !isCurrent, // Default size for other steps
-        "border-green-700 text-green-700": hasStepData && isPublished,
-        "border-orange-500 text-orange-500": !hasStepData,
-        "border-blue-800 text-blue-800": isCurrent && hasStepData && !isPublished, // Darker blue for current step
-        "border-gray-300 text-gray-400": !isCurrent && hasStepData && !isPublished,
+        "border-green-700 text-green-700": (hasStepData || isBeforeCurrent) && !isCurrent,
+        "border-gray-300 text-gray-400": !hasStepData && !isBeforeCurrent && !isCurrent,
       }
     );
 
@@ -152,7 +150,7 @@ export default function Stepper() {
         onKeyDown={(e) => handleKeyDown(e, index)}
         aria-label={`Go to ${steps[index].label} step`}
       >
-        <Icon size={20} aria-hidden="true" /> {/* Increased icon size */}
+        <Icon size={isCurrent ? 22 : 20} aria-hidden="true" />
       </div>
     );
   };
@@ -160,14 +158,14 @@ export default function Stepper() {
   const renderLabel = (index: number) => {
     const isCurrent = index === currentStep;
     const hasStepData = hasData[steps[index].path];
+    const isBeforeCurrent = index < currentStep;
 
     const labelClasses = clsx(
-      "mt-1 px-1 text-xs text-center max-w-[100px] flex items-center gap-1 font-semibold",
+      "mt-2 px-1 text-xs text-center max-w-[100px] flex items-center gap-1 font-semibold transition-all duration-300",
       {
-        "text-green-700": hasStepData && isPublished,
-        "text-orange-500": !hasStepData,
-        "text-blue-800": isCurrent && hasStepData && !isPublished, // Darker blue for current step
-        "text-gray-600": !isCurrent && hasStepData && !isPublished,
+        "text-blue-500 text-sm": isCurrent, // Larger and blue for current step
+        "text-green-700": (hasStepData || isBeforeCurrent) && !isCurrent,
+        "text-gray-600": !hasStepData && !isBeforeCurrent && !isCurrent,
       }
     );
 
@@ -178,18 +176,29 @@ export default function Stepper() {
         title={steps[index].label}
       >
         <span className="truncate">{steps[index].label}</span>
-        {hasStepData && (
+        {hasStepData && !isCurrent && (
           <span
-            className={clsx(
-              "ml-1 flex h-6 w-6 items-center justify-center rounded-full text-white flex-shrink-0",
-              isPublished ? "bg-green-700" : "bg-blue-800" // Darker blue for checkmark
-            )}
+            className="ml-1 flex h-6 w-6 items-center justify-center rounded-full bg-green-700 text-white flex-shrink-0"
             aria-hidden="true"
           >
             <BadgeCheck size={14} strokeWidth={2} />
           </span>
         )}
       </label>
+    );
+  };
+
+  const renderConnector = (index: number) => {
+    const hasStepData = hasData[steps[index].path];
+    const hasNextStepData = hasData[steps[index + 1].path];
+    const isBeforeCurrent = index < currentStep;
+
+    return clsx(
+      "absolute top-5 z-0 h-[2px] w-full", // Full width connector
+      {
+        "bg-green-700": hasStepData || hasNextStepData || isBeforeCurrent,
+        "bg-gray-300": !hasStepData && !hasNextStepData && !isBeforeCurrent,
+      }
     );
   };
 
@@ -218,7 +227,7 @@ export default function Stepper() {
                 <motion.div
                   key={step.label}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="relative flex min-w-[70px] flex-1 flex-col items-center" // Increased min-w for more gap
+                  className="relative flex min-w-[70px] flex-1 flex-col items-center"
                   exit={{ opacity: 0, scale: 0.95 }}
                   initial={{ opacity: 0, scale: 0.95 }}
                   layout
@@ -226,17 +235,10 @@ export default function Stepper() {
                 >
                   {globalIndex < steps.length - 1 && !isLastVisible && (
                     <div
-                      className={clsx(
-                        "absolute top-4 z-0 h-0.5",
-                        hasData[steps[globalIndex].path] && hasData[steps[globalIndex + 1].path]
-                          ? "bg-green-700"
-                          : !hasData[steps[globalIndex].path] || !hasData[steps[globalIndex + 1].path]
-                          ? "bg-orange-500"
-                          : "bg-blue-800" // Darker blue for connector
-                      )}
+                      className={renderConnector(globalIndex)}
                       style={{
-                        left: "calc(50% + 1.5rem)", // Increased gap around connector
-                        right: "calc(-50% + 1.5rem)",
+                        left: "50%",
+                        right: "-50%",
                       }}
                     />
                   )}
@@ -255,11 +257,10 @@ export default function Stepper() {
               role="presentation"
               className={clsx(
                 "h-2.5 w-2.5 rounded-full",
-                hasData[step.path]
-                  ? isPublished
-                    ? "bg-green-700"
-                    : "bg-blue-800" // Darker blue for dots
-                  : "bg-orange-500"
+                {
+                  "bg-green-700": hasData[step.path] || index < currentStep,
+                  "bg-gray-300": !hasData[step.path] && index >= currentStep,
+                }
               )}
             />
           ))}
@@ -272,25 +273,18 @@ export default function Stepper() {
           Step {currentStep + 1} of {steps.length}
         </p>
 
-        <div className="relative flex w-full max-w-5xl items-center justify-between"> {/* Increased max-w for more gap */}
+        <div className="relative flex w-full max-w-5xl items-center justify-between">
           {steps.map((step, index) => (
             <div
               key={step.label}
-              className="relative z-10 flex min-w-[80px] flex-1 flex-col items-center" // Increased min-w for more gap
+              className="relative z-10 flex min-w-[80px] flex-1 flex-col items-center"
             >
               {index < steps.length - 1 && (
                 <div
-                  className={clsx(
-                    "absolute top-4 z-0 h-0.5",
-                    hasData[steps[index].path] && hasData[steps[index + 1].path]
-                      ? isPublished
-                        ? "bg-green-700"
-                        : "bg-blue-800" // Darker blue for connector
-                      : "bg-orange-500"
-                  )}
+                  className={renderConnector(index)}
                   style={{
-                    left: "calc(50% + 1.5rem)", // Increased gap around connector
-                    right: "calc(-50% + 1.5rem)",
+                    left: "50%",
+                    right: "-50%",
                   }}
                 />
               )}
