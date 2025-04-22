@@ -208,7 +208,7 @@ const GalleryFAQsAndCTA = () => {
     if (!formData) return;
     setIsPublishing(true);
 
-    // Save to publishFormData to turn Review & Publish step orange
+  
     localStorage.setItem(PUBLISH_FORM_DATA_KEY, JSON.stringify({ published: true }));
     console.log("Saved publishFormData:", { published: true });
 

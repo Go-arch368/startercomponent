@@ -7,108 +7,121 @@ import businessData from "@/data/businessData.json";
 
 export default function BusinessInformation() {
   const router = useRouter();
-  const [hasLocalData, setHasLocalData] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [isReadOnly, setIsReadOnly] = useState(false);
+  const [hasPublishedData, setHasPublishedData] = useState(false);
   const [formData, setFormData] = useState({
     businessName: "",
     description: "",
   });
 
   useEffect(() => {
+    // Check localStorage for existing data
     const apiResponse = localStorage.getItem("apiResponse");
     const businessFormData = localStorage.getItem("businessFormData");
 
-    let dataSource: { businessName?: string; description?: string } = {};
-
-    if (apiResponse && apiResponse !== '""') {
-      // Non-empty apiResponse: use published data and set read-only
-      try {
-        const parsedApiResponse = JSON.parse(apiResponse);
-        if (parsedApiResponse.business) {
-          dataSource = parsedApiResponse.business;
-          setHasLocalData(true);
-          setIsReadOnly(true);
-        }
-      } catch (error) {
-        console.error("Error parsing apiResponse:", error);
-      }
-    } else if (apiResponse === '""' || businessFormData) {
-      // Empty apiResponse or businessFormData: use businessFormData and set read-only for empty apiResponse
-      try {
-        dataSource = businessFormData
-          ? JSON.parse(businessFormData).subcategories?.[0]?.businesses?.[0] || {}
-          : {};
-        setHasLocalData(true);
-        setIsReadOnly(apiResponse === '""');
-      } catch (error) {
-        console.error("Error parsing businessFormData:", error);
-      }
+    // Determine if we have valid published data
+    let publishedDataExists = false;
+    try {
+      const parsedApiResponse = apiResponse ? JSON.parse(apiResponse) : null;
+      publishedDataExists = Boolean(
+        parsedApiResponse?.business?.businessName && 
+        parsedApiResponse?.business?.description
+      );
+    } catch (e) {
+      publishedDataExists = false;
     }
 
-    // Fallback to default data if no valid data is found
-    setFormData({
-      businessName: dataSource.businessName || businessData.subcategories[0].businesses[0].businessName,
-      description: dataSource.description || businessData.subcategories[0].businesses[0].description,
-    });
+    setHasPublishedData(publishedDataExists);
+
+    if (publishedDataExists) {
+      // Load from published data (apiResponse)
+      const parsedApiResponse = JSON.parse(apiResponse!);
+      setFormData({
+        businessName: parsedApiResponse.business.businessName,
+        description: parsedApiResponse.business.description,
+      });
+      setIsEditing(false); // Start in read-only mode
+    } else {
+      // Load from draft or use defaults
+      let draftData = {
+        businessName: businessData.subcategories[0].businesses[0].businessName,
+        description: businessData.subcategories[0].businesses[0].description,
+      };
+
+      if (businessFormData && businessFormData !== "null") {
+        try {
+          const parsedFormData = JSON.parse(businessFormData);
+          draftData = {
+            businessName: parsedFormData.subcategories?.[0]?.businesses?.[0]?.businessName || draftData.businessName,
+            description: parsedFormData.subcategories?.[0]?.businesses?.[0]?.description || draftData.description,
+          };
+        } catch (e) {
+          console.error("Error parsing draft data", e);
+        }
+      }
+
+      setFormData(draftData);
+      setIsEditing(true); // Start in edit mode
+    }
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleNext = () => {
-    if (!hasLocalData || isEditing) {
-      const dataToSave = {
-        subcategories: [
-          {
-            businesses: [
-              {
-                businessName: formData.businessName,
-                description: formData.description,
-              },
-            ],
-          },
-        ],
-      };
-      localStorage.setItem("businessFormData", JSON.stringify(dataToSave));
-      setHasLocalData(true);
-      setIsEditing(false);
-    }
+    // Save data to localStorage (as draft)
+    const dataToSave = {
+      subcategories: [{
+        businesses: [{
+          businessName: formData.businessName,
+          description: formData.description
+        }]
+      }]
+    };
+    localStorage.setItem("businessFormData", JSON.stringify(dataToSave));
     router.push("/location");
   };
 
-  const toggleEdit = () => setIsEditing(!isEditing);
+  const toggleEdit = () => {
+    if (isEditing && hasPublishedData) {
+      // Revert to published data when canceling edit
+      const apiResponse = JSON.parse(localStorage.getItem("apiResponse") || "{}");
+      setFormData({
+        businessName: apiResponse.business?.businessName || "",
+        description: apiResponse.business?.description || "",
+      });
+    }
+    setIsEditing(!isEditing);
+  };
+
+  const isReadOnly = hasPublishedData && !isEditing;
 
   return (
     <main className="max-w-4xl mx-auto p-5">
       <div className="bg-gray-50 rounded-lg shadow-sm p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Business Information</h2>
-          {(hasLocalData || isReadOnly) && !isEditing && (
-            <button
-              onClick={toggleEdit}
-              className="text-gray-500 hover:text-gray-700 flex items-center gap-1"
-              aria-label="Edit business information"
-            >
-              <Pencil className="w-4 h-4" />
-              <span>Edit</span>
-            </button>
-          )}
-        </div>
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">Business Information</h2>
 
-        {/* Read-Only Indicator */}
-        {isReadOnly && (
+        {isReadOnly ? (
           <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
-            This form is in read-only mode because the data has been published or is empty. Click the edit button to modify.
+            Viewing published business information.{" "}
+            <button 
+              onClick={toggleEdit}
+              className="ml-2 text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Edit Business
+            </button>
           </div>
-        )}
+        ) : hasPublishedData ? (
+          <div className="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded-md">
+            Editing business information. Changes will be saved as draft.
+          </div>
+        ) : null}
 
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Basic Information</h3>
 
-          {/* Business Name Field */}
           <div className="mb-4">
             <label className="block mb-2 font-medium text-gray-700">Business Name:</label>
             <div className="relative">
@@ -117,13 +130,22 @@ export default function BusinessInformation() {
                 type="text"
                 value={formData.businessName}
                 onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                disabled={(hasLocalData || isReadOnly) && !isEditing}
+                readOnly={isReadOnly}
+                className={`w-full p-2 ${isReadOnly ? 'pr-10 bg-gray-100' : 'border border-gray-300'} rounded-md focus:ring-2 focus:ring-blue-500`}
+                placeholder="Enter your business name"
               />
+              {isReadOnly && (
+                <button
+                  onClick={toggleEdit}
+                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                  aria-label="Edit business name"
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Description Field */}
           <div>
             <label className="block mb-2 font-medium text-gray-700">Description:</label>
             <div className="relative">
@@ -131,9 +153,19 @@ export default function BusinessInformation() {
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md h-24 focus:ring-2 focus:ring-blue-500"
-                disabled={(hasLocalData || isReadOnly) && !isEditing}
+                readOnly={isReadOnly}
+                className={`w-full p-2 ${isReadOnly ? 'pr-10 bg-gray-100' : 'border border-gray-300'} rounded-md h-24 focus:ring-2 focus:ring-blue-500`}
+                placeholder="Describe your business"
               />
+              {isReadOnly && (
+                <button
+                  onClick={toggleEdit}
+                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                  aria-label="Edit description"
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -145,12 +177,23 @@ export default function BusinessInformation() {
           >
             Back
           </Button>
+          
+          {isEditing && hasPublishedData && (
+            <Button
+              className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700 focus:ring-2 focus:ring-blue-500"
+              onClick={toggleEdit}
+            >
+              Cancel
+            </Button>
+          )}
+          
           <Button
             className="w-full sm:w-auto focus:ring-2 focus:ring-blue-500"
             color="primary"
             onClick={handleNext}
+            disabled={!formData.businessName.trim()}
           >
-            {(hasLocalData || isReadOnly) && !isEditing ? "Next" : "Save & Next"}
+            {isReadOnly ? "Next" : "Save & Next"}
           </Button>
         </div>
       </div>
