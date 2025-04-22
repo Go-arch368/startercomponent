@@ -4870,6 +4870,1160 @@
         "bookUrl": "/book/car_repair_001",
         "getDirections": "https://maps.google.com"
       }
+    },
+    {
+      "id": "67db",
+      "welcome": {
+        "category": "Computers & Mobile",
+        "subcategory": "Computer Sales and Repair"
+      },
+      "business": {
+        "businessName": "HI myself gowtam",
+        "description": "sdljfdsalf dsa;lkjf dsafjds fdsaf;ljkds fldsaflkjs"
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+"
+        },
+        {
+          "name": "",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "4bb3",
+      "welcome": {
+        "category": "Entertainment & Media",
+        "subcategory": "Music Stores"
+      },
+      "business": {
+        "businessName": "HI myself gowtam",
+        "description": "sdljfdsalf dsa;lkjf dsafjds fdsaf;ljkds fldsaflkjs"
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "4abd",
+      "welcome": {
+        "category": "Safety & Security",
+        "subcategory": ""
+      },
+      "business": {
+        "businessName": "HI myself gowtam",
+        "description": "sdljfdsalf dsa;lkjf dsafjds fdsaf;ljkds fldsaflkjs"
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "6acf",
+      "welcome": {
+        "category": "Computers & Mobile",
+        "subcategory": "Web Design"
+      },
+      "business": {
+        "businessName": "HI myself gowtam",
+        "description": "sdljfdsalf dsa;lkjf dsafjds fdsaf;ljkds fldsaflkjs"
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "Gowtham",
+          "price": "$50+"
+        },
+        {
+          "name": "gowtham",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "02a9",
+      "welcome": {
+        "category": "Sports & Recreation",
+        "subcategory": "Parks"
+      },
+      "business": {
+        "businessName": "HI myself gowtam",
+        "description": "sdljfdsalf dsa;lkjf dsafjds fdsaf;ljkds fldsaflkjs"
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "bcc6",
+      "welcome": {
+        "category": "Sports & Recreation",
+        "subcategory": "Parks"
+      },
+      "business": {
+        "businessName": "HI myself gowtam",
+        "description": "sdljfdsalf dsa;lkjf dsafjds fdsaf;ljkds fldsaflkjs"
+      },
+      "location": {},
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "dsfdslkfdsaf;lkj;lkjdsl",
+          "price": "$50+"
+        },
+        {
+          "name": "dlfkjdsa;fdslfa",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "eaa7",
+      "welcome": {
+        "category": "Safety & Security",
+        "subcategory": "Safety Equipment"
+      },
+      "business": {
+        "businessName": "HI myself gowtam",
+        "description": "sdljfdsalf dsa;lkjf dsafjds fdsaf;ljkds fldsaflkjs"
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+"
+        },
+        {
+          "name": "",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "e074",
+      "welcome": {
+        "category": "Government & Community",
+        "subcategory": "Local Government Offices"
+      },
+      "business": {
+        "businessName": "HI myself gowtam",
+        "description": "sdljfdsalf dsa;lkjf dsafjds fdsaf;ljkds fldsaflkjs"
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "6695",
+      "welcome": {
+        "category": "Computers & Mobile",
+        "subcategory": "Mobile Sales and Repair"
+      },
+      "business": {
+        "businessName": "HI myself gowtam",
+        "description": "sdljfdsalf dsa;lkjf dsafjds fdsaf;ljkds fldsaflkjs"
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "gsfadsfdsfds fdsf",
+          "price": "$50+"
+        },
+        {
+          "name": "dsafdsfdsafdsfdsafs",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "e3a5",
+      "welcome": {
+        "category": "Safety & Security",
+        "subcategory": "Fire Departments"
+      },
+      "business": {
+        "businessName": "HI myself gowtam",
+        "description": "sdljfdsalf dsa;lkjf dsafjds fdsaf;ljkds fldsaflkjs"
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "d053",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Veterinarians"
+      },
+      "business": {
+        "businessName": "HI myself gowtam",
+        "description": "sdljfdsalf dsa;lkjf dsafjds fdsaf;ljkds fldsaflkjs"
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "809f",
+      "welcome": {
+        "category": "Sports & Recreation",
+        "subcategory": "Parks"
+      },
+      "business": {
+        "businessName": "HI myself gowtam",
+        "description": "sdljfdsalf dsa;lkjf dsafjds fdsaf;ljkds fldsaflkjs"
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/bok/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "aecf",
+      "welcome": {
+        "category": "Sports & Recreation",
+        "subcategory": "Parks"
+      },
+      "business": {
+        "businessName": "HI myself gowtam",
+        "description": "sdljfdsalf dsa;lkjf dsafjds fdsaf;ljkds fldsaflkjs"
+      },
+      "location": {},
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+"
+        },
+        {
+          "name": "",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/bok/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "f7c5",
+      "welcome": {
+        "category": "Sports & Recreation",
+        "subcategory": "Parks"
+      },
+      "business": {
+        "businessName": "HI myself gowtam",
+        "description": "sdljfdsalf dsa;lkjf dsafjds fdsaf;ljkds fldsaflkjs"
+      },
+      "location": {},
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/bok/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "c596",
+      "welcome": {
+        "category": "Sports & Recreation",
+        "subcategory": "Parks"
+      },
+      "business": {
+        "businessName": "HI myself gowtam",
+        "description": "sdljfdsalf dsa;lkjf dsafjds fdsaf;ljkds fldsaflkjs"
+      },
+      "location": {},
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/bok/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "331d",
+      "welcome": {
+        "category": "Sports & Recreation",
+        "subcategory": "Parks"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "e1c0",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "Hello Hi I am Gowhtam",
+        "description": "Hey bro how are you ?"
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "fea5",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "Hello Hi I am Gowhtam",
+        "description": "Hey bro how are you ?"
+      },
+      "location": {},
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "0ab2",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Grooming"
+      },
+      "business": {
+        "businessName": "Hello Hi I am Gowhtam",
+        "description": "Hey bro how are you ?"
+      },
+      "location": {},
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "Gowtham",
+          "price": "$50+"
+        },
+        {
+          "name": "Gowhtma",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "9327",
+      "welcome": {
+        "category": "Government & Community",
+        "subcategory": "Community Centers"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "Gowtham",
+          "price": "$50+"
+        },
+        {
+          "name": "Gwotam",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "004a",
+      "welcome": {
+        "category": "Pets & Animals",
+        "subcategory": "Pet Training"
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {
+        "subcategories": [
+          {
+            "businesses": [
+              {
+                "location": {
+                  "address": "123 Main Street",
+                  "city": "Sample City",
+                  "state": "Sample State",
+                  "postalCode": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
+        },
+        {
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
     }
   ]
 }

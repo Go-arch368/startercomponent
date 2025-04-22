@@ -259,7 +259,11 @@ const GalleryFAQsAndCTA = () => {
       localStorage.removeItem(PUBLISH_FORM_DATA_KEY);
 
       alert("Business published successfully!");
-      router.push("/review&publish"); // Stay on page or redirect as needed
+      setTimeout(() => {
+        location.reload();
+      }, 1000);
+      
+      router.push("/review&publish"); 
     } catch (error) {
       console.error("Error publishing business:", error);
       alert("Failed to publish business. Please try again.");

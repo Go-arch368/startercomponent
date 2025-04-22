@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { Button } from '@heroui/button';
 import { Plus, Pencil } from 'lucide-react';
@@ -11,11 +10,11 @@ interface ModeToggleProps {
 export function ModeToggle({ initialHasData }: ModeToggleProps) {
   const [mode, setMode] = useState<'create' | 'edit'>(initialHasData ? 'edit' : 'create');
   const [hasData, setHasData] = useState(initialHasData);
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
-    // Hydrate from localStorage after mount
     const apiResponse = localStorage.getItem('apiResponse');
-    const dataExists = !!apiResponse;
+    const dataExists = !!apiResponse && apiResponse !== '""' && apiResponse !== '{}';
     setHasData(dataExists);
     setMode(dataExists ? 'edit' : 'create');
   }, []);
@@ -24,13 +23,18 @@ export function ModeToggle({ initialHasData }: ModeToggleProps) {
     localStorage.removeItem('apiResponse');
     setMode('create');
     setHasData(false);
+    setIsCreating(true);
     
+    // Reload page after 1 second
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
 
   const handleEditClick = () => {
     if (hasData) {
       setMode('edit');
-      localStorage.getItem('apiResponse')
+      localStorage.getItem('apiResponse');
     }
   };
 
@@ -38,13 +42,14 @@ export function ModeToggle({ initialHasData }: ModeToggleProps) {
     <div className="flex gap-2">
       <Button
         onClick={handleCreateClick}
+        isDisabled={isCreating}
         color={mode === 'create' ? 'primary' : 'default'}
         startContent={<Plus className="h-4 w-4" />}
         variant={mode === 'create' ? 'solid' : 'bordered'}
         size="sm"
         radius="full"
       >
-        Create
+        {isCreating ? 'Creating...' : 'Create'}
       </Button>
       <Button
         onClick={handleEditClick}
