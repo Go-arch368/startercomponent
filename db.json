@@ -6966,10 +6966,10 @@
       }
     },
     {
-      "id": "ec71",
+      "id": "4bdc",
       "welcome": {
-        "category": "Computers & Mobile",
-        "subcategory": "Computer Sales and Repair"
+        "category": "Pets & Animals",
+        "subcategory": ""
       },
       "business": {
         "businessName": "Sample Car Repair Business",
@@ -6998,12 +6998,14 @@
       },
       "services": [
         {
-          "name": "Gwotham",
-          "price": "$50+"
+          "name": "",
+          "price": "$50+",
+          "currency": "USD"
         },
         {
-          "name": "Gowtham",
-          "price": "$75+"
+          "name": "",
+          "price": "$75+",
+          "currency": "EUR"
         }
       ],
       "timings": {
