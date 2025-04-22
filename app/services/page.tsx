@@ -22,39 +22,49 @@ const currencyCodes = [
   { code: "CNY ¥100", country: "China" },
 ];
 
+const defaultFormData = {
+  subcategories: [
+    {
+      businesses: [
+        {
+          services: businessData.subcategories[0].businesses[0].services.map((service) => ({
+            name: service.name,
+            price: service.price || "USD $50",
+          })),
+        },
+      ],
+    },
+  ],
+};
+
 const Services = () => {
   const router = useRouter();
-  const [formData, setFormData] = useState(() => {
-    const savedData = localStorage.getItem("servicesFormData");
-    return savedData
-      ? JSON.parse(savedData)
-      : {
-          subcategories: [
-            {
-              businesses: [
-                {
-                  services: businessData.subcategories[0].businesses[0].services.map((service) => ({
-                    name: service.name,
-                    price: service.price || "USD $50",
-                  })),
-                },
-              ],
-            },
-          ],
-        };
-  });
+  const [formData, setFormData] = useState(defaultFormData);
+  const [apiResponse, setApiResponse] = useState<any>({});
 
+  // Initialize state from localStorage only on client side
   useEffect(() => {
-    localStorage.setItem("servicesFormData", JSON.stringify(formData));
+    if (typeof window !== 'undefined') {
+      const savedData = localStorage.getItem("servicesFormData");
+      if (savedData) {
+        setFormData(JSON.parse(savedData));
+      }
+
+      const apiRes = localStorage.getItem("apiResponse");
+      if (apiRes) {
+        setApiResponse(JSON.parse(apiRes));
+      }
+    }
+  }, []);
+
+  // Save to localStorage whenever formData changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("servicesFormData", JSON.stringify(formData));
+    }
   }, [formData]);
 
-  // Fetch the API response from localStorage
-  const apiResponse = JSON.parse(localStorage.getItem("apiResponse") || "{}");
-
-  // Merge API response services with the formData services (if present)
   const apiServices = apiResponse?.services || [];
-
-  const initialBusiness = businessData.subcategories[0].businesses[0];
 
   const updateFormData = (path: string, value: any) => {
     const keys = path.split(".");
@@ -89,7 +99,9 @@ const Services = () => {
   };
 
   const handleNext = () => {
-    localStorage.setItem("servicesFormData", JSON.stringify(formData));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("servicesFormData", JSON.stringify(formData));
+    }
     router.push("/review&publish");
   };
 
