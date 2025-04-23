@@ -194,7 +194,7 @@ export default function Stepper() {
     const isBeforeCurrent = index < currentStep;
 
     return clsx(
-      "absolute top-5 z-0 h-[2px] w-full", // Full width connector
+      "absolute top-5 z-0 h-[2px] w-full", 
       {
         "bg-green-700": hasStepData || hasNextStepData || isBeforeCurrent,
         "bg-gray-300": !hasStepData && !hasNextStepData && !isBeforeCurrent,
@@ -204,7 +204,7 @@ export default function Stepper() {
 
   return (
     <nav aria-label="Stepper navigation">
-      {/* Mobile View */}
+   
       <div className="flex w-full flex-col items-center px-2 py-6 sm:hidden">
         <motion.p
           key={currentStep}
@@ -267,7 +267,7 @@ export default function Stepper() {
         </div>
       </div>
 
-      {/* Desktop View */}
+
       <div className="hidden w-full flex-col items-center px-4 py-6 sm:flex">
         <p className="mb-4 text-sm font-semibold text-gray-700">
           Step {currentStep + 1} of {steps.length}
