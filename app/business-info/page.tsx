@@ -15,11 +15,11 @@ export default function BusinessInformation() {
   });
 
   useEffect(() => {
-    // Check localStorage for existing data
+   
     const apiResponse = localStorage.getItem("apiResponse");
     const businessFormData = localStorage.getItem("businessFormData");
 
-    // Determine if we have valid published data
+ 
     let publishedDataExists = false;
     try {
       const parsedApiResponse = apiResponse ? JSON.parse(apiResponse) : null;
@@ -34,15 +34,14 @@ export default function BusinessInformation() {
     setHasPublishedData(publishedDataExists);
 
     if (publishedDataExists) {
-      // Load from published data (apiResponse)
       const parsedApiResponse = JSON.parse(apiResponse!);
       setFormData({
         businessName: parsedApiResponse.business.businessName,
         description: parsedApiResponse.business.description,
       });
-      setIsEditing(false); // Start in read-only mode
+      setIsEditing(false); 
     } else {
-      // Load from draft or use defaults
+    
       let draftData = {
         businessName: businessData.subcategories[0].businesses[0].businessName,
         description: businessData.subcategories[0].businesses[0].description,

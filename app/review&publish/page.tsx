@@ -207,18 +207,22 @@ const GalleryFAQsAndCTA = () => {
   const handlePublish = async () => {
     if (!formData) return;
     setIsPublishing(true);
-
   
     localStorage.setItem(PUBLISH_FORM_DATA_KEY, JSON.stringify({ published: true }));
-    console.log("Saved publishFormData:", { published: true });
-
+  
     const welcomeData = JSON.parse(localStorage.getItem("apiResponse") || "{}");
     const businessFormData = JSON.parse(localStorage.getItem("businessInfoFormData") || "{}");
     const locationFormData = JSON.parse(localStorage.getItem("locationFormData") || "{}");
     const contactAndTimingsFormData = JSON.parse(localStorage.getItem("contactAndTimingsFormData") || "{}");
     const servicesFormData = JSON.parse(localStorage.getItem("servicesFormData") || "{}");
     const currentBusiness = formData.subcategories[0].businesses[0];
-
+  
+    // Fix: Properly merge contact data from contactAndTimingsFormData
+    const contactData = contactAndTimingsFormData.contact || currentBusiness.contact || {};
+    const phone = contactData.phone || "";
+    const email = contactData.email || "";
+    const website = contactData.website || "";
+  
     const completeBusinessData = {
       welcome: {
         category: welcomeData?.welcome?.category || "",
@@ -229,7 +233,12 @@ const GalleryFAQsAndCTA = () => {
         description: businessFormData.description || currentBusiness.description || "",
       },
       location: locationFormData || currentBusiness.location || {},
-      contact: contactAndTimingsFormData.phone ? { phone: contactAndTimingsFormData.phone } : currentBusiness.contact || {},
+      contact: {
+        phone,
+        email,
+        website,
+        ...(contactData.otherFields || {}) // Include any additional contact fields
+      },
       services: servicesFormData.length > 0 ? servicesFormData : currentBusiness.services || [],
       timings: contactAndTimingsFormData.timings || currentBusiness.timings || {},
       gallery: currentBusiness.gallery || [],
@@ -240,14 +249,14 @@ const GalleryFAQsAndCTA = () => {
         getDirections: currentBusiness.cta.getDirections || "",
       },
     };
-
+  
     try {
       localStorage.setItem(BUSINESS_DATA_KEY, JSON.stringify(completeBusinessData));
       const response = await axios.post("http://localhost:4000/businesses", completeBusinessData);
-
+  
       console.log("API Response:", response.data);
       localStorage.setItem("apiResponse", JSON.stringify(response.data));
-
+  
       // Clear localStorage keys
       localStorage.removeItem("welcomeFormData");
       localStorage.removeItem("businessInfoFormData");
@@ -257,7 +266,7 @@ const GalleryFAQsAndCTA = () => {
       localStorage.removeItem(FORM_DATA_KEY);
       localStorage.removeItem(CALL_COUNTRY_CODE_KEY);
       localStorage.removeItem(PUBLISH_FORM_DATA_KEY);
-
+  
       alert("Business published successfully!");
       setTimeout(() => {
         location.reload();

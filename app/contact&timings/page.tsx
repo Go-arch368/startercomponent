@@ -14,11 +14,14 @@ const countryCodes = [
   { code: "+86", country: "China" },
 ];
 
+const FORM_DATA_KEY = "contactAndTimingsFormData";
+const PHONE_COUNTRY_CODE_KEY = "phoneCountryCode";
+const CALL_COUNTRY_CODE_KEY = "callCountryCode";
+
 const ContactAndTimings = () => {
   const router = useRouter();
-  const [hasPublishedData, setHasPublishedData] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState(() => ({
+  const [initialized, setInitialized] = useState(false);
+  const [formData, setFormData] = useState({
     contact: {
       phone: "",
       email: "",
@@ -38,7 +41,7 @@ const ContactAndTimings = () => {
       bookUrl: "",
       getDirections: ""
     }
-  }));
+  });
   const [phoneCountryCode, setPhoneCountryCode] = useState(countryCodes[0].code);
   const [callCountryCode, setCallCountryCode] = useState(countryCodes[0].code);
   const [closedDays, setClosedDays] = useState({
@@ -50,90 +53,94 @@ const ContactAndTimings = () => {
     saturday: false,
     sunday: true
   });
+  const [isReadOnly, setIsReadOnly] = useState(false);
 
-  useEffect(() => {
-    const apiResponse = localStorage.getItem("apiResponse");
-    const contactAndTimingsFormData = localStorage.getItem("contactAndTimingsFormData");
+// Update the initialization useEffect to properly handle draft data
+useEffect(() => {
+  if (initialized || typeof window === "undefined") return;
 
-    // Check if apiResponse exists and has contact/timings data
-    let publishedDataExists = false;
+  const apiResponse = localStorage.getItem("apiResponse");
+  const hasPublishedData = !!apiResponse && apiResponse !== "{}" && apiResponse !== '""';
+  setIsReadOnly(hasPublishedData);
+
+  const savedFormData = localStorage.getItem(FORM_DATA_KEY);
+  const savedPhoneCode = localStorage.getItem(PHONE_COUNTRY_CODE_KEY);
+  const savedCallCode = localStorage.getItem(CALL_COUNTRY_CODE_KEY);
+
+  if (savedPhoneCode) setPhoneCountryCode(savedPhoneCode);
+  if (savedCallCode) setCallCountryCode(savedCallCode);
+
+  // Always check for draft data first, regardless of published state
+  if (savedFormData) {
     try {
-      const parsedApiResponse = apiResponse ? JSON.parse(apiResponse) : null;
-      publishedDataExists = Boolean(
-        parsedApiResponse?.contact && 
-        parsedApiResponse?.timings && 
-        parsedApiResponse?.cta
-      );
-    } catch (e) {
-      publishedDataExists = false;
-    }
+      const parsedData = JSON.parse(savedFormData);
+      setFormData(parsedData);
 
-    setHasPublishedData(publishedDataExists);
-
-    if (publishedDataExists) {
-      // Load from published data
-      const parsedApiResponse = JSON.parse(apiResponse!);
-      setFormData({
-        contact: {
-          phone: parsedApiResponse.contact?.phone || "",
-          email: parsedApiResponse.contact?.email || "",
-          website: parsedApiResponse.contact?.website || ""
-        },
-        timings: {
-          monday: parsedApiResponse.timings?.monday || "09:00 AM - 06:00 PM",
-          tuesday: parsedApiResponse.timings?.tuesday || "09:00 AM - 06:00 PM",
-          wednesday: parsedApiResponse.timings?.wednesday || "09:00 AM - 06:00 PM",
-          thursday: parsedApiResponse.timings?.thursday || "09:00 AM - 06:00 PM",
-          friday: parsedApiResponse.timings?.friday || "09:00 AM - 06:00 PM",
-          saturday: parsedApiResponse.timings?.saturday || "10:00 AM - 04:00 PM",
-          sunday: parsedApiResponse.timings?.sunday || "Closed"
-        },
-        cta: {
-          call: parsedApiResponse.cta?.call || "",
-          bookUrl: parsedApiResponse.cta?.bookUrl || "",
-          getDirections: parsedApiResponse.cta?.getDirections || ""
-        }
-      });
-      
-      // Set closed days based on timings
       const newClosedDays = { ...closedDays };
       Object.keys(newClosedDays).forEach(day => {
         newClosedDays[day as keyof typeof newClosedDays] = 
-          parsedApiResponse.timings?.[day] === "Closed";
+          parsedData.timings[day as keyof typeof parsedData.timings] === "Closed";
       });
       setClosedDays(newClosedDays);
-      
-      setIsEditing(false); // Start in read-only mode
-    } else if (contactAndTimingsFormData) {
-      // Load from draft data
-      try {
-        const parsedData = JSON.parse(contactAndTimingsFormData);
-        setFormData(parsedData);
-        setIsEditing(true); // Start in edit mode
-      } catch (error) {
-        console.error("Error parsing draft data", error);
-      }
-    } else {
-      // Load default data
-      const initialBusiness = businessData.subcategories[0].businesses[0];
-      setFormData({
-        contact: { ...initialBusiness.contact },
-        timings: { ...initialBusiness.timings },
-        cta: { ...initialBusiness.cta }
-      });
-      setIsEditing(true); // Start in edit mode
+    } catch (error) {
+      console.error("Error parsing draft data", error);
     }
+  } else if (hasPublishedData) {
+    // Only load from published data if no draft exists
+    const parsedApiResponse = JSON.parse(apiResponse!);
+    const newFormData = {
+      contact: {
+        phone: parsedApiResponse.contact?.phone || "",
+        email: parsedApiResponse.contact?.email || "",
+        website: parsedApiResponse.contact?.website || ""
+      },
+      timings: {
+        monday: parsedApiResponse.timings?.monday || "09:00 AM - 06:00 PM",
+        tuesday: parsedApiResponse.timings?.tuesday || "09:00 AM - 06:00 PM",
+        wednesday: parsedApiResponse.timings?.wednesday || "09:00 AM - 06:00 PM",
+        thursday: parsedApiResponse.timings?.thursday || "09:00 AM - 06:00 PM",
+        friday: parsedApiResponse.timings?.friday || "09:00 AM - 06:00 PM",
+        saturday: parsedApiResponse.timings?.saturday || "10:00 AM - 04:00 PM",
+        sunday: parsedApiResponse.timings?.sunday || "Closed"
+      },
+      cta: {
+        call: parsedApiResponse.cta?.call || "",
+        bookUrl: parsedApiResponse.cta?.bookUrl || "",
+        getDirections: parsedApiResponse.cta?.getDirections || ""
+      }
+    };
+    setFormData(newFormData);
 
-    // Load saved country codes
-    const savedPhoneCountryCode = localStorage.getItem("phoneCountryCode");
-    const savedCallCountryCode = localStorage.getItem("callCountryCode");
-    if (savedPhoneCountryCode) setPhoneCountryCode(savedPhoneCountryCode);
-    if (savedCallCountryCode) setCallCountryCode(savedCallCountryCode);
-  }, []);
+    const newClosedDays = { ...closedDays };
+    Object.keys(newClosedDays).forEach(day => {
+      newClosedDays[day as keyof typeof newClosedDays] = 
+        newFormData.timings[day as keyof typeof newFormData.timings] === "Closed";
+    });
+    setClosedDays(newClosedDays);
+  } else {
+    // Load default data
+    const initialBusiness = businessData.subcategories[0].businesses[0];
+    setFormData({
+      contact: { ...initialBusiness.contact },
+      timings: { ...initialBusiness.timings },
+      cta: { ...initialBusiness.cta }
+    });
+  }
 
-  const isReadOnly = hasPublishedData && !isEditing;
+  setInitialized(true);
+}, [initialized]);
+
+  useEffect(() => {
+    if (initialized && !isReadOnly) {
+  
+      localStorage.setItem(FORM_DATA_KEY, JSON.stringify(formData));
+      localStorage.setItem(PHONE_COUNTRY_CODE_KEY, phoneCountryCode);
+      localStorage.setItem(CALL_COUNTRY_CODE_KEY, callCountryCode);
+    }
+  }, [formData, phoneCountryCode, callCountryCode, initialized, isReadOnly]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isReadOnly) return;
     const { name, value } = e.target;
     const [section, field] = name.split('.');
     setFormData(prev => ({
@@ -154,10 +161,17 @@ const ContactAndTimings = () => {
     const [openPart, closePart] = currentTime.split(" - ");
     let newTime = currentTime;
 
+    // Convert time to 12-hour format with AM/PM
+    const [hours, minutes] = value.split(":");
+    const hourNum = parseInt(hours, 10);
+    const period = hourNum >= 12 ? "PM" : "AM";
+    const adjustedHour = hourNum % 12 || 12;
+    const formattedTime = `${adjustedHour}:${minutes} ${period}`;
+
     if (type === 'open') {
-      newTime = `${value} - ${closePart}`;
+      newTime = `${formattedTime} - ${closePart}`;
     } else {
-      newTime = `${openPart} - ${value}`;
+      newTime = `${openPart} - ${formattedTime}`;
     }
 
     setFormData(prev => ({
@@ -188,192 +202,236 @@ const ContactAndTimings = () => {
   };
 
   const handleNext = () => {
-    // Save to localStorage
-    localStorage.setItem("contactAndTimingsFormData", JSON.stringify(formData));
-    localStorage.setItem("phoneCountryCode", phoneCountryCode);
-    localStorage.setItem("callCountryCode", callCountryCode);
+    // Save the current form data to localStorage before navigating
+    const dataToSave = {
+      contact: formData.contact,
+      timings: formData.timings,
+      cta: formData.cta
+    };
+    
+    localStorage.setItem(FORM_DATA_KEY, JSON.stringify(dataToSave));
+    localStorage.setItem(PHONE_COUNTRY_CODE_KEY, phoneCountryCode);
+    localStorage.setItem(CALL_COUNTRY_CODE_KEY, callCountryCode);
+    
     router.push("/services");
   };
+  
 
   const toggleEdit = () => {
-    setIsEditing(!isEditing);
+    if (isReadOnly) {
+      setIsReadOnly(false);
+    } else {
+      const apiResponse = localStorage.getItem("apiResponse");
+      if (apiResponse && apiResponse !== "{}" && apiResponse !== '""') {
+        const parsedApiResponse = JSON.parse(apiResponse);
+        const newFormData = {
+          contact: {
+            phone: parsedApiResponse.contact?.phone || "",
+            email: parsedApiResponse.contact?.email || "",
+            website: parsedApiResponse.contact?.website || ""
+          },
+          timings: {
+            monday: parsedApiResponse.timings?.monday || "09:00 AM - 06:00 PM",
+            tuesday: parsedApiResponse.timings?.tuesday || "09:00 AM - 06:00 PM",
+            wednesday: parsedApiResponse.timings?.wednesday || "09:00 AM - 06:00 PM",
+            thursday: parsedApiResponse.timings?.thursday || "09:00 AM - 06:00 PM",
+            friday: parsedApiResponse.timings?.friday || "09:00 AM - 06:00 PM",
+            saturday: parsedApiResponse.timings?.saturday || "10:00 AM - 04:00 PM",
+            sunday: parsedApiResponse.timings?.sunday || "Closed"
+          },
+          cta: {
+            call: parsedApiResponse.cta?.call || "",
+            bookUrl: parsedApiResponse.cta?.bookUrl || "",
+            getDirections: parsedApiResponse.cta?.getDirections || ""
+          }
+        };
+        setFormData(newFormData);
+
+      
+        const newClosedDays = { ...closedDays };
+        Object.keys(newClosedDays).forEach(day => {
+          newClosedDays[day as keyof typeof newClosedDays] = 
+            newFormData.timings[day as keyof typeof newFormData.timings] === "Closed";
+        });
+        setClosedDays(newClosedDays);
+      }
+      setIsReadOnly(true);
+    }
   };
+
+  if (!initialized) return <div>Loading...</div>;
 
   return (
     <div className="max-w-4xl mx-auto p-5">
       <div className="bg-gray-50 rounded-lg shadow-sm p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Contact and Timings</h2>
-          {isReadOnly && (
-            <button
-              onClick={toggleEdit}
-              className="text-gray-500 hover:text-gray-700 flex items-center gap-1"
-            >
-              <Pencil className="w-4 h-4" />
-              <span>Edit</span>
-            </button>
-          )}
+          <button
+            onClick={toggleEdit}
+            className={`flex items-center gap-1 ${isReadOnly ? "text-blue-600 hover:text-blue-800" : "text-gray-500 hover:text-gray-700"}`}
+          >
+            <Pencil className="w-4 h-4" />
+            <span>{isReadOnly ? "Edit" : "Cancel"}</span>
+          </button>
         </div>
 
         {isReadOnly && (
           <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
-            Viewing published data.{" "}
-            <button 
-              onClick={toggleEdit}
-              className="ml-2 text-blue-600 hover:text-blue-800 font-medium"
-            >
-              Click here to edit
-            </button>
+            Viewing published data. Click "Edit" to make changes.
           </div>
         )}
 
-        {/* Contact Information */}
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Contact Information</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block mb-2 font-medium text-gray-700">Phone</label>
-              {isReadOnly ? (
-                <div className="p-2 bg-gray-100 rounded-md">{formData.contact.phone}</div>
-              ) : (
-                <div className="flex">
-                  <select
-                    value={phoneCountryCode}
-                    onChange={(e) => setPhoneCountryCode(e.target.value)}
-                    className="w-24 p-2 border border-gray-300 rounded-l-md"
-                  >
-                    {countryCodes.map(country => (
-                      <option key={country.code} value={country.code}>
-                        {country.code}
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    type="tel"
-                    name="contact.phone"
-                    value={formData.contact.phone.replace(`${phoneCountryCode}-`, "")}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        contact: {
-                          ...prev.contact,
-                          phone: `${phoneCountryCode}-${e.target.value}`
-                        }
-                      }));
-                    }}
-                    className="flex-1 p-2 border border-gray-300 rounded-r-md"
-                  />
-                </div>
-              )}
+              <div className="flex">
+                <select
+                  value={phoneCountryCode}
+                  onChange={(e) => {
+                    if (isReadOnly) return;
+                    setPhoneCountryCode(e.target.value);
+                    setFormData(prev => ({
+                      ...prev,
+                      contact: {
+                        ...prev.contact,
+                        phone: `${e.target.value}-${prev.contact.phone.replace(/^\+\d+-/, "")}`
+                      }
+                    }));
+                  }}
+                  className={`w-24 p-2 border border-gray-300 rounded-l-md text-sm ${isReadOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                  disabled={isReadOnly}
+                >
+                  {countryCodes.map(country => (
+                    <option key={country.code} value={country.code}>
+                      {country.code} ({country.country})
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="tel"
+                  name="contact.phone"
+                  value={formData.contact.phone.replace(`${phoneCountryCode}-`, "")}
+                  onChange={(e) => {
+                    if (isReadOnly) return;
+                    setFormData(prev => ({
+                      ...prev,
+                      contact: {
+                        ...prev.contact,
+                        phone: `${phoneCountryCode}-${e.target.value}`
+                      }
+                    }));
+                  }}
+                  className={`flex-1 p-2 border border-gray-300 rounded-r-md text-sm ${isReadOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                  readOnly={isReadOnly}
+                />
+              </div>
             </div>
             
             <div>
               <label className="block mb-2 font-medium text-gray-700">Email</label>
-              {isReadOnly ? (
-                <div className="p-2 bg-gray-100 rounded-md">{formData.contact.email}</div>
-              ) : (
-                <input
-                  type="email"
-                  name="contact.email"
-                  value={formData.contact.email}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              )}
+              <input
+                type="email"
+                name="contact.email"
+                value={formData.contact.email}
+                onChange={handleInputChange}
+                className={`w-full p-2 border border-gray-300 rounded-md text-sm ${isReadOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                readOnly={isReadOnly}
+              />
             </div>
             
             <div>
               <label className="block mb-2 font-medium text-gray-700">Website</label>
-              {isReadOnly ? (
-                <div className="p-2 bg-gray-100 rounded-md">{formData.contact.website}</div>
-              ) : (
-                <input
-                  type="url"
-                  name="contact.website"
-                  value={formData.contact.website}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              )}
+              <input
+                type="url"
+                name="contact.website"
+                value={formData.contact.website}
+                onChange={handleInputChange}
+                className={`w-full p-2 border border-gray-300 rounded-md text-sm ${isReadOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                readOnly={isReadOnly}
+              />
             </div>
           </div>
         </div>
 
-        {/* Call to Action */}
+
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Call to Action</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block mb-2 font-medium text-gray-700">Call Number</label>
-              {isReadOnly ? (
-                <div className="p-2 bg-gray-100 rounded-md">{formData.cta.call}</div>
-              ) : (
-                <div className="flex">
-                  <select
-                    value={callCountryCode}
-                    onChange={(e) => setCallCountryCode(e.target.value)}
-                    className="w-24 p-2 border border-gray-300 rounded-l-md"
-                  >
-                    {countryCodes.map(country => (
-                      <option key={country.code} value={country.code}>
-                        {country.code}
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    type="tel"
-                    name="cta.call"
-                    value={formData.cta.call.replace(`${callCountryCode}-`, "")}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        cta: {
-                          ...prev.cta,
-                          call: `${callCountryCode}-${e.target.value}`
-                        }
-                      }));
-                    }}
-                    className="flex-1 p-2 border border-gray-300 rounded-r-md"
-                  />
-                </div>
-              )}
+              <div className="flex">
+                <select
+                  value={callCountryCode}
+                  onChange={(e) => {
+                    if (isReadOnly) return;
+                    setCallCountryCode(e.target.value);
+                    setFormData(prev => ({
+                      ...prev,
+                      cta: {
+                        ...prev.cta,
+                        call: `${e.target.value}-${prev.cta.call.replace(/^\+\d+-/, "")}`
+                      }
+                    }));
+                  }}
+                  className={`w-24 p-2 border border-gray-300 rounded-l-md text-sm ${isReadOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                  disabled={isReadOnly}
+                >
+                  {countryCodes.map(country => (
+                    <option key={country.code} value={country.code}>
+                      {country.code} ({country.country})
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="tel"
+                  name="cta.call"
+                  value={formData.cta.call.replace(`${callCountryCode}-`, "")}
+                  onChange={(e) => {
+                    if (isReadOnly) return;
+                    setFormData(prev => ({
+                      ...prev,
+                      cta: {
+                        ...prev.cta,
+                        call: `${callCountryCode}-${e.target.value}`
+                      }
+                    }));
+                  }}
+                  className={`flex-1 p-2 border border-gray-300 rounded-r-md text-sm ${isReadOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                  readOnly={isReadOnly}
+                />
+              </div>
             </div>
             
             <div>
               <label className="block mb-2 font-medium text-gray-700">Booking URL</label>
-              {isReadOnly ? (
-                <div className="p-2 bg-gray-100 rounded-md">{formData.cta.bookUrl}</div>
-              ) : (
-                <input
-                  type="text"
-                  name="cta.bookUrl"
-                  value={formData.cta.bookUrl}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              )}
+              <input
+                type="text"
+                name="cta.bookUrl"
+                value={formData.cta.bookUrl}
+                onChange={handleInputChange}
+                className={`w-full p-2 border border-gray-300 rounded-md text-sm ${isReadOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                readOnly={isReadOnly}
+              />
             </div>
             
             <div>
               <label className="block mb-2 font-medium text-gray-700">Get Directions</label>
-              {isReadOnly ? (
-                <div className="p-2 bg-gray-100 rounded-md">{formData.cta.getDirections}</div>
-              ) : (
-                <input
-                  type="url"
-                  name="cta.getDirections"
-                  value={formData.cta.getDirections}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              )}
+              <input
+                type="url"
+                name="cta.getDirections"
+                value={formData.cta.getDirections}
+                onChange={handleInputChange}
+                className={`w-full p-2 border border-gray-300 rounded-md text-sm ${isReadOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                readOnly={isReadOnly}
+              />
             </div>
           </div>
         </div>
 
-        {/* Business Hours */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Business Hours</h3>
           
@@ -396,7 +454,7 @@ const ContactAndTimings = () => {
                         id={`closed-${day}`}
                         checked={closedDays[day as keyof typeof closedDays]}
                         onChange={() => handleClosedChange(day)}
-                        className="h-4 w-4 text-blue-600 rounded"
+                        className="h-4 w-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                       />
                       <label htmlFor={`closed-${day}`} className="ml-2 text-sm text-gray-600">
                         Closed
@@ -410,7 +468,7 @@ const ContactAndTimings = () => {
                             type="time"
                             value={hours.split(" - ")[0].replace(" AM", "").replace(" PM", "")}
                             onChange={(e) => handleTimeChange(day, 'open', e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-md"
+                            className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
                         <div className="flex-1">
@@ -418,7 +476,7 @@ const ContactAndTimings = () => {
                             type="time"
                             value={hours.split(" - ")[1].replace(" AM", "").replace(" PM", "")}
                             onChange={(e) => handleTimeChange(day, 'close', e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-md"
+                            className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
                       </div>
@@ -430,9 +488,9 @@ const ContactAndTimings = () => {
           </div>
         </div>
 
-        <div className="flex justify-between gap-4 mt-6">
+        <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
           <Button
-            className="border border-gray-300 bg-white text-gray-700"
+            className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700 focus:ring-2 focus:ring-blue-500"
             onClick={() => router.push("/location")}
           >
             Back
@@ -440,8 +498,9 @@ const ContactAndTimings = () => {
           <Button
             color="primary"
             onClick={handleNext}
+            className="w-full sm:w-auto focus:ring-2 focus:ring-blue-500"
           >
-            {isReadOnly ? "Next" : "Save & Next"}
+            Next
           </Button>
         </div>
       </div>
