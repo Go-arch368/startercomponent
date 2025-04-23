@@ -39,7 +39,7 @@ const defaultFormData = {
   ],
 };
 
-// Custom hook for localStorage persistence
+
 function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T) => void] {
   const [storedValue, setStoredValue] = useState<T>(() => {
     if (typeof window === "undefined") {
@@ -89,7 +89,7 @@ const Services = () => {
     let apiResponse: ApiResponse = {};
     let publishedDataExists = false;
 
-    // Check if apiResponse exists and has services
+    
     try {
       apiResponse = apiResponseRaw ? JSON.parse(apiResponseRaw) : {};
       publishedDataExists = Boolean(apiResponse?.services?.length);
@@ -102,17 +102,17 @@ const Services = () => {
 
     const servicesFormDataRaw = localStorage.getItem("servicesFormData");
     if (servicesFormDataRaw && servicesFormDataRaw !== "null") {
-      // Load draft data
+     
       try {
         const parsedFormData = JSON.parse(servicesFormDataRaw);
         setFormData(parsedFormData);
-        setIsEditing(true); // Drafts start in edit mode
+        setIsEditing(true);
         console.log("Loaded draft:", parsedFormData);
       } catch (e) {
         console.error("Error parsing servicesFormData:", e);
       }
     } else if (publishedDataExists) {
-      // Load published data
+  
       const publishedServices = apiResponse.services!.map((service: Service) => ({
         name: service.name,
         price: service.price,
@@ -128,12 +128,12 @@ const Services = () => {
           },
         ],
       });
-      setIsEditing(false); // Published data starts in read-only
+      setIsEditing(false); 
       console.log("Loaded published:", publishedServices);
     } else {
-      // Load defaults
+     
       setFormData(defaultFormData);
-      setIsEditing(true); // Defaults start in edit mode
+      setIsEditing(true); 
       console.log("Loaded defaults:", defaultFormData);
     }
   }, []);
@@ -181,7 +181,7 @@ const Services = () => {
 
   const handleNext = () => {
     if (!isReadOnly) {
-      // Save draft
+     
       setFormData(formData);
     }
     router.push("/review&publish");
@@ -189,7 +189,7 @@ const Services = () => {
 
   const toggleEdit = () => {
     if (isEditing && hasPublishedData) {
-      // Revert to published data
+
       const apiResponseRaw = localStorage.getItem("apiResponse");
       if (apiResponseRaw) {
         try {
@@ -267,7 +267,6 @@ const Services = () => {
           </div>
         ) : null}
 
-        {/* Services */}
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Services</h3>
           <div className="mb-4">

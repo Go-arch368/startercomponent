@@ -8,7 +8,7 @@ interface ModeToggleProps {
 }
 
 export function ModeToggle({ initialHasData }: ModeToggleProps) {
-  const [mode, setMode] = useState<'create' | 'edit'>(initialHasData ? 'edit' : 'create');
+  const [mode, setMode] = useState<'create' | 'edit'>('create');
   const [hasData, setHasData] = useState(initialHasData);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -16,16 +16,30 @@ export function ModeToggle({ initialHasData }: ModeToggleProps) {
     const apiResponse = localStorage.getItem('apiResponse');
     const dataExists = !!apiResponse && apiResponse !== '""' && apiResponse !== '{}';
     setHasData(dataExists);
-    setMode(dataExists ? 'edit' : 'create');
+
+    // Check for forceCreateMode flag to ensure create mode after reload
+    const forceCreateMode = localStorage.getItem('forceCreateMode');
+    if (forceCreateMode === 'true') {
+      setMode('create');
+      localStorage.removeItem('forceCreateMode'); // Clear flag after use
+      console.log('Set mode to create due to forceCreateMode');
+    } else {
+      // Always start in create mode, regardless of apiResponse
+      setMode('create');
+      console.log('Set mode to create on initial load/reload');
+    }
+
+    console.log('useEffect: hasData:', dataExists, 'apiResponse:', apiResponse);
   }, []);
 
   const handleCreateClick = () => {
+    setIsCreating(true);
     localStorage.removeItem('apiResponse');
+    localStorage.setItem('forceCreateMode', 'true'); // Set flag for reload
     setMode('create');
     setHasData(false);
-    setIsCreating(true);
-    
-    // Reload page after 1 second
+    console.log('Create clicked: cleared apiResponse, set mode to create');
+
     setTimeout(() => {
       window.location.reload();
     }, 1000);
@@ -34,7 +48,8 @@ export function ModeToggle({ initialHasData }: ModeToggleProps) {
   const handleEditClick = () => {
     if (hasData) {
       setMode('edit');
-      localStorage.getItem('apiResponse');
+      const apiResponse = localStorage.getItem('apiResponse');
+      console.log('Edit clicked: set mode to edit, apiResponse:', apiResponse);
     }
   };
 
