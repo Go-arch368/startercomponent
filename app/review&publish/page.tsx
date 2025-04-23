@@ -255,9 +255,7 @@ const GalleryFAQsAndCTA = () => {
       const response = await axios.post("http://localhost:4000/businesses", completeBusinessData);
   
       console.log("API Response:", response.data);
-      localStorage.setItem("apiResponse", JSON.stringify(response.data));
-  
-      // Clear localStorage keys
+      localStorage.setItem("apiResponse", JSON.stringify(response.data));   
       localStorage.removeItem("welcomeFormData");
       localStorage.removeItem("businessInfoFormData");
       localStorage.removeItem("locationFormData");

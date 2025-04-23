@@ -9832,6 +9832,221 @@
         "bookUrl": "/book/car_repair_001",
         "getDirections": "https://maps.google.com"
       }
+    },
+    {
+      "id": "c15c",
+      "welcome": {
+        "category": "",
+        "subcategory": ""
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {},
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "lkdsafklfsgowthamtj0808@gmail.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "Gowtham",
+          "price": "$50+"
+        },
+        {
+          "name": "Gowtham",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "12:undefined AM - 12:undefined AM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "23c3",
+      "welcome": {
+        "category": "",
+        "subcategory": ""
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {},
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "lksflkjflkjas",
+          "price": "$50+"
+        },
+        {
+          "name": "lkjafdlkdsalkfdslkdk",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "b0c3",
+      "welcome": {
+        "category": "",
+        "subcategory": ""
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {},
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "gowtham",
+          "price": "$50+"
+        },
+        {
+          "name": "gowtham",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "26c6",
+      "welcome": {
+        "category": "",
+        "subcategory": ""
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {},
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "gowtha",
+          "price": "$50+"
+        },
+        {
+          "name": "gowtham",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
+    },
+    {
+      "id": "6cb0",
+      "welcome": {
+        "category": "",
+        "subcategory": ""
+      },
+      "business": {
+        "businessName": "Sample Car Repair Business",
+        "description": "Top-rated car repair services in your local area."
+      },
+      "location": {},
+      "contact": {
+        "phone": "+1-000-000-0000",
+        "email": "info@samplecarrepair.com",
+        "website": "https://www.samplecarrepair.com"
+      },
+      "services": [
+        {
+          "name": "gowthatgrrwetwrrwtrew",
+          "price": "$50+"
+        },
+        {
+          "name": "gowtham",
+          "price": "$75+"
+        }
+      ],
+      "timings": {
+        "monday": "09:00 AM - 06:00 PM",
+        "tuesday": "09:00 AM - 06:00 PM",
+        "wednesday": "09:00 AM - 06:00 PM",
+        "thursday": "09:00 AM - 06:00 PM",
+        "friday": "09:00 AM - 06:00 PM",
+        "saturday": "10:00 AM - 04:00 PM",
+        "sunday": "Closed"
+      },
+      "gallery": [],
+      "faqs": [],
+      "cta": {
+        "call": "+1-000-000-0000",
+        "bookUrl": "/book/car_repair_001",
+        "getDirections": "https://maps.google.com"
+      }
     }
   ]
 }
