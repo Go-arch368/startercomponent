@@ -133,7 +133,7 @@ export default function Stepper() {
     const circleClasses = clsx(
       "z-10 flex items-center justify-center rounded-full border-2 text-sm font-semibold bg-white cursor-pointer transition-all duration-300",
       {
-        "h-10 w-10 border-blue-500 text-blue-500": isCurrent, // Larger and blue for current step
+        "h-10 w-10 border-gray-500 text-gray-500": isCurrent, // Larger and gray for current step
         "h-8 w-8": !isCurrent, // Default size for other steps
         "border-green-700 text-green-700": (hasStepData || isBeforeCurrent) && !isCurrent,
         "border-gray-300 text-gray-400": !hasStepData && !isBeforeCurrent && !isCurrent,
@@ -163,9 +163,17 @@ export default function Stepper() {
     const labelClasses = clsx(
       "mt-2 px-1 text-xs text-center max-w-[100px] flex items-center gap-1 font-semibold transition-all duration-300",
       {
-        "text-blue-500 text-sm": isCurrent, // Larger and blue for current step
+        "text-gray-500 text-sm": isCurrent, // Larger and gray for current step
         "text-green-700": (hasStepData || isBeforeCurrent) && !isCurrent,
         "text-gray-600": !hasStepData && !isBeforeCurrent && !isCurrent,
+      }
+    );
+
+    const badgeClasses = clsx(
+      "ml-1 flex h-5 w-5 items-center justify-center rounded-full flex-shrink-0",
+      {
+        "bg-green-700 text-white": hasStepData || isBeforeCurrent,
+        "bg-gray-300 text-gray-500": !hasStepData && !isBeforeCurrent,
       }
     );
 
@@ -176,14 +184,12 @@ export default function Stepper() {
         title={steps[index].label}
       >
         <span className="truncate">{steps[index].label}</span>
-        {hasStepData && !isCurrent && (
-          <span
-            className="ml-1 flex h-6 w-6 items-center justify-center rounded-full bg-green-700 text-white flex-shrink-0"
-            aria-hidden="true"
-          >
-            <BadgeCheck size={14} strokeWidth={2} />
-          </span>
-        )}
+        <span
+          className={badgeClasses}
+          aria-hidden="true"
+        >
+          <BadgeCheck size={12} strokeWidth={2} />
+        </span>
       </label>
     );
   };
@@ -194,7 +200,7 @@ export default function Stepper() {
     const isBeforeCurrent = index < currentStep;
 
     return clsx(
-      "absolute top-5 z-0 h-[2px] w-full", 
+      "absolute top-5 z-0 h-[2px] w-full",
       {
         "bg-green-700": hasStepData || hasNextStepData || isBeforeCurrent,
         "bg-gray-300": !hasStepData && !hasNextStepData && !isBeforeCurrent,
@@ -204,7 +210,6 @@ export default function Stepper() {
 
   return (
     <nav aria-label="Stepper navigation">
-   
       <div className="flex w-full flex-col items-center px-2 py-6 sm:hidden">
         <motion.p
           key={currentStep}
@@ -266,7 +271,6 @@ export default function Stepper() {
           ))}
         </div>
       </div>
-
 
       <div className="hidden w-full flex-col items-center px-4 py-6 sm:flex">
         <p className="mb-4 text-sm font-semibold text-gray-700">
