@@ -34,7 +34,7 @@ export function ModeToggle({ initialHasData }: ModeToggleProps) {
 
   const handleCreateClick = () => {
     setIsCreating(true);
-    localStorage.removeItem('apiResponse');
+    localStorage.clear();
     localStorage.setItem('forceCreateMode', 'true'); // Set flag for reload
     setMode('create');
     setHasData(false);

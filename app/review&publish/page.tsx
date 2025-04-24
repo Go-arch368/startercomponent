@@ -1,7 +1,7 @@
+
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { Button } from "@heroui/button";
 import businessData from "@/data/businessData.json";
 
@@ -64,21 +64,25 @@ const GalleryFAQsAndCTA = () => {
   useEffect(() => {
     if (initialized || typeof window === "undefined") return;
 
-    // Check apiResponse in localStorage
+    // Check if apiResponse exists in localStorage
     const apiResponse = localStorage.getItem("apiResponse");
-    let parsedApiResponse: { welcome?: { completed?: boolean; category?: string; subcategory?: string }; gallery?: string[]; faqs?: FAQ[]; cta?: CTA } = {};
-    try {
-      parsedApiResponse = apiResponse ? JSON.parse(apiResponse) : {};
-    } catch (err) {
-      console.error("Invalid apiResponse JSON:", err);
-    }
+    const hasApiResponse = !!apiResponse;
+    setIsReadOnly(hasApiResponse);
 
+    let parsedApiResponse: { 
+      welcome?: { completed?: boolean; category?: string; subcategory?: string }; 
+      gallery?: string[]; 
+      faqs?: FAQ[]; 
+      cta?: CTA 
+    } = {};
     
-    const isPublished = localStorage.getItem(PUBLISH_FORM_DATA_KEY);
-    setIsReadOnly(
-      !!isPublished || 
-      !!(parsedApiResponse.welcome?.completed && parsedApiResponse.welcome?.category && parsedApiResponse.welcome?.subcategory)
-    );
+    if (hasApiResponse) {
+      try {
+        parsedApiResponse = apiResponse ? JSON.parse(apiResponse) : {};
+      } catch (err) {
+        console.error("Invalid apiResponse JSON:", err);
+      }
+    }
 
     // Set welcome data for display
     if (parsedApiResponse.welcome) {
@@ -231,53 +235,61 @@ const GalleryFAQsAndCTA = () => {
     if (!formData) return;
     setIsPublishing(true);
 
-    localStorage.setItem(PUBLISH_FORM_DATA_KEY, JSON.stringify({ published: true }));
-
-    const welcomeData = JSON.parse(localStorage.getItem("apiResponse") || "{}");
-    const businessFormData = JSON.parse(localStorage.getItem("businessInfoFormData") || "{}");
-    const locationFormData = JSON.parse(localStorage.getItem("locationFormData") || "{}");
-    const contactAndTimingsFormData = JSON.parse(localStorage.getItem("contactAndTimingsFormData") || "{}");
-    const servicesFormData = JSON.parse(localStorage.getItem("servicesFormData") || "{}");
-    const currentBusiness = formData.subcategories[0].businesses[0];
-
-    const contactData = contactAndTimingsFormData.contact || currentBusiness.contact || {};
-    const phone = contactData.phone || "";
-    const email = contactData.email || "";
-    const website = contactData.website || "";
-
-    const completeBusinessData = {
-      welcome: {
-        category: welcomeData?.welcome?.category || "",
-        subcategory: welcomeData?.welcome?.subcategory || "",
-      },
-      business: {
-        businessName: businessFormData.businessName || currentBusiness.businessName || "",
-        description: businessFormData.description || currentBusiness.description || "",
-      },
-      location: locationFormData || currentBusiness.location || {},
-      contact: {
-        phone,
-        email,
-        website,
-        ...(contactData.otherFields || {}),
-      },
-      services: servicesFormData.length > 0 ? servicesFormData : currentBusiness.services || [],
-      timings: contactAndTimingsFormData.timings || currentBusiness.timings || {},
-      gallery: currentBusiness.gallery || [],
-      faqs: currentBusiness.faqs || [],
-      cta: {
-        call: currentBusiness.cta.call || "",
-        bookUrl: currentBusiness.cta.bookUrl || "",
-        getDirections: currentBusiness.cta.getDirections || "",
-      },
-    };
-
     try {
-      localStorage.setItem(BUSINESS_DATA_KEY, JSON.stringify(completeBusinessData));
-      const response = await axios.post("http://localhost:4000/businesses", completeBusinessData);
+      localStorage.setItem(PUBLISH_FORM_DATA_KEY, JSON.stringify({ published: true }));
 
-      console.log("API Response:", response.data);
-      localStorage.setItem("apiResponse", JSON.stringify(response.data));
+      const welcomeData = JSON.parse(localStorage.getItem("apiResponse") || "{}");
+      const businessFormData = JSON.parse(localStorage.getItem("businessInfoFormData") || "{}");
+      const locationFormData = JSON.parse(localStorage.getItem("locationFormData") || "{}");
+      const contactAndTimingsFormData = JSON.parse(localStorage.getItem("contactAndTimingsFormData") || "{}");
+      const servicesFormData = JSON.parse(localStorage.getItem("servicesFormData") || "{}");
+      const currentBusiness = formData.subcategories[0].businesses[0];
+
+      const contactData = contactAndTimingsFormData.contact || currentBusiness.contact || {};
+      const phone = contactData.phone || "";
+      const email = contactData.email || "";
+      const website = contactData.website || "";
+
+      const completeBusinessData = {
+        welcome: {
+          category: welcomeData?.welcome?.category || "",
+          subcategory: welcomeData?.welcome?.subcategory || "",
+        },
+        business: {
+          businessName: businessFormData.businessName || currentBusiness.businessName || "",
+          description: businessFormData.description || currentBusiness.description || "",
+        },
+        location: locationFormData || currentBusiness.location || {},
+        contact: {
+          phone,
+          email,
+          website,
+          ...(contactData.otherFields || {}),
+        },
+        services: servicesFormData.length > 0 ? servicesFormData : currentBusiness.services || [],
+        timings: contactAndTimingsFormData.timings || currentBusiness.timings || {},
+        gallery: currentBusiness.gallery || [],
+        faqs: currentBusiness.faqs || [],
+        cta: {
+          call: currentBusiness.cta.call || "",
+          bookUrl: currentBusiness.cta.bookUrl || "",
+          getDirections: currentBusiness.cta.getDirections || "",
+        },
+      };
+
+      // Validate required fields
+      if (!completeBusinessData.business.businessName) {
+        throw new Error("Business name is required.");
+      }
+      if (!completeBusinessData.welcome.category || !completeBusinessData.welcome.subcategory) {
+        throw new Error("Category and subcategory are required.");
+      }
+
+      // Save to localStorage directly
+      localStorage.setItem(BUSINESS_DATA_KEY, JSON.stringify(completeBusinessData));
+      localStorage.setItem("apiResponse", JSON.stringify(completeBusinessData));
+
+      // Clear form data
       localStorage.removeItem("welcomeFormData");
       localStorage.removeItem("businessInfoFormData");
       localStorage.removeItem("locationFormData");
@@ -295,7 +307,11 @@ const GalleryFAQsAndCTA = () => {
       router.push("/review&publish");
     } catch (error) {
       console.error("Error publishing business:", error);
-      alert("Failed to publish business. Please try again.");
+      if (error instanceof Error) {
+        alert(error.message || "Failed to publish business. Please try again.");
+      } else {
+        alert("Failed to publish business. Please try again.");
+      }
     } finally {
       setIsPublishing(false);
     }
@@ -319,13 +335,15 @@ const GalleryFAQsAndCTA = () => {
           Gallery, FAQs, and Call to Action
         </h2>
 
-        {isReadOnly && (
+        {isReadOnly ? (
           <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
-            This form is in read-only mode because the data has been published or the welcome step is complete. You can still re-publish the data.
+            Viewing saved data. To edit, please clear the localStorage or create a new business.
+          </div>
+        ) : (
+          <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-md">
+            Create mode: You can edit all fields.
           </div>
         )}
-
-       
         
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Gallery</h3>
@@ -339,67 +357,69 @@ const GalleryFAQsAndCTA = () => {
                       alt={`Gallery image ${index + 1}`}
                       className="w-full h-32 object-cover rounded-md border border-gray-200"
                     />
-                    <button
-                      type="button"
-                      onClick={() => removeArrayItem("subcategories.0.businesses.0.gallery", index)}
-                      className={`absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 transition focus:ring-2 focus:ring-red-500 ${isReadOnly ? "opacity-0 cursor-not-allowed" : "opacity-0 group-hover:opacity-100"}`}
-                      aria-label={`Remove image ${index + 1}`}
-                      disabled={isReadOnly}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
+                    {!isReadOnly && (
+                      <button
+                        type="button"
+                        onClick={() => removeArrayItem("subcategories.0.businesses.0.gallery", index)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition focus:ring-2 focus:ring-red-500"
+                        aria-label={`Remove image ${index + 1}`}
                       >
-                        <path
-                          fillRule="evenodd"
-                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
             ) : (
               <p className="text-gray-500 mb-4">No images uploaded yet</p>
             )}
-            <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
-              <label className={isReadOnly ? "cursor-not-allowed" : "cursor-pointer"}>
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  id="image-upload"
-                  aria-label="Upload image to gallery"
-                  disabled={isReadOnly}
-                />
-                <div className="flex flex-col items-center justify-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-12 w-12 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <p className="mt-2 text-sm text-gray-600">
-                    {isReadOnly ? "Image uploads disabled in read-only mode" : "Drag and drop images here, or click to browse"}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Supports JPG, PNG up to 5MB
-                  </p>
-                </div>
-              </label>
-            </div>
+            {!isReadOnly && (
+              <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    id="image-upload"
+                    aria-label="Upload image to gallery"
+                  />
+                  <div className="flex flex-col items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-12 w-12 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <p className="mt-2 text-sm text-gray-600">
+                      Drag and drop images here, or click to browse
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Supports JPG, PNG up to 5MB
+                    </p>
+                  </div>
+                </label>
+              </div>
+            )}
           </div>
         </div>
 
@@ -419,7 +439,7 @@ const GalleryFAQsAndCTA = () => {
                   id="call-code"
                   value={callCountryCode}
                   onChange={(e) => !isReadOnly && setCallCountryCode(e.target.value)}
-                  className="w-24 p-2 border border-gray-300 rounded-l-md text-sm focus:ring-2 focus:ring-blue-500"
+                  className={`w-24 p-2 border border-gray-300 rounded-l-md text-sm ${isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-blue-500"}`}
                   aria-label="Country code"
                   disabled={isReadOnly}
                 >
@@ -435,12 +455,12 @@ const GalleryFAQsAndCTA = () => {
                   placeholder="Phone number"
                   value={currentBusiness.cta.call.replace(`${callCountryCode}-`, "") || ""}
                   onChange={(e) =>
-                    updateFormData(
+                    !isReadOnly && updateFormData(
                       "subcategories.0.businesses.0.cta.call",
                       `${callCountryCode}-${e.target.value.replace(/[^0-9]/g, "")}`
                     )
                   }
-                  className="flex-1 p-2 border border-gray-300 rounded-r-md text-sm focus:ring-2 focus:ring-blue-500"
+                  className={`flex-1 p-2 border border-gray-300 rounded-r-md text-sm ${isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-blue-500"}`}
                   aria-label="Call number"
                   readOnly={isReadOnly}
                 />
@@ -456,9 +476,9 @@ const GalleryFAQsAndCTA = () => {
                 placeholder="https://example.com/book"
                 value={currentBusiness.cta.bookUrl || ""}
                 onChange={(e) =>
-                  updateFormData("subcategories.0.businesses.0.cta.bookUrl", e.target.value)
+                  !isReadOnly && updateFormData("subcategories.0.businesses.0.cta.bookUrl", e.target.value)
                 }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
+                className={`w-full p-2 border border-gray-300 rounded-md text-sm ${isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-blue-500"}`}
                 readOnly={isReadOnly}
               />
             </div>
@@ -474,9 +494,9 @@ const GalleryFAQsAndCTA = () => {
                 placeholder="https://maps.google.com/..."
                 value={currentBusiness.cta.getDirections || ""}
                 onChange={(e) =>
-                  updateFormData("subcategories.0.businesses.0.cta.getDirections", e.target.value)
+                  !isReadOnly && updateFormData("subcategories.0.businesses.0.cta.getDirections", e.target.value)
                 }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
+                className={`w-full p-2 border border-gray-300 rounded-md text-sm ${isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-blue-500"}`}
                 readOnly={isReadOnly}
               />
             </div>
@@ -495,7 +515,7 @@ const GalleryFAQsAndCTA = () => {
                 <div className="mb-3">
                   <label
                     htmlFor={`faq-question-${index}`}
-                    className="block mb-2 font-medium text-gray-700"
+                    className="block że w mb-2 font-medium text-gray-700"
                   >
                     Question:
                   </label>
@@ -505,14 +525,14 @@ const GalleryFAQsAndCTA = () => {
                     placeholder="Enter question"
                     value={faq.question || ""}
                     onChange={(e) =>
-                      handleArrayChange(
+                      !isReadOnly && handleArrayChange(
                         "subcategories.0.businesses.0.faqs",
                         index,
                         "question",
                         e.target.value
                       )
                     }
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
+                    className={`w-full p-2 border border-gray-300 rounded-md text-sm ${isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-blue-500"}`}
                     readOnly={isReadOnly}
                   />
                 </div>
@@ -528,24 +548,23 @@ const GalleryFAQsAndCTA = () => {
                     placeholder="Enter answer"
                     value={faq.answer || ""}
                     onChange={(e) =>
-                      handleArrayChange(
+                      !isReadOnly && handleArrayChange(
                         "subcategories.0.businesses.0.faqs",
                         index,
                         "answer",
                         e.target.value
                       )
                     }
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm h-24 focus:ring-2 focus:ring-blue-500"
+                    className={`w-full p-2 border border-gray-300 rounded-md text-sm h-24 ${isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-blue-500"}`}
                     readOnly={isReadOnly}
                   />
                 </div>
-                {currentBusiness.faqs.length > 1 && (
+                {!isReadOnly && currentBusiness.faqs.length > 1 && (
                   <button
                     type="button"
                     onClick={() => removeArrayItem("subcategories.0.businesses.0.faqs", index)}
-                    className={`mt-2 text-sm ${isReadOnly ? "text-gray-400 cursor-not-allowed" : "text-red-800 hover:text-red-900 focus:ring-2 focus:ring-red-500"}`}
+                    className="mt-2 text-sm text-red-800 hover:text-red-900 focus:ring-2 focus:ring-red-500"
                     aria-label={`Remove FAQ ${index + 1}`}
-                    disabled={isReadOnly}
                   >
                     Remove FAQ
                   </button>
@@ -553,20 +572,21 @@ const GalleryFAQsAndCTA = () => {
               </div>
             ))}
           </div>
-          <button
-            type="button"
-            onClick={() =>
-              addArrayItem("subcategories.0.businesses.0.faqs", {
-                question: "",
-                answer: "",
-              })
-            }
-            className={`px-4 py-2 rounded-md text-sm transition focus:ring-2 focus:ring-green-700 ${isReadOnly ? "bg-gray-400 text-white cursor-not-allowed" : "bg-green-700 text-white hover:bg-green-800"}`}
-            aria-label="Add new FAQ"
-            disabled={isReadOnly}
-          >
-            + Add FAQ
-          </button>
+          {!isReadOnly && (
+            <button
+              type="button"
+              onClick={() =>
+                addArrayItem("subcategories.0.businesses.0.faqs", {
+                  question: "",
+                  answer: "",
+                })
+              }
+              className="px-4 py-2 bg-green-700 text-white rounded-md text-sm hover:bg-green-800 focus:ring-2 focus:ring-green-700"
+              aria-label="Add new FAQ"
+            >
+              + Add FAQ
+            </button>
+          )}
         </div>
 
         <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
