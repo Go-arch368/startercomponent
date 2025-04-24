@@ -32,13 +32,13 @@ const Location = () => {
           state: draftLocation.state || "",
           postalCode: draftLocation.postalCode || "",
         });
-        setIsEditing(true); // Start in edit mode if draft exists
-        setHasPublishedData(false); // Draft takes precedence
-      } catch (e) {
-        console.error("Error parsing draft data", e);
+        setIsEditing(true);
+        setHasPublishedData(false); 
+        } catch (e) {
+          console.error("Error parsing draft data", e);
       }
     } else {
-      // Check for published data
+    
       let publishedDataExists = false;
       let locationData: { address?: string; city?: string; state?: string; postalCode?: string } = {};
       try {

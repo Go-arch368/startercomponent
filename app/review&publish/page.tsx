@@ -294,7 +294,6 @@ const GalleryFAQsAndCTA = () => {
       localStorage.removeItem("businessInfoFormData");
       localStorage.removeItem("locationFormData");
       localStorage.removeItem("contactAndTimingsFormData");
-      localStorage.removeItem("servicesFormData");
       localStorage.removeItem(FORM_DATA_KEY);
       localStorage.removeItem(CALL_COUNTRY_CODE_KEY);
       localStorage.removeItem(PUBLISH_FORM_DATA_KEY);

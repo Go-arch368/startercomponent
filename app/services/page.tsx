@@ -98,7 +98,7 @@ const Services = () => {
     }
 
     if (hasPublishedData && apiResponse?.services) {
-      // Load published data
+     
       const publishedServices = apiResponse.services.map((service: Service) => ({
         name: service.name,
         price: service.price,
@@ -195,10 +195,10 @@ const Services = () => {
 
   const toggleEdit = () => {
     if (isReadOnly) {
-      // Switch to edit mode
+     
       setIsReadOnly(false);
     } else if (hasPublishedData) {
-      // Revert to published data and clear draft
+     
       const apiResponseRaw = localStorage.getItem("apiResponse");
       if (apiResponseRaw) {
         try {

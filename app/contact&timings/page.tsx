@@ -113,7 +113,6 @@ const ContactAndTimings = () => {
       });
       setClosedDays(newClosedDays);
     } else if (savedFormData) {
-      // Load draft data from contactAndTimingsFormData
       try {
         const parsedData = JSON.parse(savedFormData);
         setFormData(parsedData);
