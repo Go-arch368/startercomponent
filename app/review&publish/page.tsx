@@ -54,6 +54,10 @@ const GalleryFAQsAndCTA = () => {
   const [callCountryCode, setCallCountryCode] = useState<string>(countryCodes[0].code);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isReadOnly, setIsReadOnly] = useState(false);
+  const [welcomeData, setWelcomeData] = useState<{ category: string; subcategory: string }>({
+    category: "",
+    subcategory: "",
+  });
 
   const initialBusiness = businessData.subcategories[0].businesses[0];
 
@@ -62,7 +66,27 @@ const GalleryFAQsAndCTA = () => {
 
     // Check apiResponse in localStorage
     const apiResponse = localStorage.getItem("apiResponse");
-    setIsReadOnly(!!apiResponse && apiResponse !== "{}" && apiResponse !== '""');
+    let parsedApiResponse: { welcome?: { completed?: boolean; category?: string; subcategory?: string }; gallery?: string[]; faqs?: FAQ[]; cta?: CTA } = {};
+    try {
+      parsedApiResponse = apiResponse ? JSON.parse(apiResponse) : {};
+    } catch (err) {
+      console.error("Invalid apiResponse JSON:", err);
+    }
+
+    
+    const isPublished = localStorage.getItem(PUBLISH_FORM_DATA_KEY);
+    setIsReadOnly(
+      !!isPublished || 
+      !!(parsedApiResponse.welcome?.completed && parsedApiResponse.welcome?.category && parsedApiResponse.welcome?.subcategory)
+    );
+
+    // Set welcome data for display
+    if (parsedApiResponse.welcome) {
+      setWelcomeData({
+        category: parsedApiResponse.welcome.category || "",
+        subcategory: parsedApiResponse.welcome.subcategory || "",
+      });
+    }
 
     const savedFormData = localStorage.getItem(FORM_DATA_KEY);
     const savedCallCode = localStorage.getItem(CALL_COUNTRY_CODE_KEY);
@@ -71,7 +95,6 @@ const GalleryFAQsAndCTA = () => {
     if (savedFormData) {
       setFormData(JSON.parse(savedFormData));
     } else {
-      const welcomeData = JSON.parse(localStorage.getItem("apiResponse") || "{}");
       const businessFormData = JSON.parse(localStorage.getItem("businessFormData") || "{}");
       const locationFormData = JSON.parse(localStorage.getItem("locationFormData") || "{}");
       const contactAndTimingsFormData = JSON.parse(localStorage.getItem("contactAndTimingsFormData") || "{}");
@@ -94,20 +117,20 @@ const GalleryFAQsAndCTA = () => {
                   servicesFormData.subcategories?.[0]?.businesses?.[0]?.services || initialBusiness.services,
                 timings:
                   contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.timings || initialBusiness.timings,
-                gallery: welcomeData.gallery || [],
-                faqs: welcomeData.faqs || [],
+                gallery: parsedApiResponse.gallery || [],
+                faqs: parsedApiResponse.faqs || [],
                 cta: {
                   call:
                     contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.cta?.call ||
-                    welcomeData.cta?.call ||
+                    parsedApiResponse.cta?.call ||
                     initialBusiness.cta.call,
                   bookUrl:
                     contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.cta?.bookUrl ||
-                    welcomeData.cta?.bookUrl ||
+                    parsedApiResponse.cta?.bookUrl ||
                     initialBusiness.cta.bookUrl,
                   getDirections:
                     contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.cta?.getDirections ||
-                    welcomeData.cta?.getDirections ||
+                    parsedApiResponse.cta?.getDirections ||
                     initialBusiness.cta.getDirections,
                 },
               },
@@ -207,22 +230,21 @@ const GalleryFAQsAndCTA = () => {
   const handlePublish = async () => {
     if (!formData) return;
     setIsPublishing(true);
-  
+
     localStorage.setItem(PUBLISH_FORM_DATA_KEY, JSON.stringify({ published: true }));
-  
+
     const welcomeData = JSON.parse(localStorage.getItem("apiResponse") || "{}");
     const businessFormData = JSON.parse(localStorage.getItem("businessInfoFormData") || "{}");
     const locationFormData = JSON.parse(localStorage.getItem("locationFormData") || "{}");
     const contactAndTimingsFormData = JSON.parse(localStorage.getItem("contactAndTimingsFormData") || "{}");
     const servicesFormData = JSON.parse(localStorage.getItem("servicesFormData") || "{}");
     const currentBusiness = formData.subcategories[0].businesses[0];
-  
-    // Fix: Properly merge contact data from contactAndTimingsFormData
+
     const contactData = contactAndTimingsFormData.contact || currentBusiness.contact || {};
     const phone = contactData.phone || "";
     const email = contactData.email || "";
     const website = contactData.website || "";
-  
+
     const completeBusinessData = {
       welcome: {
         category: welcomeData?.welcome?.category || "",
@@ -237,7 +259,7 @@ const GalleryFAQsAndCTA = () => {
         phone,
         email,
         website,
-        ...(contactData.otherFields || {}) // Include any additional contact fields
+        ...(contactData.otherFields || {}),
       },
       services: servicesFormData.length > 0 ? servicesFormData : currentBusiness.services || [],
       timings: contactAndTimingsFormData.timings || currentBusiness.timings || {},
@@ -249,13 +271,13 @@ const GalleryFAQsAndCTA = () => {
         getDirections: currentBusiness.cta.getDirections || "",
       },
     };
-  
+
     try {
       localStorage.setItem(BUSINESS_DATA_KEY, JSON.stringify(completeBusinessData));
       const response = await axios.post("http://localhost:4000/businesses", completeBusinessData);
-  
+
       console.log("API Response:", response.data);
-      localStorage.setItem("apiResponse", JSON.stringify(response.data));   
+      localStorage.setItem("apiResponse", JSON.stringify(response.data));
       localStorage.removeItem("welcomeFormData");
       localStorage.removeItem("businessInfoFormData");
       localStorage.removeItem("locationFormData");
@@ -264,13 +286,13 @@ const GalleryFAQsAndCTA = () => {
       localStorage.removeItem(FORM_DATA_KEY);
       localStorage.removeItem(CALL_COUNTRY_CODE_KEY);
       localStorage.removeItem(PUBLISH_FORM_DATA_KEY);
-  
+
       alert("Business published successfully!");
       setTimeout(() => {
         location.reload();
       }, 1000);
-      
-      router.push("/review&publish"); 
+
+      router.push("/review&publish");
     } catch (error) {
       console.error("Error publishing business:", error);
       alert("Failed to publish business. Please try again.");
@@ -297,14 +319,14 @@ const GalleryFAQsAndCTA = () => {
           Gallery, FAQs, and Call to Action
         </h2>
 
-        {/* Read-Only Indicator */}
         {isReadOnly && (
           <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
-            This form is in read-only mode because the data has been published. You can still re-publish the data.
+            This form is in read-only mode because the data has been published or the welcome step is complete. You can still re-publish the data.
           </div>
         )}
 
-        {/* Gallery Section */}
+       
+        
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Gallery</h3>
           <div className="mb-4">
