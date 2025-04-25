@@ -4,41 +4,53 @@ import { Button } from '@heroui/button';
 import { Plus, Pencil } from 'lucide-react';
 
 interface ModeToggleProps {
-  initialHasData: boolean;
+  initialHasData?: boolean; // Made optional
 }
 
-export function ModeToggle({ initialHasData }: ModeToggleProps) {
+export function ModeToggle({ initialHasData = false }: ModeToggleProps) {
   const [mode, setMode] = useState<'create' | 'edit'>('create');
   const [hasData, setHasData] = useState(initialHasData);
   const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
-    const apiResponse = localStorage.getItem('apiResponse');
-    const dataExists = !!apiResponse && apiResponse !== '""' && apiResponse !== '{}';
+    const checkForData = () => {
+      try {
+        const apiResponse = localStorage.getItem('apiResponse');
+        if (!apiResponse) return false;
+        
+        const parsed = JSON.parse(apiResponse);
+        // Check if parsed object has at least one meaningful property
+        return parsed && typeof parsed === 'object' && 
+               Object.keys(parsed).length > 0 && 
+               Object.values(parsed).some(val => val !== undefined && val !== null);
+      } catch (e) {
+        return false;
+      }
+    };
+
+    const dataExists = checkForData();
     setHasData(dataExists);
 
-    // Check for forceCreateMode flag to ensure create mode after reload
     const forceCreateMode = localStorage.getItem('forceCreateMode');
+    setMode(forceCreateMode === 'true' || !dataExists ? 'create' : 'edit');
+    
     if (forceCreateMode === 'true') {
-      setMode('create');
-      localStorage.removeItem('forceCreateMode'); // Clear flag after use
-      console.log('Set mode to create due to forceCreateMode');
-    } else {
-      // Always start in create mode, regardless of apiResponse
-      setMode('create');
-      console.log('Set mode to create on initial load/reload');
+      localStorage.removeItem('forceCreateMode');
     }
 
-    console.log('useEffect: hasData:', dataExists, 'apiResponse:', apiResponse);
+    console.log('Data check:', {
+      hasLocalStorageData: dataExists,
+      currentMode: mode,
+      forceCreateMode: forceCreateMode
+    });
   }, []);
 
   const handleCreateClick = () => {
     setIsCreating(true);
-    localStorage.clear();
-    localStorage.setItem('forceCreateMode', 'true'); // Set flag for reload
+    localStorage.removeItem('apiResponse');
+    localStorage.setItem('forceCreateMode', 'true');
     setMode('create');
     setHasData(false);
-    console.log('Create clicked: cleared apiResponse, set mode to create');
 
     setTimeout(() => {
       window.location.reload();
@@ -46,10 +58,29 @@ export function ModeToggle({ initialHasData }: ModeToggleProps) {
   };
 
   const handleEditClick = () => {
-    if (hasData) {
-      setMode('edit');
-      const apiResponse = localStorage.getItem('apiResponse');
-      console.log('Edit clicked: set mode to edit, apiResponse:', apiResponse);
+    const apiResponse = localStorage.getItem('apiResponse');
+    try {
+      if (apiResponse) {
+        const parsedData = JSON.parse(apiResponse);
+        const isValidData = parsedData && 
+                           typeof parsedData === 'object' && 
+                           Object.keys(parsedData).length > 0;
+        
+        if (isValidData) {
+          setMode('edit');
+          setHasData(true);
+          console.log('Switched to edit mode with valid data:', parsedData);
+        } else {
+          console.warn('Data exists but appears invalid', parsedData);
+          setHasData(false);
+        }
+      } else {
+        console.warn('No data found in localStorage when edit clicked');
+        setHasData(false);
+      }
+    } catch (error) {
+      console.error('Error parsing localStorage data:', error);
+      setHasData(false);
     }
   };
 
@@ -75,7 +106,7 @@ export function ModeToggle({ initialHasData }: ModeToggleProps) {
         size="sm"
         radius="full"
       >
-        Read
+        Edit
       </Button>
     </div>
   );
