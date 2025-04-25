@@ -106,33 +106,33 @@ const GalleryFAQsAndCTA = () => {
     category: "",
     subcategory: "",
   });
-  const [isPublished, setIsPublished] = useState(false); // New state to track successful publish
+  const [isPublished, setIsPublished] = useState(false); // Track successful publish
 
   const initialBusiness = businessData.subcategories[0].businesses[0];
 
-  // Check if welcomeFormData exists on component mount, redirect to /welcome if not
+  // Check if apiResponse exists with welcome data, redirect to /welcome if not
   useEffect(() => {
-    if (typeof window === "undefined" || isPublished) return; // Skip redirect if already published
+    if (typeof window === "undefined" || isPublished) return; // Skip redirect if published
 
-    const welcomeFormDataRaw = localStorage.getItem("welcomeFormData") || "{}";
-    let welcomeDataParsed: { category?: string; subcategory?: string } = {};
+    const apiResponseRaw = localStorage.getItem("apiResponse") || "{}";
+    let apiResponse: { welcome?: WelcomeData } = {};
 
     try {
-      welcomeDataParsed = JSON.parse(welcomeFormDataRaw) || {};
+      apiResponse = JSON.parse(apiResponseRaw) || {};
     } catch (err) {
-      console.error("Error parsing welcomeFormData:", err);
+      console.error("Error parsing apiResponse:", err);
     }
 
-    if (!welcomeDataParsed.category?.trim() || !welcomeDataParsed.subcategory?.trim()) {
-      console.warn("welcomeFormData is missing category or subcategory, redirecting to /welcome");
+    if (!apiResponse.welcome?.category?.trim() || !apiResponse.welcome?.subcategory?.trim()) {
+      console.warn("apiResponse is missing category or subcategory, redirecting to /welcome");
       router.push("/welcome");
     } else {
       setWelcomeData({
-        category: welcomeDataParsed.category || "",
-        subcategory: welcomeDataParsed.subcategory || "",
+        category: apiResponse.welcome.category || "",
+        subcategory: apiResponse.welcome.subcategory || "",
       });
     }
-  }, [router, isPublished]); // Add isPublished as a dependency
+  }, [router, isPublished]);
 
   useEffect(() => {
     if (initialized || typeof window === "undefined") return;
@@ -311,13 +311,27 @@ const GalleryFAQsAndCTA = () => {
 
     try {
       // Collect data from localStorage
-      const welcomeFormDataRaw = localStorage.getItem("welcomeFormData") || "{}";
+      const apiResponseRaw = localStorage.getItem("apiResponse") || "{}";
+      let apiResponse: { welcome?: WelcomeData } = {};
+      try {
+        apiResponse = JSON.parse(apiResponseRaw) || {};
+      } catch (err) {
+        console.error("Error parsing apiResponse:", err);
+        throw new Error("Invalid apiResponse in localStorage.");
+      }
+
+
+      const category = apiResponse.welcome?.category?.trim() || "";
+      const subcategory = apiResponse.welcome?.subcategory?.trim() || "";
+      if (!category || !subcategory) {
+        throw new Error("Category and subcategory must be provided from the welcome step.");
+      }
+
       const businessFormDataRaw = localStorage.getItem("businessInfoFormData") || "{}";
       const locationFormDataRaw = localStorage.getItem("locationFormData") || "{}";
       const contactAndTimingsFormDataRaw = localStorage.getItem("contactAndTimingsFormData") || "{}";
       const servicesFormDataRaw = localStorage.getItem("servicesFormData") || "{}";
 
-      let welcomeData: { category?: string; subcategory?: string } = {};
       let businessFormData: FormData = { subcategories: [{ businesses: [] }] };
       let locationFormData: { subcategories?: { businesses?: { location: any }[] }[] } = {
         subcategories: [{ businesses: [{ location: {} }] }],
@@ -328,7 +342,6 @@ const GalleryFAQsAndCTA = () => {
       let servicesFormData: FormData = { subcategories: [{ businesses: [] }] };
 
       try {
-        welcomeData = JSON.parse(welcomeFormDataRaw) || {};
         businessFormData = JSON.parse(businessFormDataRaw) as FormData || { subcategories: [{ businesses: [] }] };
         locationFormData = JSON.parse(locationFormDataRaw) || { subcategories: [{ businesses: [{ location: {} }] }] };
         contactAndTimingsFormData = JSON.parse(contactAndTimingsFormDataRaw) || {
@@ -357,11 +370,11 @@ const GalleryFAQsAndCTA = () => {
       const email = contactData.email || "";
       const website = contactData.website || "";
 
-      // Construct complete business data
+      
       const completeBusinessData: PublishedBusinessData = {
         welcome: {
-          category: welcomeData.category || "",
-          subcategory: welcomeData.subcategory || "",
+          category: category,
+          subcategory: subcategory,
         },
         business: {
           businessName:
@@ -396,7 +409,7 @@ const GalleryFAQsAndCTA = () => {
         },
       };
 
-      // Validate required fields
+     
       if (!completeBusinessData.business.businessName) {
         throw new Error("Business name is required.");
       }
@@ -410,10 +423,10 @@ const GalleryFAQsAndCTA = () => {
         throw new Error("At least one service is required.");
       }
 
-      // Log data for debugging
+ 
       console.log("Publishing data:", JSON.stringify(completeBusinessData, null, 2));
 
-      // Save to MockAPI using Axios
+
       const response = await api.post("/data", completeBusinessData);
       const savedBusiness = response.data;
 
@@ -428,7 +441,7 @@ const GalleryFAQsAndCTA = () => {
       localStorage.removeItem("businessInfoFormData");
       localStorage.removeItem("locationFormData");
       localStorage.removeItem("contactAndTimingsFormData");
-      localStorage.removeItem("servicesFormData");
+    //  localStorage.removeItem("servicesFormData");
       localStorage.removeItem(FORM_DATA_KEY);
       localStorage.removeItem(CALL_COUNTRY_CODE_KEY);
       localStorage.removeItem(PUBLISH_FORM_DATA_KEY);
@@ -437,7 +450,11 @@ const GalleryFAQsAndCTA = () => {
       setIsPublished(true);
 
       alert("Business published successfully!");
-      router.push("/review&publish");
+
+      // Add a slight delay to ensure state updates before navigation
+      setTimeout(() => {
+        router.push("/review&publish"); // Updated route to avoid special characters
+      }, 100);
     } catch (error) {
       console.error("Error publishing business:", error);
       let errorMessage = "Failed to publish business. Please try again.";
