@@ -1,9 +1,9 @@
-
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/button";
 import businessData from "@/data/businessData.json";
+import axios from "axios";
 
 const countryCodes = [
   { code: "+1", country: "US" },
@@ -18,6 +18,7 @@ const CALL_COUNTRY_CODE_KEY = "callCountryCode";
 const BUSINESS_DATA_KEY = "businessData";
 const PUBLISH_FORM_DATA_KEY = "publishFormData";
 
+// Define interfaces for the data structure
 interface FAQ {
   question: string;
   answer: string;
@@ -29,12 +30,17 @@ interface CTA {
   getDirections: string;
 }
 
+interface Service {
+  name: string;
+  price: string;
+}
+
 interface Business {
   businessName: string;
   description: string;
   location: any;
   contact: any;
-  services: any[];
+  services: Service[];
   timings: any;
   gallery: string[];
   faqs: FAQ[];
@@ -42,10 +48,52 @@ interface Business {
 }
 
 interface FormData {
-  subcategories: {
-    businesses: Business[];
+  subcategories?: {
+    businesses?: Business[];
   }[];
 }
+
+interface WelcomeData {
+  category: string;
+  subcategory: string;
+}
+
+interface PublishedBusinessData {
+  welcome: {
+    category: string;
+    subcategory: string;
+  };
+  business: {
+    businessName: string;
+    description: string;
+  };
+  location: {
+    address: string;
+    city: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+  };
+  contact: {
+    phone?: string;
+    email?: string;
+    website?: string;
+  };
+  services: Service[];
+  timings: { [key: string]: string };
+  gallery: string[];
+  faqs: FAQ[];
+  cta: CTA;
+}
+
+// Axios instance for MockAPI
+const api = axios.create({
+  baseURL: "https://680b2310d5075a76d989f52e.mockapi.io",
+  timeout: 15000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
 const GalleryFAQsAndCTA = () => {
   const router = useRouter();
@@ -54,28 +102,52 @@ const GalleryFAQsAndCTA = () => {
   const [callCountryCode, setCallCountryCode] = useState<string>(countryCodes[0].code);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isReadOnly, setIsReadOnly] = useState(false);
-  const [welcomeData, setWelcomeData] = useState<{ category: string; subcategory: string }>({
+  const [welcomeData, setWelcomeData] = useState<WelcomeData>({
     category: "",
     subcategory: "",
   });
+  const [isPublished, setIsPublished] = useState(false); // New state to track successful publish
 
   const initialBusiness = businessData.subcategories[0].businesses[0];
+
+  // Check if welcomeFormData exists on component mount, redirect to /welcome if not
+  useEffect(() => {
+    if (typeof window === "undefined" || isPublished) return; // Skip redirect if already published
+
+    const welcomeFormDataRaw = localStorage.getItem("welcomeFormData") || "{}";
+    let welcomeDataParsed: { category?: string; subcategory?: string } = {};
+
+    try {
+      welcomeDataParsed = JSON.parse(welcomeFormDataRaw) || {};
+    } catch (err) {
+      console.error("Error parsing welcomeFormData:", err);
+    }
+
+    if (!welcomeDataParsed.category?.trim() || !welcomeDataParsed.subcategory?.trim()) {
+      console.warn("welcomeFormData is missing category or subcategory, redirecting to /welcome");
+      router.push("/welcome");
+    } else {
+      setWelcomeData({
+        category: welcomeDataParsed.category || "",
+        subcategory: welcomeDataParsed.subcategory || "",
+      });
+    }
+  }, [router, isPublished]); // Add isPublished as a dependency
 
   useEffect(() => {
     if (initialized || typeof window === "undefined") return;
 
-    // Check if apiResponse exists in localStorage
     const apiResponse = localStorage.getItem("apiResponse");
-    const hasApiResponse = !!apiResponse;
+    const hasApiResponse = !!apiResponse && apiResponse !== "{}" && apiResponse !== '""';
     setIsReadOnly(hasApiResponse);
 
-    let parsedApiResponse: { 
-      welcome?: { completed?: boolean; category?: string; subcategory?: string }; 
-      gallery?: string[]; 
-      faqs?: FAQ[]; 
-      cta?: CTA 
+    let parsedApiResponse: {
+      welcome?: { completed?: boolean; category?: string; subcategory?: string };
+      gallery?: string[];
+      faqs?: FAQ[];
+      cta?: CTA;
     } = {};
-    
+
     if (hasApiResponse) {
       try {
         parsedApiResponse = apiResponse ? JSON.parse(apiResponse) : {};
@@ -84,24 +156,22 @@ const GalleryFAQsAndCTA = () => {
       }
     }
 
-    // Set welcome data for display
-    if (parsedApiResponse.welcome) {
-      setWelcomeData({
-        category: parsedApiResponse.welcome.category || "",
-        subcategory: parsedApiResponse.welcome.subcategory || "",
-      });
-    }
-
     const savedFormData = localStorage.getItem(FORM_DATA_KEY);
     const savedCallCode = localStorage.getItem(CALL_COUNTRY_CODE_KEY);
     if (savedCallCode) setCallCountryCode(savedCallCode);
 
-    if (savedFormData) {
-      setFormData(JSON.parse(savedFormData));
+    if (savedFormData && savedFormData !== "null") {
+      try {
+        setFormData(JSON.parse(savedFormData));
+      } catch (err) {
+        console.error("Error parsing savedFormData:", err);
+      }
     } else {
-      const businessFormData = JSON.parse(localStorage.getItem("businessFormData") || "{}");
-      const locationFormData = JSON.parse(localStorage.getItem("locationFormData") || "{}");
-      const contactAndTimingsFormData = JSON.parse(localStorage.getItem("contactAndTimingsFormData") || "{}");
+      const businessFormData = JSON.parse(localStorage.getItem("businessInfoFormData") || "{}");
+      const locationFormData: { subcategories?: { businesses?: { location: any }[] }[] } = 
+        JSON.parse(localStorage.getItem("locationFormData") || '{"subcategories":[{"businesses":[{"location":{}}]}]}');
+      const contactAndTimingsFormData: { subcategories?: { businesses?: { contact?: any; timings?: any }[] }[] } = 
+        JSON.parse(localStorage.getItem("contactAndTimingsFormData") || '{"subcategories":[{"businesses":[{}]}]}');
       const servicesFormData = JSON.parse(localStorage.getItem("servicesFormData") || "{}");
 
       setFormData({
@@ -110,30 +180,34 @@ const GalleryFAQsAndCTA = () => {
             businesses: [
               {
                 businessName:
-                  businessFormData.subcategories?.[0]?.businesses?.[0]?.businessName || initialBusiness.businessName,
+                  businessFormData.subcategories?.[0]?.businesses?.[0]?.businessName ||
+                  initialBusiness.businessName,
                 description:
-                  businessFormData.subcategories?.[0]?.businesses?.[0]?.description || initialBusiness.description,
+                  businessFormData.subcategories?.[0]?.businesses?.[0]?.description ||
+                  initialBusiness.description,
                 location:
                   locationFormData.subcategories?.[0]?.businesses?.[0]?.location || initialBusiness.location,
                 contact:
-                  contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.contact || initialBusiness.contact,
+                  contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.contact ||
+                  initialBusiness.contact,
                 services:
                   servicesFormData.subcategories?.[0]?.businesses?.[0]?.services || initialBusiness.services,
                 timings:
-                  contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.timings || initialBusiness.timings,
-                gallery: parsedApiResponse.gallery || [],
-                faqs: parsedApiResponse.faqs || [],
+                  contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.timings ||
+                  initialBusiness.timings,
+                gallery: parsedApiResponse.gallery || initialBusiness.gallery || [],
+                faqs: parsedApiResponse.faqs || initialBusiness.faqs || [],
                 cta: {
                   call:
-                    contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.cta?.call ||
+                    parsedApiResponse.cta?.call ||
                     parsedApiResponse.cta?.call ||
                     initialBusiness.cta.call,
                   bookUrl:
-                    contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.cta?.bookUrl ||
+                    parsedApiResponse.cta?.bookUrl ||
                     parsedApiResponse.cta?.bookUrl ||
                     initialBusiness.cta.bookUrl,
                   getDirections:
-                    contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.cta?.getDirections ||
+                    parsedApiResponse.cta?.getDirections ||
                     parsedApiResponse.cta?.getDirections ||
                     initialBusiness.cta.getDirections,
                 },
@@ -236,38 +310,83 @@ const GalleryFAQsAndCTA = () => {
     setIsPublishing(true);
 
     try {
-      localStorage.setItem(PUBLISH_FORM_DATA_KEY, JSON.stringify({ published: true }));
+      // Collect data from localStorage
+      const welcomeFormDataRaw = localStorage.getItem("welcomeFormData") || "{}";
+      const businessFormDataRaw = localStorage.getItem("businessInfoFormData") || "{}";
+      const locationFormDataRaw = localStorage.getItem("locationFormData") || "{}";
+      const contactAndTimingsFormDataRaw = localStorage.getItem("contactAndTimingsFormData") || "{}";
+      const servicesFormDataRaw = localStorage.getItem("servicesFormData") || "{}";
 
-      const welcomeData = JSON.parse(localStorage.getItem("apiResponse") || "{}");
-      const businessFormData = JSON.parse(localStorage.getItem("businessInfoFormData") || "{}");
-      const locationFormData = JSON.parse(localStorage.getItem("locationFormData") || "{}");
-      const contactAndTimingsFormData = JSON.parse(localStorage.getItem("contactAndTimingsFormData") || "{}");
-      const servicesFormData = JSON.parse(localStorage.getItem("servicesFormData") || "{}");
-      const currentBusiness = formData.subcategories[0].businesses[0];
+      let welcomeData: { category?: string; subcategory?: string } = {};
+      let businessFormData: FormData = { subcategories: [{ businesses: [] }] };
+      let locationFormData: { subcategories?: { businesses?: { location: any }[] }[] } = {
+        subcategories: [{ businesses: [{ location: {} }] }],
+      };
+      let contactAndTimingsFormData: { subcategories?: { businesses?: { contact?: any; timings?: any }[] }[] } = {
+        subcategories: [{ businesses: [{}] }],
+      };
+      let servicesFormData: FormData = { subcategories: [{ businesses: [] }] };
 
-      const contactData = contactAndTimingsFormData.contact || currentBusiness.contact || {};
+      try {
+        welcomeData = JSON.parse(welcomeFormDataRaw) || {};
+        businessFormData = JSON.parse(businessFormDataRaw) as FormData || { subcategories: [{ businesses: [] }] };
+        locationFormData = JSON.parse(locationFormDataRaw) || { subcategories: [{ businesses: [{ location: {} }] }] };
+        contactAndTimingsFormData = JSON.parse(contactAndTimingsFormDataRaw) || {
+          subcategories: [{ businesses: [{}] }],
+        };
+        servicesFormData = JSON.parse(servicesFormDataRaw) || { subcategories: [{ businesses: [] }] };
+      } catch (err) {
+        console.error("Error parsing localStorage data:", err);
+        throw new Error("Invalid data in localStorage.");
+      }
+
+      const currentBusiness = formData.subcategories?.[0]?.businesses?.[0] || {
+        businessName: "",
+        description: "",
+        location: {},
+        contact: {},
+        services: [],
+        timings: {},
+        gallery: [],
+        faqs: [],
+        cta: { call: "", bookUrl: "", getDirections: "" },
+      };
+      const contactData =
+        contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.contact || currentBusiness.contact || {};
       const phone = contactData.phone || "";
       const email = contactData.email || "";
       const website = contactData.website || "";
 
-      const completeBusinessData = {
+      // Construct complete business data
+      const completeBusinessData: PublishedBusinessData = {
         welcome: {
-          category: welcomeData?.welcome?.category || "",
-          subcategory: welcomeData?.welcome?.subcategory || "",
+          category: welcomeData.category || "",
+          subcategory: welcomeData.subcategory || "",
         },
         business: {
-          businessName: businessFormData.businessName || currentBusiness.businessName || "",
-          description: businessFormData.description || currentBusiness.description || "",
+          businessName:
+            businessFormData.subcategories?.[0]?.businesses?.[0]?.businessName ||
+            currentBusiness.businessName ||
+            "",
+          description:
+            businessFormData.subcategories?.[0]?.businesses?.[0]?.description ||
+            currentBusiness.description ||
+            "",
         },
-        location: locationFormData || currentBusiness.location || {},
+        location:
+          locationFormData.subcategories?.[0]?.businesses?.[0]?.location || currentBusiness.location || {
+            address: "",
+            city: "",
+          },
         contact: {
           phone,
           email,
           website,
-          ...(contactData.otherFields || {}),
         },
-        services: servicesFormData.length > 0 ? servicesFormData : currentBusiness.services || [],
-        timings: contactAndTimingsFormData.timings || currentBusiness.timings || {},
+        services:
+          servicesFormData.subcategories?.[0]?.businesses?.[0]?.services || currentBusiness.services || [],
+        timings:
+          contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.timings || currentBusiness.timings || {},
         gallery: currentBusiness.gallery || [],
         faqs: currentBusiness.faqs || [],
         cta: {
@@ -281,36 +400,60 @@ const GalleryFAQsAndCTA = () => {
       if (!completeBusinessData.business.businessName) {
         throw new Error("Business name is required.");
       }
-      if (!completeBusinessData.welcome.category || !completeBusinessData.welcome.subcategory) {
-        throw new Error("Category and subcategory are required.");
+      if (!completeBusinessData.welcome.category.trim() || !completeBusinessData.welcome.subcategory.trim()) {
+        throw new Error("Category and subcategory are required and cannot be empty.");
+      }
+      if (!completeBusinessData.location.address || !completeBusinessData.location.city) {
+        throw new Error("Address and city are required.");
+      }
+      if (!completeBusinessData.services.length) {
+        throw new Error("At least one service is required.");
       }
 
-      // Save to localStorage directly
+      // Log data for debugging
+      console.log("Publishing data:", JSON.stringify(completeBusinessData, null, 2));
+
+      // Save to MockAPI using Axios
+      const response = await api.post("/data", completeBusinessData);
+      const savedBusiness = response.data;
+
+      // Store data in localStorage
+      localStorage.setItem(PUBLISH_FORM_DATA_KEY, JSON.stringify({ published: true }));
       localStorage.setItem(BUSINESS_DATA_KEY, JSON.stringify(completeBusinessData));
       localStorage.setItem("apiResponse", JSON.stringify(completeBusinessData));
+      localStorage.setItem("lastPublishedBusinessId", savedBusiness.id);
 
-      // Clear form data
+      // Clear draft data from localStorage
       localStorage.removeItem("welcomeFormData");
       localStorage.removeItem("businessInfoFormData");
       localStorage.removeItem("locationFormData");
       localStorage.removeItem("contactAndTimingsFormData");
+      localStorage.removeItem("servicesFormData");
       localStorage.removeItem(FORM_DATA_KEY);
       localStorage.removeItem(CALL_COUNTRY_CODE_KEY);
       localStorage.removeItem(PUBLISH_FORM_DATA_KEY);
 
-      alert("Business published successfully!");
-      setTimeout(() => {
-        location.reload();
-      }, 1000);
+      // Set published state to true to prevent redirect
+      setIsPublished(true);
 
+      alert("Business published successfully!");
       router.push("/review&publish");
     } catch (error) {
       console.error("Error publishing business:", error);
-      if (error instanceof Error) {
-        alert(error.message || "Failed to publish business. Please try again.");
-      } else {
-        alert("Failed to publish business. Please try again.");
+      let errorMessage = "Failed to publish business. Please try again.";
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error details:", {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: error.message,
+        });
+        errorMessage =
+          error.response?.data?.message ||
+          `Server error (${error.response?.status || "unknown"}). Please try again.`;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
       }
+      alert(errorMessage);
     } finally {
       setIsPublishing(false);
     }
@@ -318,7 +461,17 @@ const GalleryFAQsAndCTA = () => {
 
   if (!formData) return <div>Loading...</div>;
 
-  const currentBusiness = formData.subcategories[0].businesses[0];
+  const currentBusiness = formData.subcategories?.[0]?.businesses?.[0] || {
+    businessName: "",
+    description: "",
+    location: {},
+    contact: {},
+    services: [],
+    timings: {},
+    gallery: [],
+    faqs: [],
+    cta: { call: "", bookUrl: "", getDirections: "" },
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-5">
@@ -330,12 +483,10 @@ const GalleryFAQsAndCTA = () => {
         <p id="form-instructions" className="sr-only">
           Upload images to the gallery, add FAQs, and provide call-to-action details. Use the buttons to navigate or publish the business.
         </p>
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">
-          Gallery, FAQs, and Call to Action
-        </h2>
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">Gallery, FAQs, and Call to Action</h2>
 
         {isReadOnly ? (
-          <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
+          <div className="mb-4 p-3 bg-gray-100 text-gray-800 rounded-md">
             Viewing saved data. To edit, please clear the localStorage or create a new business.
           </div>
         ) : (
@@ -343,7 +494,8 @@ const GalleryFAQsAndCTA = () => {
             Create mode: You can edit all fields.
           </div>
         )}
-        
+
+        {/* Gallery Section */}
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Gallery</h3>
           <div className="mb-4">
@@ -438,7 +590,9 @@ const GalleryFAQsAndCTA = () => {
                   id="call-code"
                   value={callCountryCode}
                   onChange={(e) => !isReadOnly && setCallCountryCode(e.target.value)}
-                  className={`w-24 p-2 border border-gray-300 rounded-l-md text-sm ${isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-blue-500"}`}
+                  className={`w-24 p-2 border border-gray-300 rounded-l-md text-sm ${
+                    isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-gray-500"
+                  }`}
                   aria-label="Country code"
                   disabled={isReadOnly}
                 >
@@ -454,12 +608,15 @@ const GalleryFAQsAndCTA = () => {
                   placeholder="Phone number"
                   value={currentBusiness.cta.call.replace(`${callCountryCode}-`, "") || ""}
                   onChange={(e) =>
-                    !isReadOnly && updateFormData(
+                    !isReadOnly &&
+                    updateFormData(
                       "subcategories.0.businesses.0.cta.call",
                       `${callCountryCode}-${e.target.value.replace(/[^0-9]/g, "")}`
                     )
                   }
-                  className={`flex-1 p-2 border border-gray-300 rounded-r-md text-sm ${isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-blue-500"}`}
+                  className={`flex-1 p-2 border border-gray-300 rounded-r-md text-sm ${
+                    isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-gray-500"
+                  }`}
                   aria-label="Call number"
                   readOnly={isReadOnly}
                 />
@@ -477,7 +634,9 @@ const GalleryFAQsAndCTA = () => {
                 onChange={(e) =>
                   !isReadOnly && updateFormData("subcategories.0.businesses.0.cta.bookUrl", e.target.value)
                 }
-                className={`w-full p-2 border border-gray-300 rounded-md text-sm ${isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-blue-500"}`}
+                className={`w-full p-2 border border-gray-300 rounded-md text-sm ${
+                  isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-gray-500"
+                }`}
                 readOnly={isReadOnly}
               />
             </div>
@@ -495,7 +654,9 @@ const GalleryFAQsAndCTA = () => {
                 onChange={(e) =>
                   !isReadOnly && updateFormData("subcategories.0.businesses.0.cta.getDirections", e.target.value)
                 }
-                className={`w-full p-2 border border-gray-300 rounded-md text-sm ${isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-blue-500"}`}
+                className={`w-full p-2 border border-gray-300 rounded-md text-sm ${
+                  isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-gray-500"
+                }`}
                 readOnly={isReadOnly}
               />
             </div>
@@ -509,12 +670,12 @@ const GalleryFAQsAndCTA = () => {
             {currentBusiness.faqs.map((faq, index) => (
               <div
                 key={index}
-                className="mb-4 p-3 border border-gray-400 rounded-md bg-white"
+                className="mb-4 p-3 border border-gray-200 rounded-md bg-white"
               >
                 <div className="mb-3">
                   <label
                     htmlFor={`faq-question-${index}`}
-                    className="block że w mb-2 font-medium text-gray-700"
+                    className="block mb-2 font-medium text-gray-700"
                   >
                     Question:
                   </label>
@@ -524,14 +685,12 @@ const GalleryFAQsAndCTA = () => {
                     placeholder="Enter question"
                     value={faq.question || ""}
                     onChange={(e) =>
-                      !isReadOnly && handleArrayChange(
-                        "subcategories.0.businesses.0.faqs",
-                        index,
-                        "question",
-                        e.target.value
-                      )
+                      !isReadOnly &&
+                      handleArrayChange("subcategories.0.businesses.0.faqs", index, "question", e.target.value)
                     }
-                    className={`w-full p-2 border border-gray-300 rounded-md text-sm ${isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-blue-500"}`}
+                    className={`w-full p-2 border border-gray-300 rounded-md text-sm ${
+                      isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-gray-500"
+                    }`}
                     readOnly={isReadOnly}
                   />
                 </div>
@@ -547,14 +706,12 @@ const GalleryFAQsAndCTA = () => {
                     placeholder="Enter answer"
                     value={faq.answer || ""}
                     onChange={(e) =>
-                      !isReadOnly && handleArrayChange(
-                        "subcategories.0.businesses.0.faqs",
-                        index,
-                        "answer",
-                        e.target.value
-                      )
+                      !isReadOnly &&
+                      handleArrayChange("subcategories.0.businesses.0.faqs", index, "answer", e.target.value)
                     }
-                    className={`w-full p-2 border border-gray-300 rounded-md text-sm h-24 ${isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-blue-500"}`}
+                    className={`w-full p-2 border border-gray-300 rounded-md text-sm h-24 ${
+                      isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-gray-500"
+                    }`}
                     readOnly={isReadOnly}
                   />
                 </div>
@@ -562,7 +719,7 @@ const GalleryFAQsAndCTA = () => {
                   <button
                     type="button"
                     onClick={() => removeArrayItem("subcategories.0.businesses.0.faqs", index)}
-                    className="mt-2 text-sm text-red-800 hover:text-red-900 focus:ring-2 focus:ring-red-500"
+                    className="mt-2 text-sm text-red-600 hover:text-red-800 focus:ring-2 focus:ring-red-500"
                     aria-label={`Remove FAQ ${index + 1}`}
                   >
                     Remove FAQ
@@ -580,7 +737,7 @@ const GalleryFAQsAndCTA = () => {
                   answer: "",
                 })
               }
-              className="px-4 py-2 bg-green-700 text-white rounded-md text-sm hover:bg-green-800 focus:ring-2 focus:ring-green-700"
+              className="px-4 py-2 bg-green-600 text-white rounded-md text-sm hover:bg-green-700 focus:ring-2 focus:ring-green-600"
               aria-label="Add new FAQ"
             >
               + Add FAQ
@@ -590,15 +747,14 @@ const GalleryFAQsAndCTA = () => {
 
         <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
           <Button
-            className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700 focus:ring-2 focus:ring-blue-500"
+            className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700 focus:ring-2 focus:ring-gray-500"
             onClick={() => router.push("/services")}
             type="button"
           >
             Back
           </Button>
           <Button
-            className="w-full sm:w-auto focus:ring-2 focus:ring-blue-500 bg-blue-600"
-            color="primary"
+            className="w-full sm:w-auto bg-gray-600 text-white hover:bg-gray-700 focus:ring-2 focus:ring-gray-500"
             onClick={handlePublish}
             type="button"
             disabled={isPublishing}
