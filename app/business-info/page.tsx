@@ -13,54 +13,60 @@ export default function BusinessInformation() {
     businessName: "",
     description: "",
   });
+  const [initialPublishedData, setInitialPublishedData] = useState({
+    businessName: "",
+    description: "",
+  });
 
   useEffect(() => {
-   
     const apiResponse = localStorage.getItem("apiResponse");
     const businessFormData = localStorage.getItem("businessFormData");
 
- 
+    // First check if we have draft data
+    if (businessFormData && businessFormData !== "null") {
+      try {
+        const parsedFormData = JSON.parse(businessFormData);
+        const draftData = {
+          businessName: parsedFormData.subcategories?.[0]?.businesses?.[0]?.businessName || "",
+          description: parsedFormData.subcategories?.[0]?.businesses?.[0]?.description || "",
+        };
+        setFormData(draftData);
+        setIsEditing(true);
+        setHasPublishedData(false); // Treat as draft
+        return;
+      } catch (e) {
+        console.error("Error parsing draft data", e);
+      }
+    }
+
+    // If no draft data, check for published data
     let publishedDataExists = false;
     try {
       const parsedApiResponse = apiResponse ? JSON.parse(apiResponse) : null;
-      publishedDataExists = Boolean(
-        parsedApiResponse?.business?.businessName && 
-        parsedApiResponse?.business?.description
-      );
+      if (parsedApiResponse?.business?.businessName && parsedApiResponse?.business?.description) {
+        publishedDataExists = true;
+        const publishedData = {
+          businessName: parsedApiResponse.business.businessName,
+          description: parsedApiResponse.business.description,
+        };
+        setFormData(publishedData);
+        setInitialPublishedData(publishedData); // Save initial published data for cancel
+      }
     } catch (e) {
       publishedDataExists = false;
     }
 
     setHasPublishedData(publishedDataExists);
 
-    if (publishedDataExists) {
-      const parsedApiResponse = JSON.parse(apiResponse!);
+    // If no data at all, use default from businessData
+    if (!publishedDataExists && (!businessFormData || businessFormData === "null")) {
       setFormData({
-        businessName: parsedApiResponse.business.businessName,
-        description: parsedApiResponse.business.description,
-      });
-      setIsEditing(false); 
-    } else {
-    
-      let draftData = {
         businessName: businessData.subcategories[0].businesses[0].businessName,
         description: businessData.subcategories[0].businesses[0].description,
-      };
-
-      if (businessFormData && businessFormData !== "null") {
-        try {
-          const parsedFormData = JSON.parse(businessFormData);
-          draftData = {
-            businessName: parsedFormData.subcategories?.[0]?.businesses?.[0]?.businessName || draftData.businessName,
-            description: parsedFormData.subcategories?.[0]?.businesses?.[0]?.description || draftData.description,
-          };
-        } catch (e) {
-          console.error("Error parsing draft data", e);
-        }
-      }
-
-      setFormData(draftData);
+      });
       setIsEditing(true); // Start in edit mode
+    } else {
+      setIsEditing(false); // Start in view mode if we have published data
     }
   }, []);
 
@@ -80,17 +86,31 @@ export default function BusinessInformation() {
       }]
     };
     localStorage.setItem("businessFormData", JSON.stringify(dataToSave));
+    
+    // If we were editing published data, now it becomes draft
+    setHasPublishedData(false);
+    
     router.push("/location");
   };
 
   const toggleEdit = () => {
     if (isEditing && hasPublishedData) {
       // Revert to published data when canceling edit
-      const apiResponse = JSON.parse(localStorage.getItem("apiResponse") || "{}");
-      setFormData({
-        businessName: apiResponse.business?.businessName || "",
-        description: apiResponse.business?.description || "",
-      });
+      setFormData(initialPublishedData);
+    } else if (!isEditing) {
+      // When entering edit mode, check for draft data first
+      const businessFormData = localStorage.getItem("businessFormData");
+      if (businessFormData && businessFormData !== "null") {
+        try {
+          const parsedFormData = JSON.parse(businessFormData);
+          setFormData({
+            businessName: parsedFormData.subcategories?.[0]?.businesses?.[0]?.businessName || initialPublishedData.businessName,
+            description: parsedFormData.subcategories?.[0]?.businesses?.[0]?.description || initialPublishedData.description,
+          });
+        } catch (e) {
+          console.error("Error parsing draft data", e);
+        }
+      }
     }
     setIsEditing(!isEditing);
   };
