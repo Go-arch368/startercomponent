@@ -8,65 +8,72 @@ import businessData from "@/data/businessData.json";
 export default function BusinessInformation() {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
-  const [hasPublishedData, setHasPublishedData] = useState(false);
+  const [hasExistingData, setHasExistingData] = useState(false);
   const [formData, setFormData] = useState({
     businessName: "",
     description: "",
   });
-  const [initialPublishedData, setInitialPublishedData] = useState({
+  const [initialData, setInitialData] = useState({
     businessName: "",
     description: "",
   });
 
   useEffect(() => {
-    const apiResponse = localStorage.getItem("apiResponse");
     const businessFormData = localStorage.getItem("businessFormData");
+    const apiResponse = localStorage.getItem("apiResponse");
 
-    // First check if we have draft data
+    // Check for any existing data (either draft or published)
+    let existingData = null;
+    
+    // First check for draft data
     if (businessFormData && businessFormData !== "null") {
       try {
-        const parsedFormData = JSON.parse(businessFormData);
-        const draftData = {
-          businessName: parsedFormData.subcategories?.[0]?.businesses?.[0]?.businessName || "",
-          description: parsedFormData.subcategories?.[0]?.businesses?.[0]?.description || "",
+        const parsedData = JSON.parse(businessFormData);
+        existingData = {
+          businessName: parsedData.subcategories?.[0]?.businesses?.[0]?.businessName || "",
+          description: parsedData.subcategories?.[0]?.businesses?.[0]?.description || "",
+          isPublished: false
         };
-        setFormData(draftData);
-        setIsEditing(true);
-        setHasPublishedData(false); // Treat as draft
-        return;
       } catch (e) {
         console.error("Error parsing draft data", e);
       }
     }
 
     // If no draft data, check for published data
-    let publishedDataExists = false;
-    try {
-      const parsedApiResponse = apiResponse ? JSON.parse(apiResponse) : null;
-      if (parsedApiResponse?.business?.businessName && parsedApiResponse?.business?.description) {
-        publishedDataExists = true;
-        const publishedData = {
-          businessName: parsedApiResponse.business.businessName,
-          description: parsedApiResponse.business.description,
-        };
-        setFormData(publishedData);
-        setInitialPublishedData(publishedData); // Save initial published data for cancel
+    if (!existingData && apiResponse) {
+      try {
+        const parsedApiResponse = JSON.parse(apiResponse);
+        if (parsedApiResponse?.business?.businessName) {
+          existingData = {
+            businessName: parsedApiResponse.business.businessName,
+            description: parsedApiResponse.business.description || "",
+            isPublished: true
+          };
+        }
+      } catch (e) {
+        console.error("Error parsing api response", e);
       }
-    } catch (e) {
-      publishedDataExists = false;
     }
 
-    setHasPublishedData(publishedDataExists);
-
-    // If no data at all, use default from businessData
-    if (!publishedDataExists && (!businessFormData || businessFormData === "null")) {
+    if (existingData) {
+      setFormData({
+        businessName: existingData.businessName,
+        description: existingData.description
+      });
+      setInitialData({
+        businessName: existingData.businessName,
+        description: existingData.description
+      });
+      setHasExistingData(true);
+      setIsEditing(false); // Start in read-only mode if data exists
+    } else {
+      // No data found - use defaults and allow editing
       setFormData({
         businessName: businessData.subcategories[0].businesses[0].businessName,
         description: businessData.subcategories[0].businesses[0].description,
       });
       setIsEditing(true); // Start in edit mode
-    } else {
-      setIsEditing(false); // Start in view mode if we have published data
+      setHasExistingData(false);
     }
   }, []);
 
@@ -76,7 +83,7 @@ export default function BusinessInformation() {
   };
 
   const handleNext = () => {
-    // Save data to localStorage (as draft)
+    // Save data to localStorage
     const dataToSave = {
       subcategories: [{
         businesses: [{
@@ -87,35 +94,18 @@ export default function BusinessInformation() {
     };
     localStorage.setItem("businessFormData", JSON.stringify(dataToSave));
     
-    // If we were editing published data, now it becomes draft
-    setHasPublishedData(false);
-    
     router.push("/location");
   };
 
   const toggleEdit = () => {
-    if (isEditing && hasPublishedData) {
-      // Revert to published data when canceling edit
-      setFormData(initialPublishedData);
-    } else if (!isEditing) {
-      // When entering edit mode, check for draft data first
-      const businessFormData = localStorage.getItem("businessFormData");
-      if (businessFormData && businessFormData !== "null") {
-        try {
-          const parsedFormData = JSON.parse(businessFormData);
-          setFormData({
-            businessName: parsedFormData.subcategories?.[0]?.businesses?.[0]?.businessName || initialPublishedData.businessName,
-            description: parsedFormData.subcategories?.[0]?.businesses?.[0]?.description || initialPublishedData.description,
-          });
-        } catch (e) {
-          console.error("Error parsing draft data", e);
-        }
-      }
+    if (isEditing) {
+      // Cancel editing - revert to initial data
+      setFormData(initialData);
     }
     setIsEditing(!isEditing);
   };
 
-  const isReadOnly = hasPublishedData && !isEditing;
+  const isReadOnly = hasExistingData && !isEditing;
 
   return (
     <main className="max-w-4xl mx-auto p-5">
@@ -124,7 +114,7 @@ export default function BusinessInformation() {
 
         {isReadOnly ? (
           <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
-            Viewing published business information.{" "}
+            Viewing saved business information.{" "}
             <button 
               onClick={toggleEdit}
               className="ml-2 text-blue-600 hover:text-blue-800 font-medium"
@@ -132,11 +122,11 @@ export default function BusinessInformation() {
               Edit Business
             </button>
           </div>
-        ) : hasPublishedData ? (
+        ) : (
           <div className="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded-md">
-            Editing business information. Changes will be saved as draft.
+            {hasExistingData ? "Editing business information." : "Please enter your business information."}
           </div>
-        ) : null}
+        )}
 
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Basic Information</h3>
@@ -197,7 +187,7 @@ export default function BusinessInformation() {
             Back
           </Button>
           
-          {isEditing && hasPublishedData && (
+          {isEditing && hasExistingData && (
             <Button
               className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700 focus:ring-2 focus:ring-blue-500"
               onClick={toggleEdit}
