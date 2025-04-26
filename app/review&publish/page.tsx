@@ -773,7 +773,7 @@ const GalleryFAQsAndCTA = () => {
             Back
           </Button>
           <Button
-            className="w-full sm:w-auto bg-gray-600 text-white hover:bg-gray-700 focus:ring-2 focus:ring-gray-500"
+            className="w-full sm:w-auto bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
             onClick={handlePublish}
             type="button"
             disabled={isPublishing}

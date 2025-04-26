@@ -97,7 +97,7 @@ export default function Stepper() {
       console.error("Error parsing apiResponse:", error);
     }
     setIsPublished(hasApiResponse);
-
+    
     const dataPresence = steps.reduce((acc, step) => {
       const formDataExists = step.storageKey
         ? !!localStorage.getItem(step.storageKey) && localStorage.getItem(step.storageKey) !== '""'
@@ -147,6 +147,10 @@ export default function Stepper() {
 
   const handleStepNavigation = (index: number) => {
     router.push(steps[index].path);
+    // Optionally blur the element to prevent focus outline after navigation
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
   };
 
   const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
@@ -162,7 +166,7 @@ export default function Stepper() {
     const isBeforeCurrent = index < currentStep;
 
     const circleClasses = clsx(
-      "z-10 flex items-center justify-center rounded-full border-2 text-sm font-semibold bg-white cursor-pointer transition-all duration-300 relative",
+      "z-10 flex items-center justify-center rounded-full border-2 text-sm font-semibold bg-white cursor-pointer transition-all duration-300 relative outline-none",
       {
         "h-10 w-10 border-green-600 text-green-600": (hasStepData || isBeforeCurrent) || isCurrent,
         "h-8 w-8": !isCurrent,
@@ -181,7 +185,7 @@ export default function Stepper() {
         aria-label={`Go to ${steps[index].label} step`}
       >
         {isCurrent && (
-          <div className="absolute -inset-2 rounded-full border-2 border-blue-600 pointer-events-none"></div>
+          <div className="absolute -inset-2 rounded-full border-2 border-orange-600 pointer-events-none"></div>
         )}
         <Icon size={isCurrent ? 22 : 20} aria-hidden="true" />
       </div>

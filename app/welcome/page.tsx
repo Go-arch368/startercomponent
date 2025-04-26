@@ -178,7 +178,7 @@ export default function Welcome() {
           )}
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex justify-end">
           <Button
             className="w-full sm:w-auto focus:ring-2 focus:ring-blue-500"
             color="primary"

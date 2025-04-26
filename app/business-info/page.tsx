@@ -99,7 +99,7 @@ export default function BusinessInformation() {
 
   const toggleEdit = () => {
     if (isEditing) {
-      // Cancel editing - revert to initial data
+     
       setFormData(initialData);
     }
     setIsEditing(!isEditing);
