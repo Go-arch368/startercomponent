@@ -158,15 +158,14 @@ export default function Stepper() {
   const renderStepCircle = (index: number) => {
     const Icon = steps[index].icon;
     const isCurrent = index === currentStep;
-    const hasStepData = hasData[steps[index].path];
+    const hasStepData = hasData[steps[index].path] || isPublished;
     const isBeforeCurrent = index < currentStep;
 
     const circleClasses = clsx(
-      "z-10 flex items-center justify-center rounded-full border-2 text-sm font-semibold bg-white cursor-pointer transition-all duration-300",
+      "z-10 flex items-center justify-center rounded-full border-2 text-sm font-semibold bg-white cursor-pointer transition-all duration-300 relative",
       {
-        "h-10 w-10 border-gray-500 text-gray-500": isCurrent,
+        "h-10 w-10 border-green-600 text-green-600": (hasStepData || isBeforeCurrent) || isCurrent,
         "h-8 w-8": !isCurrent,
-        "border-green-700 text-green-700": (hasStepData || isBeforeCurrent) && !isCurrent,
         "border-gray-300 text-gray-400": !hasStepData && !isBeforeCurrent && !isCurrent,
       }
     );
@@ -181,6 +180,9 @@ export default function Stepper() {
         onKeyDown={(e) => handleKeyDown(e, index)}
         aria-label={`Go to ${steps[index].label} step`}
       >
+        {isCurrent && (
+          <div className="absolute -inset-2 rounded-full border-2 border-blue-600 pointer-events-none"></div>
+        )}
         <Icon size={isCurrent ? 22 : 20} aria-hidden="true" />
       </div>
     );
@@ -188,14 +190,14 @@ export default function Stepper() {
 
   const renderStepLabel = (index: number) => {
     const isCurrent = index === currentStep;
-    const hasStepData = hasData[steps[index].path];
+    const hasStepData = hasData[steps[index].path] || isPublished;
     const isBeforeCurrent = index < currentStep;
 
     const labelClasses = clsx(
-      "mt-2 px-1 text-xs text-center max-w-[100px] flex items-center gap-1 font-semibold transition-all duration-300",
+      "mt-3 px-1 text-xs text-center max-w-[100px] flex items-center gap-1 font-semibold transition-all duration-300",
       {
-        "text-gray-500 text-sm": isCurrent,
-        "text-green-700": (hasStepData || isBeforeCurrent) && !isCurrent,
+        "text-green-600 text-sm": isCurrent,
+        "text-green-600": (hasStepData || isBeforeCurrent) && !isCurrent,
         "text-gray-600": !hasStepData && !isBeforeCurrent && !isCurrent,
       }
     );
@@ -209,7 +211,7 @@ export default function Stepper() {
         <span className="truncate">{steps[index].label}</span>
         {(hasStepData || isBeforeCurrent) && (
           <span 
-            className="ml-1 flex h-5 w-5 items-center justify-center rounded-full flex-shrink-0 bg-green-700 text-white"
+            className="ml-1 flex h-5 w-5 items-center justify-center rounded-full flex-shrink-0 bg-green-600 text-white"
             aria-hidden="true"
           >
             <BadgeCheck size={12} strokeWidth={2} />
@@ -220,12 +222,12 @@ export default function Stepper() {
   };
 
   const getConnectorClass = (index: number) => {
-    const hasStepData = hasData[steps[index].path];
-    const hasNextStepData = hasData[steps[index + 1].path];
+    const hasStepData = hasData[steps[index].path] || isPublished;
+    const hasNextStepData = hasData[steps[index + 1].path] || isPublished;
     const isBeforeCurrent = index < currentStep;
 
     return clsx("absolute top-5 z-0 h-[2px] w-full", {
-      "bg-green-700": hasStepData || hasNextStepData || isBeforeCurrent,
+      "bg-green-600": hasStepData || hasNextStepData || isBeforeCurrent,
       "bg-gray-300": !hasStepData && !hasNextStepData && !isBeforeCurrent,
     });
   };
@@ -275,7 +277,7 @@ export default function Stepper() {
                 <motion.div
                   key={step.label}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="relative flex min-w-[70px] flex-1 flex-col items-center"
+                  className="relative flex min-w-[80px] flex-1 flex-col items-center"
                   exit={{ opacity: 0, scale: 0.95 }}
                   initial={{ opacity: 0, scale: 0.95 }}
                   layout
@@ -301,8 +303,8 @@ export default function Stepper() {
               key={index}
               role="presentation"
               className={clsx("h-2.5 w-2.5 rounded-full", {
-                "bg-green-700": hasData[steps[index].path] || index < currentStep,
-                "bg-gray-300": !hasData[steps[index].path] && index >= currentStep,
+                "bg-green-600": hasData[steps[index].path] || index < currentStep || isPublished,
+                "bg-gray-300": !hasData[steps[index].path] && index >= currentStep && !isPublished,
               })}
             />
           ))}
@@ -319,7 +321,7 @@ export default function Stepper() {
           {steps.map((step, index) => (
             <div
               key={step.label}
-              className="relative z-10 flex min-w-[80px] flex-1 flex-col items-center"
+              className="relative z-10 flex min-w-[90px] flex-1 flex-col items-center"
             >
               {index < steps.length - 1 && (
                 <div
