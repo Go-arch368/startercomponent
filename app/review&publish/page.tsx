@@ -18,7 +18,7 @@ const CALL_COUNTRY_CODE_KEY = "callCountryCode";
 const BUSINESS_DATA_KEY = "businessData";
 const PUBLISH_FORM_DATA_KEY = "publishFormData";
 
-// Define interfaces for the data structure
+
 interface FAQ {
   question: string;
   answer: string;
@@ -112,7 +112,7 @@ const GalleryFAQsAndCTA = () => {
 
   // Check if apiResponse exists with welcome data, redirect to /welcome if not
   useEffect(() => {
-    if (typeof window === "undefined" || isPublished) return; // Skip redirect if published
+    if (typeof window === "undefined" || isPublished) return; 
 
     const apiResponseRaw = localStorage.getItem("apiResponse") || "{}";
     let apiResponse: { welcome?: WelcomeData } = {};
@@ -310,7 +310,7 @@ const GalleryFAQsAndCTA = () => {
     setIsPublishing(true);
 
     try {
-      // Collect data from localStorage
+     
       const apiResponseRaw = localStorage.getItem("apiResponse") || "{}";
       let apiResponse: { welcome?: WelcomeData } = {};
       try {
@@ -446,14 +446,16 @@ const GalleryFAQsAndCTA = () => {
       localStorage.removeItem(CALL_COUNTRY_CODE_KEY);
       localStorage.removeItem(PUBLISH_FORM_DATA_KEY);
 
-      // Set published state to true to prevent redirect
+    
       setIsPublished(true);
 
       alert("Business published successfully!");
-
-      // Add a slight delay to ensure state updates before navigation
+      setTimeout(()=> {
+        window.location.reload()
+      },1000)
+      
       setTimeout(() => {
-        router.push("/review&publish"); // Updated route to avoid special characters
+        router.push("/review&publish");
       }, 100);
     } catch (error) {
       console.error("Error publishing business:", error);

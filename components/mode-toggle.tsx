@@ -4,7 +4,7 @@ import { Button } from '@heroui/button';
 import { Plus, Pencil } from 'lucide-react';
 
 interface ModeToggleProps {
-  initialHasData?: boolean; // Made optional
+  initialHasData?: boolean;
 }
 
 export function ModeToggle({ initialHasData = false }: ModeToggleProps) {

@@ -13,32 +13,79 @@ import {
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
-const steps = [
-  { label: "Welcome", path: "/welcome", icon: Home, storageKey: "welcomeFormData", apiResponseKey: "welcome" },
-  { label: "Business Info", path: "/business-info", icon: Briefcase, storageKey: "businessInfoFormData", apiResponseKey: "business" },
-  { label: "Location", path: "/location", icon: MapPin, storageKey: "locationFormData", apiResponseKey: "location" },
-  { label: "Contact & Timings", path: "/contact&timings", icon: Phone, storageKey: "contactAndTimingsFormData", apiResponseKey: ["contact", "timings", "cta"] },
-  { label: "Services", path: "/services", icon: Wrench, storageKey: "servicesFormData", apiResponseKey: "services" },
-  { label: "Review & Publish", path: "/review&publish", icon: CheckCircle, storageKey: "publishFormData", apiResponseKey: "any" },
+interface Step {
+  label: string;
+  path: string;
+  icon: React.ComponentType<any>;
+  storageKey: string;
+  apiResponseKey: string | string[];
+}
+
+const steps: Step[] = [
+  { 
+    label: "Welcome", 
+    path: "/welcome", 
+    icon: Home, 
+    storageKey: "welcomeFormData", 
+    apiResponseKey: "welcome" 
+  },
+  { 
+    label: "Business Info", 
+    path: "/business-info", 
+    icon: Briefcase, 
+    storageKey: "businessInfoFormData", 
+    apiResponseKey: "business" 
+  },
+  { 
+    label: "Location", 
+    path: "/location", 
+    icon: MapPin, 
+    storageKey: "locationFormData", 
+    apiResponseKey: "location" 
+  },
+  { 
+    label: "Contact & Timings", 
+    path: "/contact&timings", 
+    icon: Phone, 
+    storageKey: "contactAndTimingsFormData", 
+    apiResponseKey: ["contact", "timings", "cta"] 
+  },
+  { 
+    label: "Services", 
+    path: "/services", 
+    icon: Wrench, 
+    storageKey: "servicesFormData", 
+    apiResponseKey: "services" 
+  },
+  { 
+    label: "Review & Publish", 
+    path: "/review&publish", 
+    icon: CheckCircle, 
+    storageKey: "publishFormData", 
+    apiResponseKey: "any" 
+  },
 ];
 
 export default function Stepper() {
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
-  const currentStep = steps.findIndex((step) => step.path === pathname) === -1 ? 0 : steps.findIndex((step) => step.path === pathname);
   const router = useRouter();
-  const [hasData, setHasData] = useState<{ [key: string]: boolean }>({});
+  const [hasData, setHasData] = useState<Record<string, boolean>>({});
   const [isPublished, setIsPublished] = useState(false);
+
+  const currentStep = steps.findIndex((step) => step.path === pathname) === -1 
+    ? 0 
+    : steps.findIndex((step) => step.path === pathname);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const checkData = () => {
+  const checkData = React.useCallback(() => {
     if (!isMounted) return;
 
     const apiResponse = localStorage.getItem("apiResponse");
-    let apiData: { [key: string]: any } = {};
+    let apiData: Record<string, any> = {};
     let hasApiResponse = false;
 
     try {
@@ -61,32 +108,127 @@ export default function Stepper() {
         if (step.apiResponseKey === "any") {
           apiDataExists = true;
         } else if (Array.isArray(step.apiResponseKey)) {
-          apiDataExists = step.apiResponseKey.every((key) => apiData[key] && Object.keys(apiData[key]).length > 0);
+          apiDataExists = step.apiResponseKey.every(
+            (key) => apiData[key] && Object.keys(apiData[key]).length > 0
+          );
         } else {
-          apiDataExists = apiData[step.apiResponseKey] && Object.keys(apiData[step.apiResponseKey]).length > 0;
+          apiDataExists = apiData[step.apiResponseKey] && 
+            Object.keys(apiData[step.apiResponseKey]).length > 0;
         }
       }
 
       acc[step.path] = formDataExists || apiDataExists;
       return acc;
-    }, {} as { [key: string]: boolean });
+    }, {} as Record<string, boolean>);
 
     setHasData(dataPresence);
-  };
+  }, [isMounted]);
 
   useEffect(() => {
     if (!isMounted) return;
 
     checkData();
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.storageArea === localStorage && steps.some(step => step.storageKey === e.key || e.key === "apiResponse")) {
+      if (e.storageArea === localStorage && 
+          (steps.some(step => step.storageKey === e.key) || e.key === "apiResponse")) {
         checkData();
       }
     };
 
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
-  }, [isMounted]);
+  }, [isMounted, checkData]);
+
+  const getVisibleSteps = () => {
+    if (currentStep <= 1) return steps.slice(0, 3);
+    if (currentStep >= steps.length - 1) return steps.slice(-3);
+    return steps.slice(currentStep - 1, currentStep + 2);
+  };
+
+  const handleStepNavigation = (index: number) => {
+    router.push(steps[index].path);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
+    if (event.key === "Enter" || event.key === " ") {
+      handleStepNavigation(index);
+    }
+  };
+
+  const renderStepCircle = (index: number) => {
+    const Icon = steps[index].icon;
+    const isCurrent = index === currentStep;
+    const hasStepData = hasData[steps[index].path];
+    const isBeforeCurrent = index < currentStep;
+
+    const circleClasses = clsx(
+      "z-10 flex items-center justify-center rounded-full border-2 text-sm font-semibold bg-white cursor-pointer transition-all duration-300",
+      {
+        "h-10 w-10 border-gray-500 text-gray-500": isCurrent,
+        "h-8 w-8": !isCurrent,
+        "border-green-700 text-green-700": (hasStepData || isBeforeCurrent) && !isCurrent,
+        "border-gray-300 text-gray-400": !hasStepData && !isBeforeCurrent && !isCurrent,
+      }
+    );
+
+    return (
+      <div
+        id={`step-${index}`}
+        className={circleClasses}
+        role="button"
+        tabIndex={0}
+        onClick={() => handleStepNavigation(index)}
+        onKeyDown={(e) => handleKeyDown(e, index)}
+        aria-label={`Go to ${steps[index].label} step`}
+      >
+        <Icon size={isCurrent ? 22 : 20} aria-hidden="true" />
+      </div>
+    );
+  };
+
+  const renderStepLabel = (index: number) => {
+    const isCurrent = index === currentStep;
+    const hasStepData = hasData[steps[index].path];
+    const isBeforeCurrent = index < currentStep;
+
+    const labelClasses = clsx(
+      "mt-2 px-1 text-xs text-center max-w-[100px] flex items-center gap-1 font-semibold transition-all duration-300",
+      {
+        "text-gray-500 text-sm": isCurrent,
+        "text-green-700": (hasStepData || isBeforeCurrent) && !isCurrent,
+        "text-gray-600": !hasStepData && !isBeforeCurrent && !isCurrent,
+      }
+    );
+
+    return (
+      <label
+        htmlFor={`step-${index}`}
+        className={labelClasses}
+        title={steps[index].label}
+      >
+        <span className="truncate">{steps[index].label}</span>
+        {(hasStepData || isBeforeCurrent) && (
+          <span 
+            className="ml-1 flex h-5 w-5 items-center justify-center rounded-full flex-shrink-0 bg-green-700 text-white"
+            aria-hidden="true"
+          >
+            <BadgeCheck size={12} strokeWidth={2} />
+          </span>
+        )}
+      </label>
+    );
+  };
+
+  const getConnectorClass = (index: number) => {
+    const hasStepData = hasData[steps[index].path];
+    const hasNextStepData = hasData[steps[index + 1].path];
+    const isBeforeCurrent = index < currentStep;
+
+    return clsx("absolute top-5 z-0 h-[2px] w-full", {
+      "bg-green-700": hasStepData || hasNextStepData || isBeforeCurrent,
+      "bg-gray-300": !hasStepData && !hasNextStepData && !isBeforeCurrent,
+    });
+  };
 
   if (!isMounted) {
     return (
@@ -106,110 +248,11 @@ export default function Stepper() {
     );
   }
 
-  const getVisibleSteps = () => {
-    if (currentStep <= 1) return steps.slice(0, 3);
-    if (currentStep >= steps.length - 1) return steps.slice(-3);
-    return steps.slice(currentStep - 1, currentStep + 2);
-  };
-
   const visibleSteps = getVisibleSteps();
-
-  const handleClick = (index: number) => {
-    router.push(steps[index].path);
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
-    if (event.key === "Enter" || event.key === " ") {
-      handleClick(index);
-    }
-  };
-
-  const renderCircle = (index: number) => {
-    const Icon = steps[index].icon;
-    const isCurrent = index === currentStep;
-    const hasStepData = hasData[steps[index].path];
-    const isBeforeCurrent = index < currentStep;
-
-    const circleClasses = clsx(
-      "z-10 flex items-center justify-center rounded-full border-2 text-sm font-semibold bg-white cursor-pointer transition-all duration-300",
-      {
-        "h-10 w-10 border-gray-500 text-gray-500": isCurrent, // Larger and gray for current step
-        "h-8 w-8": !isCurrent, // Default size for other steps
-        "border-green-700 text-green-700": (hasStepData || isBeforeCurrent) && !isCurrent,
-        "border-gray-300 text-gray-400": !hasStepData && !isBeforeCurrent && !isCurrent,
-      }
-    );
-
-    return (
-      <div
-        id={`step-${index}`}
-        className={circleClasses}
-        role="button"
-        tabIndex={0}
-        onClick={() => handleClick(index)}
-        onKeyDown={(e) => handleKeyDown(e, index)}
-        aria-label={`Go to ${steps[index].label} step`}
-      >
-        <Icon size={isCurrent ? 22 : 20} aria-hidden="true" />
-      </div>
-    );
-  };
-
-  const renderLabel = (index: number) => {
-    const isCurrent = index === currentStep;
-    const hasStepData = hasData[steps[index].path];
-    const isBeforeCurrent = index < currentStep;
-
-    const labelClasses = clsx(
-      "mt-2 px-1 text-xs text-center max-w-[100px] flex items-center gap-1 font-semibold transition-all duration-300",
-      {
-        "text-gray-500 text-sm": isCurrent, // Larger and gray for current step
-        "text-green-700": (hasStepData || isBeforeCurrent) && !isCurrent,
-        "text-gray-600": !hasStepData && !isBeforeCurrent && !isCurrent,
-      }
-    );
-
-    const badgeClasses = clsx(
-      "ml-1 flex h-5 w-5 items-center justify-center rounded-full flex-shrink-0",
-      {
-        "bg-green-700 text-white": hasStepData || isBeforeCurrent,
-        "bg-gray-300 text-gray-500": !hasStepData && !isBeforeCurrent,
-      }
-    );
-
-    return (
-      <label
-        htmlFor={`step-${index}`}
-        className={labelClasses}
-        title={steps[index].label}
-      >
-        <span className="truncate">{steps[index].label}</span>
-        <span
-          className={badgeClasses}
-          aria-hidden="true"
-        >
-          <BadgeCheck size={12} strokeWidth={2} />
-        </span>
-      </label>
-    );
-  };
-
-  const renderConnector = (index: number) => {
-    const hasStepData = hasData[steps[index].path];
-    const hasNextStepData = hasData[steps[index + 1].path];
-    const isBeforeCurrent = index < currentStep;
-
-    return clsx(
-      "absolute top-5 z-0 h-[2px] w-full",
-      {
-        "bg-green-700": hasStepData || hasNextStepData || isBeforeCurrent,
-        "bg-gray-300": !hasStepData && !hasNextStepData && !isBeforeCurrent,
-      }
-    );
-  };
 
   return (
     <nav aria-label="Stepper navigation">
+      {/* Mobile View */}
       <div className="flex w-full flex-col items-center px-2 py-6 sm:hidden">
         <motion.p
           key={currentStep}
@@ -225,9 +268,9 @@ export default function Stepper() {
           <AnimatePresence mode="popLayout">
             {visibleSteps.map((step, index) => {
               const globalIndex = steps.findIndex((s) => s.path === step.path);
-              const isLastVisible =
-                globalIndex ===
+              const isLastVisible = globalIndex === 
                 steps.findIndex((s) => s.path === visibleSteps[visibleSteps.length - 1].path);
+              
               return (
                 <motion.div
                   key={step.label}
@@ -240,15 +283,12 @@ export default function Stepper() {
                 >
                   {globalIndex < steps.length - 1 && !isLastVisible && (
                     <div
-                      className={renderConnector(globalIndex)}
-                      style={{
-                        left: "50%",
-                        right: "-50%",
-                      }}
+                      className={getConnectorClass(globalIndex)}
+                      style={{ left: "50%", right: "-50%" }}
                     />
                   )}
-                  {renderCircle(globalIndex)}
-                  {renderLabel(globalIndex)}
+                  {renderStepCircle(globalIndex)}
+                  {renderStepLabel(globalIndex)}
                 </motion.div>
               );
             })}
@@ -256,22 +296,20 @@ export default function Stepper() {
         </div>
 
         <div className="mt-1 flex gap-2">
-          {steps.map((step, index) => (
+          {steps.map((_, index) => (
             <div
               key={index}
               role="presentation"
-              className={clsx(
-                "h-2.5 w-2.5 rounded-full",
-                {
-                  "bg-green-700": hasData[step.path] || index < currentStep,
-                  "bg-gray-300": !hasData[step.path] && index >= currentStep,
-                }
-              )}
+              className={clsx("h-2.5 w-2.5 rounded-full", {
+                "bg-green-700": hasData[steps[index].path] || index < currentStep,
+                "bg-gray-300": !hasData[steps[index].path] && index >= currentStep,
+              })}
             />
           ))}
         </div>
       </div>
 
+      {/* Desktop View */}
       <div className="hidden w-full flex-col items-center px-4 py-6 sm:flex">
         <p className="mb-4 text-sm font-semibold text-gray-700">
           Step {currentStep + 1} of {steps.length}
@@ -285,15 +323,12 @@ export default function Stepper() {
             >
               {index < steps.length - 1 && (
                 <div
-                  className={renderConnector(index)}
-                  style={{
-                    left: "50%",
-                    right: "-50%",
-                  }}
+                  className={getConnectorClass(index)}
+                  style={{ left: "50%", right: "-50%" }}
                 />
               )}
-              {renderCircle(index)}
-              {renderLabel(index)}
+              {renderStepCircle(index)}
+              {renderStepLabel(index)}
             </div>
           ))}
         </div>
