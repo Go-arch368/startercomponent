@@ -1,7 +1,7 @@
 "use client";
 import clsx from "clsx";
-import React, { useState, useEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import React, { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Home,
   Briefcase,
@@ -79,9 +79,10 @@ export default function Stepper() {
 
   useEffect(() => {
     setIsMounted(true);
+    checkData();
   }, []);
 
-  const checkData = React.useCallback(() => {
+  const checkData = useCallback(() => {
     if (!isMounted) return;
 
     const apiResponse = localStorage.getItem("apiResponse");
@@ -127,7 +128,6 @@ export default function Stepper() {
   useEffect(() => {
     if (!isMounted) return;
 
-    checkData();
     const handleStorageChange = (e: StorageEvent) => {
       if (e.storageArea === localStorage && 
           (steps.some(step => step.storageKey === e.key) || e.key === "apiResponse")) {
@@ -147,7 +147,6 @@ export default function Stepper() {
 
   const handleStepNavigation = (index: number) => {
     router.push(steps[index].path);
-    // Optionally blur the element to prevent focus outline after navigation
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
@@ -159,6 +158,31 @@ export default function Stepper() {
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        when: "beforeChildren",
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 20,
+      },
+    },
+    exit: { opacity: 0, y: -10 },
+  };
+
   const renderStepCircle = (index: number) => {
     const Icon = steps[index].icon;
     const isCurrent = index === currentStep;
@@ -166,7 +190,7 @@ export default function Stepper() {
     const isBeforeCurrent = index < currentStep;
 
     const circleClasses = clsx(
-      "z-10 flex items-center justify-center rounded-full border-2 text-sm font-semibold bg-white cursor-pointer transition-all duration-300 relative outline-none",
+      "z-10 flex items-center justify-center rounded-full border-2 text-sm font-semibold bg-white cursor-pointer relative outline-none",
       {
         "h-10 w-10 border-green-600 text-green-600": (hasStepData || isBeforeCurrent) || isCurrent,
         "h-8 w-8": !isCurrent,
@@ -175,7 +199,7 @@ export default function Stepper() {
     );
 
     return (
-      <div
+      <motion.div
         id={`step-${index}`}
         className={circleClasses}
         role="button"
@@ -183,12 +207,19 @@ export default function Stepper() {
         onClick={() => handleStepNavigation(index)}
         onKeyDown={(e) => handleKeyDown(e, index)}
         aria-label={`Go to ${steps[index].label} step`}
+        whileTap={{ scale: 0.95 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17 }}
       >
         {isCurrent && (
-          <div className="absolute -inset-2 rounded-full border-2 border-orange-600 pointer-events-none"></div>
+          <motion.div 
+            className="absolute -inset-2 rounded-full border-2 border-orange-600 pointer-events-none"
+            initial={{ scale: 0.8 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 500, damping: 20 }}
+          />
         )}
         <Icon size={isCurrent ? 22 : 20} aria-hidden="true" />
-      </div>
+      </motion.div>
     );
   };
 
@@ -198,7 +229,7 @@ export default function Stepper() {
     const isBeforeCurrent = index < currentStep;
 
     const labelClasses = clsx(
-      "mt-3 px-1 text-xs text-center max-w-[100px] flex items-center gap-1 font-semibold transition-all duration-300",
+      "mt-3 px-1 text-xs text-center max-w-[100px] flex items-center gap-1 font-semibold",
       {
         "text-green-600 text-sm": isCurrent,
         "text-green-600": (hasStepData || isBeforeCurrent) && !isCurrent,
@@ -261,31 +292,33 @@ export default function Stepper() {
       {/* Mobile View */}
       <div className="flex w-full flex-col items-center px-2 py-6 sm:hidden">
         <motion.p
-          key={currentStep}
-          animate={{ opacity: 1, y: 0 }}
           className="mb-2 text-sm font-semibold text-gray-700"
-          initial={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.3 }}
+          key={`counter-${currentStep}`}
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.15 }}
         >
           Step {currentStep + 1} of {steps.length}
         </motion.p>
 
         <div className="relative mb-3 flex w-full max-w-xs items-center justify-between">
-          <AnimatePresence mode="popLayout">
-            {visibleSteps.map((step, index) => {
+          <motion.div
+            className="flex w-full justify-between"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            key={`mobile-container-${currentStep}`}
+          >
+            {visibleSteps.map((step, i) => {
               const globalIndex = steps.findIndex((s) => s.path === step.path);
-              const isLastVisible = globalIndex === 
-                steps.findIndex((s) => s.path === visibleSteps[visibleSteps.length - 1].path);
-              
+              const isLastVisible = i === visibleSteps.length - 1;
+
               return (
                 <motion.div
-                  key={step.label}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="relative flex min-w-[80px] flex-1 flex-col items-center"
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  layout
-                  transition={{ duration: 0.3 }}
+                  key={`mobile-${globalIndex}`}
+                  className="relative flex flex-1 flex-col items-center"
+                  variants={itemVariants}
+                  layoutId={`mobile-step-${globalIndex}`}
                 >
                   {globalIndex < steps.length - 1 && !isLastVisible && (
                     <div
@@ -298,46 +331,63 @@ export default function Stepper() {
                 </motion.div>
               );
             })}
-          </AnimatePresence>
+          </motion.div>
         </div>
 
-        <div className="mt-1 flex gap-2">
+        <motion.div className="mt-1 flex gap-2">
           {steps.map((_, index) => (
-            <div
-              key={index}
-              role="presentation"
-              className={clsx("h-2.5 w-2.5 rounded-full", {
+            <motion.div
+              key={`indicator-${index}`}
+              className={clsx("h-2 w-2 rounded-full", {
                 "bg-green-600": hasData[steps[index].path] || index < currentStep || isPublished,
                 "bg-gray-300": !hasData[steps[index].path] && index >= currentStep && !isPublished,
               })}
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.15 }}
             />
           ))}
-        </div>
+        </motion.div>
       </div>
 
       {/* Desktop View */}
       <div className="hidden w-full flex-col items-center px-4 py-6 sm:flex">
-        <p className="mb-4 text-sm font-semibold text-gray-700">
+        <motion.p
+          className="mb-4 text-sm font-semibold text-gray-700"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+        >
           Step {currentStep + 1} of {steps.length}
-        </p>
+        </motion.p>
 
-        <div className="relative flex w-full max-w-5xl items-center justify-between">
+        <motion.div
+          className="relative flex w-full max-w-5xl items-center justify-between"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          key="desktop-container"
+        >
           {steps.map((step, index) => (
-            <div
-              key={step.label}
+            <motion.div
+              key={`desktop-${index}`}
               className="relative z-10 flex min-w-[90px] flex-1 flex-col items-center"
+              variants={itemVariants}
             >
               {index < steps.length - 1 && (
-                <div
+                <motion.div
                   className={getConnectorClass(index)}
                   style={{ left: "50%", right: "-50%" }}
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 0.2, duration: 0.3 }}
                 />
               )}
               {renderStepCircle(index)}
               {renderStepLabel(index)}
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </nav>
   );

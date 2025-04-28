@@ -34,7 +34,6 @@ export default function Welcome() {
         }
       }
       
-      
       if (Array.isArray(storedApiResponse)) {
         setCategoryData(storedApiResponse);
       } else {
@@ -54,35 +53,11 @@ export default function Welcome() {
     const newCategory = e.target.value;
     setSelectedCategory(newCategory);
     setSelectedSubcategory("");
-
-    const storedApiResponse = getStoredApiResponse();
-    localStorage.setItem(
-      "apiResponse",
-      JSON.stringify({
-        ...storedApiResponse,
-        welcome: {
-          category: newCategory,
-          subcategory: "",
-        },
-      })
-    );
   };
 
   const handleSubcategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSubcategory = e.target.value;
     setSelectedSubcategory(newSubcategory);
-
-    const storedApiResponse = getStoredApiResponse();
-    localStorage.setItem(
-      "apiResponse",
-      JSON.stringify({
-        ...storedApiResponse,
-        welcome: {
-          category: selectedCategory,
-          subcategory: newSubcategory,
-        },
-      })
-    );
   };
 
   const getSubcategories = () => {
