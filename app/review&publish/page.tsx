@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/button";
-import { Pencil, Squirrel } from "lucide-react";
+import { Pencil } from "lucide-react";
 import businessData from "@/data/businessData.json";
 import axios from "axios";
 
@@ -107,7 +107,7 @@ const GalleryFAQsAndCTA = () => {
     category: "",
     subcategory: "",
   });
-  const [isPublished, setIsPublished] = useState(false);
+  const [isPublished, setIsPublished] = useState(false); // Track successful publish
 
   const initialBusiness = businessData.subcategories[0].businesses[0];
 
@@ -141,7 +141,6 @@ const GalleryFAQsAndCTA = () => {
     const publishFormData = localStorage.getItem(PUBLISH_FORM_DATA_KEY);
     const isPublished = publishFormData ? JSON.parse(publishFormData).published : false;
     setIsReadOnly(isPublished);
-    setIsPublished(isPublished);
 
     let parsedApiResponse: {
       welcome?: { completed?: boolean; category?: string; subcategory?: string };
@@ -313,7 +312,7 @@ const GalleryFAQsAndCTA = () => {
     localStorage.setItem(PUBLISH_FORM_DATA_KEY, JSON.stringify({ published: false }));
   };
 
-  const handlePublish = async () => {
+  const handlePublishOrUpdate = async () => {
     if (!formData) return;
     setIsPublishing(true);
 
@@ -427,186 +426,37 @@ const GalleryFAQsAndCTA = () => {
         throw new Error("At least one service is required.");
       }
 
-      console.log("Publishing data:", JSON.stringify(completeBusinessData, null, 2));
-
-      const response = await api.post("/data", completeBusinessData);
-      const savedBusiness = response.data;
-
-      // Store data in localStorage
-      localStorage.setItem(PUBLISH_FORM_DATA_KEY, JSON.stringify({ published: true }));
-      localStorage.setItem(BUSINESS_DATA_KEY, JSON.stringify(completeBusinessData));
-      localStorage.setItem("apiResponse", JSON.stringify(completeBusinessData));
-      localStorage.setItem("lastPublishedBusinessId", savedBusiness.id);
-      localStorage.setItem(FORM_DATA_KEY, JSON.stringify(formData));
-      localStorage.setItem(CALL_COUNTRY_CODE_KEY, callCountryCode);
-
-      setIsPublished(true);
-      setIsReadOnly(true);
-
-      alert("Business published successfully!");
-      setTimeout(()=>{
-        window.location.reload()
-      },1000)
-    } catch (error) {
-      console.error("Error publishing business:", error);
-      let errorMessage = "Failed to publish business. Please try again.";
-      if (axios.isAxiosError(error)) {
-        console.error("Axios error details:", {
-          status: error.response?.status,
-          data: error.response?.data,
-          message: error.message,
-        });
-        errorMessage =
-          error.response?.data?.message ||
-          `Server error (${error.response?.status || "unknown"}). Please try again.`;
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      alert(errorMessage);
-    } finally {
-      setIsPublishing(false);
-    }
-  };
-
-  const handleUpdate = async () => {
-    if (!formData) return;
-    setIsPublishing(true);
-
-    try {
-      const apiResponseRaw = localStorage.getItem("apiResponse") || "{}";
-      let apiResponse: { welcome?: WelcomeData } = {};
-      try {
-        apiResponse = JSON.parse(apiResponseRaw) || {};
-      } catch (err) {
-        console.error("Error parsing apiResponse:", err);
-        throw new Error("Invalid apiResponse in localStorage.");
-      }
-
-      const category = apiResponse.welcome?.category?.trim() || "";
-      const subcategory = apiResponse.welcome?.subcategory?.trim() || "";
-      if (!category || !subcategory) {
-        throw new Error("Category and subcategory must be provided from the welcome step.");
-      }
-
-      const businessFormDataRaw = localStorage.getItem("businessInfoFormData") || "{}";
-      const locationFormDataRaw = localStorage.getItem("locationFormData") || "{}";
-      const contactAndTimingsFormDataRaw = localStorage.getItem("contactAndTimingsFormData") || "{}";
-      const servicesFormDataRaw = localStorage.getItem("servicesFormData") || "{}";
-
-      let businessFormData: FormData = { subcategories: [{ businesses: [] }] };
-      let locationFormData: { subcategories?: { businesses?: { location: any }[] }[] } = {
-        subcategories: [{ businesses: [{ location: {} }] }],
-      };
-      let contactAndTimingsFormData: { subcategories?: { businesses?: { contact?: any; timings?: any }[] }[] } = {
-        subcategories: [{ businesses: [{}] }],
-      };
-      let servicesFormData: FormData = { subcategories: [{ businesses: [] }] };
-
-      try {
-        businessFormData = JSON.parse(businessFormDataRaw) as FormData || { subcategories: [{ businesses: [] }] };
-        locationFormData = JSON.parse(locationFormDataRaw) || { subcategories: [{ businesses: [{ location: {} }] }] };
-        contactAndTimingsFormData = JSON.parse(contactAndTimingsFormDataRaw) || {
-          subcategories: [{ businesses: [{}] }],
-        };
-        servicesFormData = JSON.parse(servicesFormDataRaw) || { subcategories: [{ businesses: [] }] };
-      } catch (err) {
-        console.error("Error parsing localStorage data:", err);
-        throw new Error("Invalid data in localStorage.");
-      }
-
-      const currentBusiness = formData.subcategories?.[0]?.businesses?.[0] || {
-        businessName: "",
-        description: "",
-        location: {},
-        contact: {},
-        services: [],
-        timings: {},
-        gallery: [],
-        faqs: [],
-        cta: { call: "", bookUrl: "", getDirections: "" },
-      };
-      const contactData =
-        contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.contact || currentBusiness.contact || {};
-      const phone = contactData.phone || "";
-      const email = contactData.email || "";
-      const website = contactData.website || "";
-
-      const completeBusinessData: PublishedBusinessData = {
-        welcome: {
-          category: category,
-          subcategory: subcategory,
-        },
-        business: {
-          businessName:
-            businessFormData.subcategories?.[0]?.businesses?.[0]?.businessName ||
-            currentBusiness.businessName ||
-            "",
-          description:
-            businessFormData.subcategories?.[0]?.businesses?.[0]?.description ||
-            currentBusiness.description ||
-            "",
-        },
-        location:
-          locationFormData.subcategories?.[0]?.businesses?.[0]?.location || currentBusiness.location || {
-            address: "",
-            city: "",
-          },
-        contact: {
-          phone,
-          email,
-          website,
-        },
-        services:
-          servicesFormData.subcategories?.[0]?.businesses?.[0]?.services || currentBusiness.services || [],
-        timings:
-          contactAndTimingsFormData.subcategories?.[0]?.businesses?.[0]?.timings || currentBusiness.timings || {},
-        gallery: currentBusiness.gallery || [],
-        faqs: currentBusiness.faqs || [],
-        cta: {
-          call: currentBusiness.cta.call || "",
-          bookUrl: currentBusiness.cta.bookUrl || "",
-          getDirections: currentBusiness.cta.getDirections || "",
-        },
-      };
-
-      if (!completeBusinessData.business.businessName) {
-        throw new Error("Business name is required.");
-      }
-      if (!completeBusinessData.welcome.category.trim() || !completeBusinessData.welcome.subcategory.trim()) {
-        throw new Error("Category and subcategory are required and cannot be empty.");
-      }
-      if (!completeBusinessData.location.address || !completeBusinessData.location.city) {
-        throw new Error("Address and city are required.");
-      }
-      if (!completeBusinessData.services.length) {
-        throw new Error("At least one service is required.");
-      }
-
-      console.log("Updating data:", JSON.stringify(completeBusinessData, null, 2));
+      console.log("Publishing/Updating data:", JSON.stringify(completeBusinessData, null, 2));
 
       const lastPublishedBusinessId = localStorage.getItem("lastPublishedBusinessId");
-      if (!lastPublishedBusinessId) {
-        throw new Error("No published business found to update.");
+      let response;
+      if (lastPublishedBusinessId && isPublished) {
+        // Update existing record
+        response = await api.put(`/data/${lastPublishedBusinessId}`, completeBusinessData);
+      } else {
+        // Create new record
+        response = await api.post("/data", completeBusinessData);
+        localStorage.setItem("lastPublishedBusinessId", response.data.id);
       }
-
-      const response = await api.put(`/data/${lastPublishedBusinessId}`, completeBusinessData);
       const savedBusiness = response.data;
 
       // Store data in localStorage
       localStorage.setItem(PUBLISH_FORM_DATA_KEY, JSON.stringify({ published: true }));
       localStorage.setItem(BUSINESS_DATA_KEY, JSON.stringify(completeBusinessData));
       localStorage.setItem("apiResponse", JSON.stringify(completeBusinessData));
-      localStorage.setItem("lastPublishedBusinessId", savedBusiness.id);
-      localStorage.setItem(FORM_DATA_KEY, JSON.stringify(formData));
-      localStorage.setItem(CALL_COUNTRY_CODE_KEY, callCountryCode);
+      localStorage.setItem(FORM_DATA_KEY, JSON.stringify(formData)); // Ensure form data persists
+      localStorage.setItem(CALL_COUNTRY_CODE_KEY, callCountryCode); // Persist call country code
 
       setIsPublished(true);
-      setIsReadOnly(true);
+      setIsReadOnly(true); // Set to read-only mode
 
-      alert("Business updated successfully!");
+      alert(isPublished ? "Business updated successfully!" : "Business published successfully!");
+      setTimeout(()=>{
+         window.location.reload()
+      },1000)
     } catch (error) {
-      console.error("Error updating business:", error);
-      let errorMessage = "Failed to update business. Please try again.";
+      console.error("Error publishing/updating business:", error);
+      let errorMessage = "Failed to publish/update business. Please try again.";
       if (axios.isAxiosError(error)) {
         console.error("Axios error details:", {
           status: error.response?.status,
@@ -649,28 +499,14 @@ const GalleryFAQsAndCTA = () => {
         <p id="form-instructions" className="sr-only">
           Upload images to the gallery, add FAQs, and provide call-to-action details. Use the buttons to navigate or publish the business.
         </p>
-        {isReadOnly ? (
+        {isReadOnly && (
           <button
             type="button"
             onClick={handleEdit}
-            className="absolute top-4 right-4 text-blue-600 hover:text-blue-800 focus:ring-2 focus:ring-gray-500 p-2 rounded-full"
+            className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 focus:ring-2 focus:ring-gray-500 p-2 rounded-full"
             aria-label="Edit published business data"
           >
             <Pencil className="h-5 w-5" />
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={handleUpdate}
-            className="absolute top-4 right-4 text-green-600 hover:text-green-800 focus:ring-2 focus:ring-gray-500 p-2 rounded-full"
-            aria-label="Save updated business data"
-            disabled={isPublishing}
-          >
-            {isPublishing ? (
-              <span className="text-sm">Saving...</span>
-            ) : (
-              <Squirrel className="h-5 w-5" />
-            )}
           </button>
         )}
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Gallery, FAQs, and Call to Action</h2>
@@ -681,7 +517,7 @@ const GalleryFAQsAndCTA = () => {
           </div>
         ) : (
           <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-md">
-            Edit mode: Modify fields and click the squirrel icon in the top-right to save changes.
+            Edit mode: You can modify all fields.
           </div>
         )}
 
@@ -943,17 +779,15 @@ const GalleryFAQsAndCTA = () => {
           >
             Back
           </Button>
-          {!isPublished && (
-            <Button
-              className="w-full sm:w-auto bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
-              onClick={handlePublish}
-              type="button"
-              disabled={isPublishing}
-              aria-label={isPublishing ? "Publishing in progress" : "Publish business"}
-            >
-              {isPublishing ? "Publishing..." : "Publish"}
-            </Button>
-          )}
+          <Button
+            className="w-full sm:w-auto bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
+            onClick={handlePublishOrUpdate}
+            type="button"
+            disabled={isPublishing}
+            aria-label={isPublishing ? "Publishing/Updating in progress" : isReadOnly ? "Publish business" : "Update business"}
+          >
+            {isPublishing ? "Processing..." : isReadOnly ? "Publish" : "Publish"}
+          </Button>
         </div>
       </form>
     </div>
