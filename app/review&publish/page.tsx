@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/button";
+import { Pencil } from "lucide-react";
 import businessData from "@/data/businessData.json";
 import axios from "axios";
 
@@ -17,7 +18,6 @@ const FORM_DATA_KEY = "galleryFaqsCtaFormData";
 const CALL_COUNTRY_CODE_KEY = "callCountryCode";
 const BUSINESS_DATA_KEY = "businessData";
 const PUBLISH_FORM_DATA_KEY = "publishFormData";
-
 
 interface FAQ {
   question: string;
@@ -106,13 +106,13 @@ const GalleryFAQsAndCTA = () => {
     category: "",
     subcategory: "",
   });
-  const [isPublished, setIsPublished] = useState(false); // Track successful publish
+  const [isPublished, setIsPublished] = useState(false);
 
   const initialBusiness = businessData.subcategories[0].businesses[0];
 
   // Check if apiResponse exists with welcome data, redirect to /welcome if not
   useEffect(() => {
-    if (typeof window === "undefined" || isPublished) return; 
+    if (typeof window === "undefined" || isPublished) return;
 
     const apiResponseRaw = localStorage.getItem("apiResponse") || "{}";
     let apiResponse: { welcome?: WelcomeData } = {};
@@ -138,8 +138,9 @@ const GalleryFAQsAndCTA = () => {
     if (initialized || typeof window === "undefined") return;
 
     const apiResponse = localStorage.getItem("apiResponse");
-    const hasApiResponse = !!apiResponse && apiResponse !== "{}" && apiResponse !== '""';
-    setIsReadOnly(hasApiResponse);
+    const savedFormData = localStorage.getItem(FORM_DATA_KEY);
+    const hasExistingData = !!(apiResponse || (savedFormData && savedFormData !== "null"));
+    setIsReadOnly(Boolean(hasExistingData)); // Start in read mode if data exists
 
     let parsedApiResponse: {
       welcome?: { completed?: boolean; category?: string; subcategory?: string };
@@ -148,15 +149,14 @@ const GalleryFAQsAndCTA = () => {
       cta?: CTA;
     } = {};
 
-    if (hasApiResponse) {
+    if (apiResponse) {
       try {
-        parsedApiResponse = apiResponse ? JSON.parse(apiResponse) : {};
+        parsedApiResponse = JSON.parse(apiResponse) || {};
       } catch (err) {
         console.error("Invalid apiResponse JSON:", err);
       }
     }
 
-    const savedFormData = localStorage.getItem(FORM_DATA_KEY);
     const savedCallCode = localStorage.getItem(CALL_COUNTRY_CODE_KEY);
     if (savedCallCode) setCallCountryCode(savedCallCode);
 
@@ -200,14 +200,11 @@ const GalleryFAQsAndCTA = () => {
                 cta: {
                   call:
                     parsedApiResponse.cta?.call ||
-                    parsedApiResponse.cta?.call ||
                     initialBusiness.cta.call,
                   bookUrl:
                     parsedApiResponse.cta?.bookUrl ||
-                    parsedApiResponse.cta?.bookUrl ||
                     initialBusiness.cta.bookUrl,
                   getDirections:
-                    parsedApiResponse.cta?.getDirections ||
                     parsedApiResponse.cta?.getDirections ||
                     initialBusiness.cta.getDirections,
                 },
@@ -240,6 +237,7 @@ const GalleryFAQsAndCTA = () => {
     current[keys[keys.length - 1]] = value;
 
     setFormData(newData);
+    localStorage.setItem(FORM_DATA_KEY, JSON.stringify(newData));
   };
 
   const handleArrayChange = (arrayPath: string, index: number, field: string, value: any) => {
@@ -254,6 +252,7 @@ const GalleryFAQsAndCTA = () => {
 
     current[index][field] = value;
     setFormData(newData);
+    localStorage.setItem(FORM_DATA_KEY, JSON.stringify(newData));
   };
 
   const addArrayItem = (arrayPath: string, newItem: any) => {
@@ -268,6 +267,7 @@ const GalleryFAQsAndCTA = () => {
 
     current.push(newItem);
     setFormData(newData);
+    localStorage.setItem(FORM_DATA_KEY, JSON.stringify(newData));
   };
 
   const removeArrayItem = (arrayPath: string, index: number) => {
@@ -282,6 +282,7 @@ const GalleryFAQsAndCTA = () => {
 
     current.splice(index, 1);
     setFormData(newData);
+    localStorage.setItem(FORM_DATA_KEY, JSON.stringify(newData));
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -310,7 +311,6 @@ const GalleryFAQsAndCTA = () => {
     setIsPublishing(true);
 
     try {
-     
       const apiResponseRaw = localStorage.getItem("apiResponse") || "{}";
       let apiResponse: { welcome?: WelcomeData } = {};
       try {
@@ -319,7 +319,6 @@ const GalleryFAQsAndCTA = () => {
         console.error("Error parsing apiResponse:", err);
         throw new Error("Invalid apiResponse in localStorage.");
       }
-
 
       const category = apiResponse.welcome?.category?.trim() || "";
       const subcategory = apiResponse.welcome?.subcategory?.trim() || "";
@@ -342,7 +341,7 @@ const GalleryFAQsAndCTA = () => {
       let servicesFormData: FormData = { subcategories: [{ businesses: [] }] };
 
       try {
-        businessFormData = JSON.parse(businessFormDataRaw) as FormData || { subcategories: [{ businesses: [] }] };
+        businessFormData = JSON.parse(businessFormDataRaw) || { subcategories: [{ businesses: [] }] };
         locationFormData = JSON.parse(locationFormDataRaw) || { subcategories: [{ businesses: [{ location: {} }] }] };
         contactAndTimingsFormData = JSON.parse(contactAndTimingsFormDataRaw) || {
           subcategories: [{ businesses: [{}] }],
@@ -370,7 +369,6 @@ const GalleryFAQsAndCTA = () => {
       const email = contactData.email || "";
       const website = contactData.website || "";
 
-      
       const completeBusinessData: PublishedBusinessData = {
         welcome: {
           category: category,
@@ -409,7 +407,6 @@ const GalleryFAQsAndCTA = () => {
         },
       };
 
-     
       if (!completeBusinessData.business.businessName) {
         throw new Error("Business name is required.");
       }
@@ -423,36 +420,30 @@ const GalleryFAQsAndCTA = () => {
         throw new Error("At least one service is required.");
       }
 
- 
       console.log("Publishing data:", JSON.stringify(completeBusinessData, null, 2));
-
 
       const response = await api.post("/data", completeBusinessData);
       const savedBusiness = response.data;
 
-      // Store data in localStorage
       localStorage.setItem(PUBLISH_FORM_DATA_KEY, JSON.stringify({ published: true }));
       localStorage.setItem(BUSINESS_DATA_KEY, JSON.stringify(completeBusinessData));
       localStorage.setItem("apiResponse", JSON.stringify(completeBusinessData));
       localStorage.setItem("lastPublishedBusinessId", savedBusiness.id);
 
-      // Clear draft data from localStorage
       localStorage.removeItem("welcomeFormData");
       localStorage.removeItem("businessInfoFormData");
       localStorage.removeItem("locationFormData");
       localStorage.removeItem("contactAndTimingsFormData");
-    //  localStorage.removeItem("servicesFormData");
       localStorage.removeItem(FORM_DATA_KEY);
       localStorage.removeItem(CALL_COUNTRY_CODE_KEY);
       localStorage.removeItem(PUBLISH_FORM_DATA_KEY);
 
-    
       setIsPublished(true);
 
       alert("Business published successfully!");
-      setTimeout(()=> {
-        window.location.reload()
-      },1000)
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
       
       setTimeout(() => {
         router.push("/review&publish");
@@ -476,6 +467,10 @@ const GalleryFAQsAndCTA = () => {
     } finally {
       setIsPublishing(false);
     }
+  };
+
+  const toggleEdit = () => {
+    setIsReadOnly(!isReadOnly);
   };
 
   if (!formData) return <div>Loading...</div>;
@@ -502,15 +497,26 @@ const GalleryFAQsAndCTA = () => {
         <p id="form-instructions" className="sr-only">
           Upload images to the gallery, add FAQs, and provide call-to-action details. Use the buttons to navigate or publish the business.
         </p>
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Gallery, FAQs, and Call to Action</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Gallery, FAQs, and Call to Action</h2>
+          {isReadOnly && (
+            <button
+              onClick={toggleEdit}
+              className="text-gray-600 hover:text-gray-800"
+              aria-label="Edit Gallery, FAQs, and CTA"
+            >
+              <Pencil className="w-5 h-5" />
+            </button>
+          )}
+        </div>
 
         {isReadOnly ? (
           <div className="mb-4 p-3 bg-gray-100 text-gray-800 rounded-md">
-            Viewing saved data. To edit, please clear the localStorage or create a new business.
+            Viewing saved data.
           </div>
         ) : (
-          <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-md">
-            Create mode: You can edit all fields.
+          <div className="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded-md">
+            Editing data. Changes will be saved immediately.
           </div>
         )}
 
@@ -772,15 +778,36 @@ const GalleryFAQsAndCTA = () => {
           >
             Back
           </Button>
-          <Button
-            className="w-full sm:w-auto bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
-            onClick={handlePublish}
-            type="button"
-            disabled={isPublishing}
-            aria-label={isPublishing ? "Publishing in progress" : "Publish business"}
-          >
-            {isPublishing ? "Publishing..." : "Publish"}
-          </Button>
+          {isReadOnly ? (
+            <Button
+              className="w-full sm:w-auto bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
+              onClick={handlePublish}
+              type="button"
+              disabled={isPublishing}
+              aria-label={isPublishing ? "Publishing in progress" : "Publish business"}
+            >
+              {isPublishing ? "Publishing..." : "Publish"}
+            </Button>
+          ) : (
+            <>
+              <Button
+                className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700 focus:ring-2 focus:ring-gray-500"
+                onClick={toggleEdit}
+                type="button"
+              >
+                Cancel
+              </Button>
+              <Button
+                className="w-full sm:w-auto bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
+                onClick={handlePublish}
+                type="button"
+                disabled={isPublishing}
+                aria-label={isPublishing ? "Publishing in progress" : "Publish business"}
+              >
+                {isPublishing ? "Publishing..." : "Save & Publish"}
+              </Button>
+            </>
+          )}
         </div>
       </form>
     </div>
