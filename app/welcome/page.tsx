@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/button";
+import { Pencil } from "lucide-react";
 import fallbackData from "@/data/category and subcategory.json";
 
 function getStoredApiResponse() {
@@ -27,13 +28,13 @@ export default function Welcome() {
       if (storedApiResponse?.welcome) {
         setSelectedCategory(storedApiResponse.welcome.category || "");
         setSelectedSubcategory(storedApiResponse.welcome.subcategory || "");
-        // If category and subcategory are already set, make it readonly
+        
         if (storedApiResponse.welcome.category && storedApiResponse.welcome.subcategory) {
           setIsReadOnly(true);
         }
       }
       
-      // Set category data from fallback if needed
+      
       if (Array.isArray(storedApiResponse)) {
         setCategoryData(storedApiResponse);
       } else {
@@ -107,7 +108,18 @@ export default function Welcome() {
   return (
     <div className="max-w-4xl mx-auto p-5">
       <div className="bg-gray-50 rounded-lg shadow-sm p-6">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Welcome</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Welcome</h2>
+          {isReadOnly && (
+            <button
+              onClick={handleEdit}
+              className="text-blue-600 hover:text-blue-800"
+              aria-label="Edit Category"
+            >
+              <Pencil className="w-5 h-5" />
+            </button>
+          )}
+        </div>
 
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Business Category</h3>
@@ -126,12 +138,6 @@ export default function Welcome() {
                   {selectedSubcategory || "Not selected"}
                 </div>
               </div>
-              <button
-                onClick={handleEdit}
-                className="mt-4 text-sm text-blue-600 hover:text-blue-800 font-medium"
-              >
-                Edit Category
-              </button>
             </div>
           ) : (
             <div className="flex flex-wrap gap-4 mb-4">
