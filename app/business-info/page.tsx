@@ -99,7 +99,6 @@ export default function BusinessInformation() {
 
   const toggleEdit = () => {
     if (isEditing) {
-     
       setFormData(initialData);
     }
     setIsEditing(!isEditing);
@@ -110,17 +109,22 @@ export default function BusinessInformation() {
   return (
     <main className="max-w-4xl mx-auto p-5">
       <div className="bg-gray-50 rounded-lg shadow-sm p-6">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Business Information</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Business Information</h2>
+          {isReadOnly && (
+            <button
+              onClick={toggleEdit}
+              className="text-blue-600 hover:text-blue-800"
+              aria-label="Edit Business Information"
+            >
+              <Pencil className="w-5 h-5" />
+            </button>
+          )}
+        </div>
 
         {isReadOnly ? (
           <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
-            Viewing saved business information.{" "}
-            <button 
-              onClick={toggleEdit}
-              className="ml-2 text-blue-600 hover:text-blue-800 font-medium"
-            >
-              Edit Business
-            </button>
+            Viewing saved business information.
           </div>
         ) : (
           <div className="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded-md">
@@ -133,49 +137,27 @@ export default function BusinessInformation() {
 
           <div className="mb-4">
             <label className="block mb-2 font-medium text-gray-700">Business Name:</label>
-            <div className="relative">
-              <input
-                name="businessName"
-                type="text"
-                value={formData.businessName}
-                onChange={handleInputChange}
-                readOnly={isReadOnly}
-                className={`w-full p-2 ${isReadOnly ? 'pr-10 bg-gray-100' : 'border border-gray-300'} rounded-md focus:ring-2 focus:ring-blue-500`}
-                placeholder="Enter your business name"
-              />
-              {isReadOnly && (
-                <button
-                  onClick={toggleEdit}
-                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-                  aria-label="Edit business name"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-              )}
-            </div>
+            <input
+              name="businessName"
+              type="text"
+              value={formData.businessName}
+              onChange={handleInputChange}
+              readOnly={isReadOnly}
+              className={`w-full p-2 ${isReadOnly ? 'bg-gray-100' : 'border border-gray-300'} rounded-md focus:ring-2 focus:ring-blue-500`}
+              placeholder="Enter your business name"
+            />
           </div>
 
           <div>
             <label className="block mb-2 font-medium text-gray-700">Description:</label>
-            <div className="relative">
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                readOnly={isReadOnly}
-                className={`w-full p-2 ${isReadOnly ? 'pr-10 bg-gray-100' : 'border border-gray-300'} rounded-md h-24 focus:ring-2 focus:ring-blue-500`}
-                placeholder="Describe your business"
-              />
-              {isReadOnly && (
-                <button
-                  onClick={toggleEdit}
-                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-                  aria-label="Edit description"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-              )}
-            </div>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              readOnly={isReadOnly}
+              className={`w-full p-2 ${isReadOnly ? 'bg-gray-100' : 'border border-gray-300'} rounded-md h-24 focus:ring-2 focus:ring-blue-500`}
+              placeholder="Describe your business"
+            />
           </div>
         </div>
 

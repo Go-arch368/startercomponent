@@ -8,8 +8,14 @@ import businessData from "@/data/businessData.json";
 const Location = () => {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
-  const [hasPublishedData, setHasPublishedData] = useState(false);
+  const [hasExistingData, setHasExistingData] = useState(false);
   const [formData, setFormData] = useState({
+    address: "",
+    city: "",
+    state: "",
+    postalCode: "",
+  });
+  const [initialData, setInitialData] = useState({
     address: "",
     city: "",
     state: "",
@@ -17,86 +23,96 @@ const Location = () => {
   });
 
   useEffect(() => {
-    // Check localStorage for existing data
+    
     const apiResponse = localStorage.getItem("apiResponse");
     const locationFormData = localStorage.getItem("locationFormData");
 
-    // Prioritize draft data if it exists
+    let existingData = null;
+
+    
     if (locationFormData && locationFormData !== "null") {
       try {
         const parsedFormData = JSON.parse(locationFormData);
         const draftLocation = parsedFormData.subcategories?.[0]?.businesses?.[0]?.location || {};
-        setFormData({
+        existingData = {
           address: draftLocation.address || "",
           city: draftLocation.city || "",
           state: draftLocation.state || "",
           postalCode: draftLocation.postalCode || "",
-        });
-        setIsEditing(true);
-        setHasPublishedData(false); 
-        } catch (e) {
-          console.error("Error parsing draft data", e);
+        };
+      } catch (e) {
+        console.error("Error parsing draft data", e);
       }
-    } else {
-    
-      let publishedDataExists = false;
-      let locationData: { address?: string; city?: string; state?: string; postalCode?: string } = {};
+    }
+
+   
+    if (!existingData && apiResponse) {
       try {
-        const parsedApiResponse = apiResponse ? JSON.parse(apiResponse) : null;
-        publishedDataExists = Boolean(
-          (parsedApiResponse?.location?.address && parsedApiResponse?.location?.city) ||
-          (parsedApiResponse?.location?.subcategories?.[0]?.businesses?.[0]?.location?.address)
-        );
-        locationData =
+        const parsedApiResponse = JSON.parse(apiResponse);
+        const locationData =
           parsedApiResponse?.location?.subcategories?.[0]?.businesses?.[0]?.location ||
           parsedApiResponse?.location ||
           {};
+        if (locationData.address && locationData.city) {
+          existingData = {
+            address: locationData.address || "",
+            city: locationData.city || "",
+            state: locationData.state || "",
+            postalCode: locationData.postalCode || "",
+          };
+        }
       } catch (e) {
-        publishedDataExists = false;
+        console.error("Error parsing api response", e);
       }
+    }
 
-      setHasPublishedData(publishedDataExists);
-
-      if (publishedDataExists) {
-        // Load from published data
-        setFormData({
-          address: locationData.address || "",
-          city: locationData.city || "",
-          state: locationData.state || "",
-          postalCode: locationData.postalCode || "",
-        });
-        setIsEditing(false); // Start in read-only mode
-      } else {
-        // Load defaults from businessData
-        setFormData({
-          address: businessData.subcategories[0].businesses[0].location.address,
-          city: businessData.subcategories[0].businesses[0].location.city,
-          state: businessData.subcategories[0].businesses[0].location.state,
-          postalCode: businessData.subcategories[0].businesses[0].location.postalCode,
-        });
-        setIsEditing(true); // Start in edit mode
-      }
+    if (existingData) {
+      setFormData(existingData);
+      setInitialData(existingData);
+      setHasExistingData(true);
+      setIsEditing(false); 
+    } else {
+      
+      setFormData({
+        address: businessData.subcategories[0].businesses[0].location.address,
+        city: businessData.subcategories[0].businesses[0].location.city,
+        state: businessData.subcategories[0].businesses[0].location.state,
+        postalCode: businessData.subcategories[0].businesses[0].location.postalCode,
+      });
+      setIsEditing(true);
+      setHasExistingData(false);
     }
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      const updatedFormData = { ...prev, [name]: value };
+    
+      const dataToSave = {
+        subcategories: [
+          {
+            businesses: [
+              {
+                location: updatedFormData,
+              },
+            ],
+          },
+        ],
+      };
+      localStorage.setItem("locationFormData", JSON.stringify(dataToSave));
+      return updatedFormData;
+    });
   };
 
   const handleNext = () => {
-    // Save data to localStorage (as draft)
+ 
     const dataToSave = {
       subcategories: [
         {
           businesses: [
             {
-              location: {
-                address: formData.address,
-                city: formData.city,
-                state: formData.state,
-                postalCode: formData.postalCode,
-              },
+              location: formData,
             },
           ],
         },
@@ -107,53 +123,56 @@ const Location = () => {
   };
 
   const toggleEdit = () => {
-    if (isEditing && hasPublishedData) {
-      // Revert to published data when canceling edit
-      const apiResponse = JSON.parse(localStorage.getItem("apiResponse") || "{}");
-      const locationData =
-        apiResponse.location?.subcategories?.[0]?.businesses?.[0]?.location ||
-        apiResponse.location ||
-        {};
-
-      setFormData({
-        address: locationData.address || "",
-        city: locationData.city || "",
-        state: locationData.state || "",
-        postalCode: locationData.postalCode || "",
-      });
+    if (isEditing) {
+    
+      setFormData(initialData);
+      
+      const dataToSave = {
+        subcategories: [
+          {
+            businesses: [
+              {
+                location: initialData,
+              },
+            ],
+          },
+        ],
+      };
+      localStorage.setItem("locationFormData", JSON.stringify(dataToSave));
     }
     setIsEditing(!isEditing);
   };
 
-  const isReadOnly = hasPublishedData && !isEditing;
+  const isReadOnly = hasExistingData && !isEditing;
 
   return (
     <main className="max-w-4xl mx-auto p-5">
       <div className="bg-gray-50 rounded-lg shadow-sm p-6">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Business Location</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Business Location</h2>
+          {isReadOnly && (
+            <button
+              onClick={toggleEdit}
+              className="text-blue-600 hover:text-blue-800"
+              aria-label="Edit Location"
+            >
+              <Pencil className="w-5 h-5 " />
+            </button>
+          )}
+        </div>
 
         {isReadOnly ? (
           <div className="mb-4 p-3 bg-gray-100 text-gray-800 rounded-md">
-            Viewing published location information.{" "}
-            <button
-              onClick={toggleEdit}
-              className="ml-2 text-gray-600 hover:text-gray-800 font-medium"
-            >
-              Edit Location
-            </button>
+            Viewing saved location information.
           </div>
-        ) : hasPublishedData ? (
+        ) : (
           <div className="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded-md">
-            Editing location information. Changes will be saved as draft.
+            {hasExistingData ? "Editing location information." : "Please enter your location information."}
           </div>
-        ) : null}
+        )}
 
-        <div className="mb-6 pb-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold mb-4 text-gray-700">Location Details</h3>
-
-          <div className="mb-4">
-            <label className="block mb-2 font-medium text-gray-700">Address:</label>
-            <div className="relative">
+        <div className="mb-4">
+              <label className="block mb-2 font-medium text-gray-700">Address:</label>
               <input
                 name="address"
                 type="text"
@@ -161,25 +180,14 @@ const Location = () => {
                 onChange={handleInputChange}
                 readOnly={isReadOnly}
                 className={`w-full p-2 ${
-                  isReadOnly ? "pr-10 bg-gray-100" : "border border-gray-300"
+                  isReadOnly ? "bg-gray-100" : "border border-gray-300"
                 } rounded-md focus:ring-2 focus:ring-gray-500`}
                 placeholder="Enter your business address"
               />
-              {isReadOnly && (
-                <button
-                  onClick={toggleEdit}
-                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-                  aria-label="Edit address"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-              )}
             </div>
-          </div>
 
-          <div className="mb-4">
-            <label className="block mb-2 font-medium text-gray-700">City:</label>
-            <div className="relative">
+            <div className="mb-4">
+              <label className="block mb-2 font-medium text-gray-700">City:</label>
               <input
                 name="city"
                 type="text"
@@ -187,25 +195,14 @@ const Location = () => {
                 onChange={handleInputChange}
                 readOnly={isReadOnly}
                 className={`w-full p-2 ${
-                  isReadOnly ? "pr-10 bg-gray-100" : "border border-gray-300"
+                  isReadOnly ? "bg-gray-100" : "border border-gray-300"
                 } rounded-md focus:ring-2 focus:ring-gray-500`}
                 placeholder="Enter your city"
               />
-              {isReadOnly && (
-                <button
-                  onClick={toggleEdit}
-                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-                  aria-label="Edit city"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-              )}
             </div>
-          </div>
 
-          <div className="mb-4">
-            <label className="block mb-2 font-medium text-gray-700">State:</label>
-            <div className="relative">
+            <div className="mb-4">
+              <label className="block mb-2 font-medium text-gray-700">State:</label>
               <input
                 name="state"
                 type="text"
@@ -213,25 +210,14 @@ const Location = () => {
                 onChange={handleInputChange}
                 readOnly={isReadOnly}
                 className={`w-full p-2 ${
-                  isReadOnly ? "pr-10 bg-gray-100" : "border border-gray-300"
+                  isReadOnly ? "bg-gray-100" : "border border-gray-300"
                 } rounded-md focus:ring-2 focus:ring-gray-500`}
                 placeholder="Enter your state"
               />
-              {isReadOnly && (
-                <button
-                  onClick={toggleEdit}
-                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-                  aria-label="Edit state"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-              )}
             </div>
-          </div>
 
-          <div className="mb-4">
-            <label className="block mb-2 font-medium text-gray-700">Postal Code:</label>
-            <div className="relative">
+            <div className="mb-4">
+              <label className="block mb-2 font-medium text-gray-700">Postal Code:</label>
               <input
                 name="postalCode"
                 type="text"
@@ -239,52 +225,41 @@ const Location = () => {
                 onChange={handleInputChange}
                 readOnly={isReadOnly}
                 className={`w-full p-2 ${
-                  isReadOnly ? "pr-10 bg-gray-100" : "border border-gray-300"
+                  isReadOnly ? "bg-gray-100" : "border border-gray-300"
                 } rounded-md focus:ring-2 focus:ring-gray-500`}
                 placeholder="Enter your postal code"
               />
-              {isReadOnly && (
-                <button
-                  onClick={toggleEdit}
-                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-                  aria-label="Edit postal code"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-              )}
             </div>
           </div>
-        </div>
 
-        <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
-          <Button
-            className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700 focus:ring-2 focus:ring-gray-500"
-            onClick={() => router.push("/business-info")}
-          >
-            Back
-          </Button>
-
-          {isEditing && hasPublishedData && (
+          <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
             <Button
               className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700 focus:ring-2 focus:ring-gray-500"
-              onClick={toggleEdit}
+              onClick={() => router.push("/business-info")}
             >
-              Cancel
+              Back
             </Button>
-          )}
 
-          <Button
-            className="w-full sm:w-auto focus:ring-2 focus:ring-blue-500 bg-blue-600 text-white hover:bg-blue-700"
-            color="primary"
-            onClick={handleNext}
-            disabled={!formData.address.trim() || !formData.city.trim()}
-          >
-            {isReadOnly ? "Next" : "Save & Next"}
-          </Button>
-        </div>
-      </div>
-    </main>
-  );
-};
+            {isEditing && hasExistingData && (
+              <Button
+                className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700 focus:ring-2 focus:ring-gray-500"
+                onClick={toggleEdit}
+              >
+                Cancel
+              </Button>
+            )}
 
-export default Location;
+            <Button
+              className="w-full sm:w-auto focus:ring-2 focus:ring-blue-500 bg-blue-600 text-white hover:bg-blue-700"
+              color="primary"
+              onClick={handleNext}
+              disabled={!formData.address.trim() || !formData.city.trim()}
+            >
+              {isReadOnly ? "Next" : "Save & Next"}
+            </Button>
+          </div>
+        </main>
+    );
+  };
+
+  export default Location;
