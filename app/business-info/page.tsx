@@ -22,10 +22,8 @@ export default function BusinessInformation() {
     const businessFormData = localStorage.getItem("businessFormData");
     const apiResponse = localStorage.getItem("apiResponse");
 
-    // Check for any existing data (either draft or published)
     let existingData = null;
     
-    // First check for draft data
     if (businessFormData && businessFormData !== "null") {
       try {
         const parsedData = JSON.parse(businessFormData);
@@ -39,7 +37,6 @@ export default function BusinessInformation() {
       }
     }
 
-    // If no draft data, check for published data
     if (!existingData && apiResponse) {
       try {
         const parsedApiResponse = JSON.parse(apiResponse);
@@ -65,14 +62,13 @@ export default function BusinessInformation() {
         description: existingData.description
       });
       setHasExistingData(true);
-      setIsEditing(false); // Start in read-only mode if data exists
+      setIsEditing(false);
     } else {
-      // No data found - use defaults and allow editing
       setFormData({
         businessName: businessData.subcategories[0].businesses[0].businessName,
         description: businessData.subcategories[0].businesses[0].description,
       });
-      setIsEditing(true); // Start in edit mode
+      setIsEditing(true);
       setHasExistingData(false);
     }
   }, []);
@@ -80,10 +76,10 @@ export default function BusinessInformation() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    localStorage.setItem("hasChanges", "true"); // Mark change
   };
 
   const handleNext = () => {
-    // Save data to localStorage
     const dataToSave = {
       subcategories: [{
         businesses: [{
@@ -93,13 +89,17 @@ export default function BusinessInformation() {
       }]
     };
     localStorage.setItem("businessFormData", JSON.stringify(dataToSave));
-    
+    localStorage.setItem("hasChanges", "true"); // Mark change
     router.push("/location");
   };
 
   const toggleEdit = () => {
     if (isEditing) {
       setFormData(initialData);
+    } else {
+      localStorage.setItem("isEditModeActive", "true");
+      localStorage.setItem("hasChanges", "true"); // Set changes on edit
+      console.log("Edit mode enabled via BusinessInformation pencil");
     }
     setIsEditing(!isEditing);
   };

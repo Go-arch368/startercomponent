@@ -19,6 +19,7 @@ const CALL_COUNTRY_CODE_KEY = "callCountryCode";
 const BUSINESS_DATA_KEY = "businessData";
 const PUBLISH_FORM_DATA_KEY = "publishFormData";
 const EDIT_MODE_KEY = "isEditModeActive";
+const HAS_CHANGES_KEY = "hasChanges";
 
 interface FAQ {
   question: string;
@@ -95,6 +96,25 @@ const api = axios.create({
   },
 });
 
+const areObjectsEqual = (obj1: any, obj2: any): boolean => {
+  if (obj1 === obj2) return true;
+  if (typeof obj1 !== "object" || typeof obj2 !== "object" || obj1 == null || obj2 == null) {
+    return obj1 === obj2;
+  }
+
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+
+  if (keys1.length !== keys2.length) return false;
+
+  for (const key of keys1) {
+    if (!keys2.includes(key) || !areObjectsEqual(obj1[key], obj2[key])) {
+      return false;
+    }
+  }
+  return true;
+};
+
 const GalleryFAQsAndCTA = () => {
   const router = useRouter();
   const [initialized, setInitialized] = useState(false);
@@ -107,10 +127,10 @@ const GalleryFAQsAndCTA = () => {
     subcategory: "",
   });
   const [isPublished, setIsPublished] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
 
   const initialBusiness = businessData.subcategories[0].businesses[0];
 
-  // Check apiResponse for welcome data
   useEffect(() => {
     if (typeof window === "undefined" || isPublished) return;
 
@@ -134,15 +154,18 @@ const GalleryFAQsAndCTA = () => {
     }
   }, [router, isPublished]);
 
-  // Initialize form data and edit mode
   useEffect(() => {
     if (initialized || typeof window === "undefined") return;
 
     const publishFormData = localStorage.getItem(PUBLISH_FORM_DATA_KEY);
     const isPublished = publishFormData ? JSON.parse(publishFormData).published : false;
     const editMode = localStorage.getItem(EDIT_MODE_KEY) === "true";
-    setIsEditMode(editMode || !isPublished); // Edit mode if not published or explicitly set
+    const globalChanges = localStorage.getItem(HAS_CHANGES_KEY) === "true";
+    setIsEditMode(editMode || !isPublished);
     setIsPublished(isPublished);
+    setHasChanges(globalChanges);
+
+    console.log("Initialization:", { isPublished, isEditMode: editMode || !isPublished, hasChanges: globalChanges });
 
     let parsedApiResponse: {
       welcome?: { completed?: boolean; category?: string; subcategory?: string };
@@ -217,51 +240,93 @@ const GalleryFAQsAndCTA = () => {
     setInitialized(true);
   }, [initialized, initialBusiness]);
 
-  // Synchronize edit mode across components
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !initialized || !formData) return;
 
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === EDIT_MODE_KEY) {
-        setIsEditMode(event.newValue === "true");
+        const newEditMode = event.newValue === "true";
+        setIsEditMode(newEditMode);
+        console.log("EDIT_MODE_KEY changed:", { isEditMode: newEditMode });
       } else if (event.key === PUBLISH_FORM_DATA_KEY) {
         try {
           const publishFormData = event.newValue ? JSON.parse(event.newValue) : { published: false };
           if (publishFormData.published) {
             setIsEditMode(false);
+            setHasChanges(false);
             localStorage.setItem(EDIT_MODE_KEY, "false");
+            localStorage.setItem(HAS_CHANGES_KEY, "false");
+            console.log("PUBLISH_FORM_DATA_KEY changed: Reset to read-only");
           }
         } catch (err) {
           console.error("Error parsing updated publishFormData:", err);
         }
+      } else if (event.key === HAS_CHANGES_KEY) {
+        const newHasChanges = event.newValue === "true";
+        setHasChanges(newHasChanges);
+        console.log("HAS_CHANGES_KEY changed:", { hasChanges: newHasChanges });
       }
     };
 
-    // Poll localStorage for same-tab updates
-    const checkLocalStorage = () => {
-      const editMode = localStorage.getItem(EDIT_MODE_KEY) === "true";
-      const publishFormData = localStorage.getItem(PUBLISH_FORM_DATA_KEY);
-      const isPublished = publishFormData ? JSON.parse(publishFormData).published : false;
-      setIsEditMode(editMode || !isPublished);
-      setIsPublished(isPublished);
-    };
-
     window.addEventListener("storage", handleStorageChange);
-    const intervalId = setInterval(checkLocalStorage, 500); // Poll every 500ms
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [initialized, formData]);
 
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      clearInterval(intervalId);
-    };
-  }, []);
-
-  // Persist form data
   useEffect(() => {
-    if (initialized && formData && isEditMode) {
-      localStorage.setItem(FORM_DATA_KEY, JSON.stringify(formData));
-      localStorage.setItem(CALL_COUNTRY_CODE_KEY, callCountryCode);
+    if (!initialized || !formData || !isEditMode) return;
+
+    localStorage.setItem(FORM_DATA_KEY, JSON.stringify(formData));
+    localStorage.setItem(CALL_COUNTRY_CODE_KEY, callCountryCode);
+
+    const storedApiResponse = localStorage.getItem("apiResponse");
+    let parsedApiResponse: any = {};
+    try {
+      parsedApiResponse = storedApiResponse ? JSON.parse(storedApiResponse) : {};
+    } catch (err) {
+      console.error("Error parsing stored apiResponse:", err);
     }
-  }, [formData, callCountryCode, initialized, isEditMode]);
+
+    const currentBusiness: Business = formData.subcategories?.[0]?.businesses?.[0] || {
+      businessName: "",
+      description: "",
+      location: {},
+      contact: {},
+      services: [],
+      timings: {},
+      gallery: [],
+      faqs: [],
+      cta: { call: "", bookUrl: "", getDirections: "" },
+    };
+    const currentCompleteData: PublishedBusinessData = {
+      welcome: welcomeData,
+      business: {
+        businessName: currentBusiness.businessName || "",
+        description: currentBusiness.description || "",
+      },
+      location: currentBusiness.location || {},
+      contact: currentBusiness.contact || {},
+      services: currentBusiness.services || [],
+      timings: currentBusiness.timings || {},
+      gallery: currentBusiness.gallery || [],
+      faqs: currentBusiness.faqs || [],
+      cta: currentBusiness.cta || { call: "", bookUrl: "", getDirections: "" },
+    };
+
+    const hasLocalChanges = !areObjectsEqual(currentCompleteData, parsedApiResponse);
+    const hasGlobalChanges = localStorage.getItem(HAS_CHANGES_KEY) === "true";
+    setHasChanges(hasLocalChanges || hasGlobalChanges);
+
+    if (hasLocalChanges) {
+      localStorage.setItem(HAS_CHANGES_KEY, "true");
+    }
+
+    console.log("Form data updated:", {
+      isEditMode,
+      hasChanges: hasLocalChanges || hasGlobalChanges,
+      hasLocalChanges,
+      hasGlobalChanges,
+    });
+  }, [formData, callCountryCode, initialized, isEditMode, welcomeData]);
 
   const updateFormData = (path: string, value: any) => {
     if (!formData || !isEditMode) return;
@@ -275,6 +340,7 @@ const GalleryFAQsAndCTA = () => {
     current[keys[keys.length - 1]] = value;
 
     setFormData(newData);
+    localStorage.setItem(HAS_CHANGES_KEY, "true");
   };
 
   const handleArrayChange = (arrayPath: string, index: number, field: string, value: any) => {
@@ -289,6 +355,7 @@ const GalleryFAQsAndCTA = () => {
 
     current[index][field] = value;
     setFormData(newData);
+    localStorage.setItem(HAS_CHANGES_KEY, "true");
   };
 
   const addArrayItem = (arrayPath: string, newItem: any) => {
@@ -303,6 +370,7 @@ const GalleryFAQsAndCTA = () => {
 
     current.push(newItem);
     setFormData(newData);
+    localStorage.setItem(HAS_CHANGES_KEY, "true");
   };
 
   const removeArrayItem = (arrayPath: string, index: number) => {
@@ -317,6 +385,7 @@ const GalleryFAQsAndCTA = () => {
 
     current.splice(index, 1);
     setFormData(newData);
+    localStorage.setItem(HAS_CHANGES_KEY, "true");
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -336,6 +405,7 @@ const GalleryFAQsAndCTA = () => {
     const reader = new FileReader();
     reader.onloadend = () => {
       addArrayItem("subcategories.0.businesses.0.gallery", reader.result);
+      localStorage.setItem(HAS_CHANGES_KEY, "true");
     };
     reader.readAsDataURL(file);
   };
@@ -343,7 +413,9 @@ const GalleryFAQsAndCTA = () => {
   const handleEdit = () => {
     setIsEditMode(true);
     localStorage.setItem(EDIT_MODE_KEY, "true");
+    localStorage.setItem(HAS_CHANGES_KEY, "true"); // Set changes on edit
     localStorage.setItem(PUBLISH_FORM_DATA_KEY, JSON.stringify({ published: false }));
+    console.log("Edit mode enabled via GalleryFAQsAndCTA pencil");
   };
 
   const handlePublishOrUpdate = async () => {
@@ -474,6 +546,7 @@ const GalleryFAQsAndCTA = () => {
 
       localStorage.setItem(PUBLISH_FORM_DATA_KEY, JSON.stringify({ published: true }));
       localStorage.setItem(EDIT_MODE_KEY, "false");
+      localStorage.setItem(HAS_CHANGES_KEY, "false");
       localStorage.setItem(BUSINESS_DATA_KEY, JSON.stringify(completeBusinessData));
       localStorage.setItem("apiResponse", JSON.stringify(completeBusinessData));
       localStorage.setItem(FORM_DATA_KEY, JSON.stringify(formData));
@@ -481,6 +554,7 @@ const GalleryFAQsAndCTA = () => {
 
       setIsPublished(true);
       setIsEditMode(false);
+      setHasChanges(false);
 
       alert(isPublished ? "Business updated successfully!" : "Business published successfully!");
       setTimeout(() => {
@@ -557,7 +631,6 @@ const GalleryFAQsAndCTA = () => {
           </div>
         )}
 
-        {/* Gallery Section */}
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Gallery</h3>
           <div className="mb-4">
@@ -636,7 +709,6 @@ const GalleryFAQsAndCTA = () => {
           </div>
         </div>
 
-        {/* Call to Action Section */}
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">Call to Action</h3>
           <div className="flex flex-wrap gap-4 mb-4">
@@ -725,7 +797,6 @@ const GalleryFAQsAndCTA = () => {
           </div>
         </div>
 
-        {/* FAQs Section */}
         <div className="mb-6 pb-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">FAQs</h3>
           <div className="mb-4">
@@ -806,7 +877,7 @@ const GalleryFAQsAndCTA = () => {
               className="w-full sm:w-auto bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
               onClick={handlePublishOrUpdate}
               type="button"
-              disabled={isPublishing}
+              disabled={isPublishing || !hasChanges}
               aria-label={isPublishing ? "Publishing/Updating in progress" : isPublished ? "Update business" : "Publish business"}
             >
               {isPublishing ? "Processing..." : isPublished ? "Update" : "Publish"}

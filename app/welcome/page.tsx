@@ -47,17 +47,22 @@ export default function Welcome() {
 
   const handleEdit = () => {
     setIsReadOnly(false);
+    localStorage.setItem("isEditModeActive", "true");
+    localStorage.setItem("hasChanges", "true"); // Set changes on edit
+    console.log("Edit mode enabled via Welcome pencil");
   };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newCategory = e.target.value;
     setSelectedCategory(newCategory);
     setSelectedSubcategory("");
+    localStorage.setItem("hasChanges", "true"); // Mark change
   };
 
   const handleSubcategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSubcategory = e.target.value;
     setSelectedSubcategory(newSubcategory);
+    localStorage.setItem("hasChanges", "true"); // Mark change
   };
 
   const getSubcategories = () => {
@@ -77,6 +82,7 @@ export default function Welcome() {
     };
   
     localStorage.setItem("apiResponse", JSON.stringify(updatedData));
+    localStorage.setItem("hasChanges", "true"); // Mark change
     router.push("/business-info");
   };
 
