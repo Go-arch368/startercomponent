@@ -280,17 +280,19 @@ const ContactAndTimings = () => {
   return (
     <div className="max-w-4xl mx-auto p-5">
       <div className="bg-gray-50 rounded-lg shadow-sm p-6">
+        <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Contact and Timings</h2>
-
+          {isReadOnly &&(
+            <button onClick={toggleEdit} className="text-blue-600 hover:text-blue-800" aria-label="Edit Location">
+              <Pencil className="w-5 h-5"/>
+            </button>
+          )}
+        </div>
+      
         {isReadOnly ? (
           <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
             Viewing published data.{" "}
-            <button
-              onClick={toggleEdit}
-              className="text-blue-600 hover:text-blue-800 font-medium"
-            >
-              Edit
-            </button>
+            
           </div>
         ) : (
           <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-md">

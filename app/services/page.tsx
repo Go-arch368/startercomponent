@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/button";
 import businessData from "@/data/businessData.json";
+import { Pencil } from "lucide-react";
 
 const currencyCodes = [
   { code: "USD $50", country: "United States" },
@@ -115,7 +116,7 @@ const Services = () => {
         ],
       });
     } else {
-      // Load draft or defaults
+    
       const servicesFormDataRaw = localStorage.getItem("servicesFormData");
       if (servicesFormDataRaw && servicesFormDataRaw !== "null") {
         try {
@@ -188,7 +189,7 @@ const Services = () => {
 
   const handleNext = () => {
     if (!isReadOnly) {
-      setFormData(formData); // Save draft via useLocalStorage
+      setFormData(formData); 
     }
     router.push("/review&publish");
   };
@@ -241,17 +242,29 @@ const Services = () => {
         <p id="form-instructions" className="sr-only">
           Enter service details including name and price. Add or remove services as needed. Use the buttons to navigate.
         </p>
+        <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Services</h2>
+          {isReadOnly && (
+            <button
+              type="button"
+              onClick={toggleEdit}
+              className="text-blue-600 hover:text-blue-800 focus:ring-2 focus:ring-blue-500"
+              aria-label="Edit Services"
+            >
+              <Pencil size={20} />
+            </button>
+          )}
+        </div>
 
         {isReadOnly ? (
           <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
             Viewing published services information.{" "}
-            <button
+            {/* <button
               onClick={toggleEdit}
               className="text-blue-600 hover:text-blue-800 font-medium"
             >
               Edit Services
-            </button>
+            </button> */}
           </div>
         ) : (
           <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-md">
