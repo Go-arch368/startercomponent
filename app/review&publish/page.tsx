@@ -1,4 +1,3 @@
-
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -19,6 +18,7 @@ const FORM_DATA_KEY = "galleryFaqsCtaFormData";
 const CALL_COUNTRY_CODE_KEY = "callCountryCode";
 const BUSINESS_DATA_KEY = "businessData";
 const PUBLISH_FORM_DATA_KEY = "publishFormData";
+const EDIT_MODE_KEY = "isEditModeActive";
 
 interface FAQ {
   question: string;
@@ -87,7 +87,6 @@ interface PublishedBusinessData {
   cta: CTA;
 }
 
-// Axios instance for MockAPI
 const api = axios.create({
   baseURL: "https://680b2310d5075a76d989f52e.mockapi.io",
   timeout: 15000,
@@ -102,16 +101,16 @@ const GalleryFAQsAndCTA = () => {
   const [formData, setFormData] = useState<FormData | null>(null);
   const [callCountryCode, setCallCountryCode] = useState<string>(countryCodes[0].code);
   const [isPublishing, setIsPublishing] = useState(false);
-  const [isReadOnly, setIsReadOnly] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [welcomeData, setWelcomeData] = useState<WelcomeData>({
     category: "",
     subcategory: "",
   });
-  const [isPublished, setIsPublished] = useState(false); // Track successful publish
+  const [isPublished, setIsPublished] = useState(false);
 
   const initialBusiness = businessData.subcategories[0].businesses[0];
 
-  // Check if apiResponse exists with welcome data, redirect to /welcome if not
+  // Check apiResponse for welcome data
   useEffect(() => {
     if (typeof window === "undefined" || isPublished) return;
 
@@ -135,12 +134,15 @@ const GalleryFAQsAndCTA = () => {
     }
   }, [router, isPublished]);
 
+  // Initialize form data and edit mode
   useEffect(() => {
     if (initialized || typeof window === "undefined") return;
 
     const publishFormData = localStorage.getItem(PUBLISH_FORM_DATA_KEY);
     const isPublished = publishFormData ? JSON.parse(publishFormData).published : false;
-    setIsReadOnly(isPublished);
+    const editMode = localStorage.getItem(EDIT_MODE_KEY) === "true";
+    setIsEditMode(editMode || !isPublished); // Edit mode if not published or explicitly set
+    setIsPublished(isPublished);
 
     let parsedApiResponse: {
       welcome?: { completed?: boolean; category?: string; subcategory?: string };
@@ -170,9 +172,10 @@ const GalleryFAQsAndCTA = () => {
       }
     } else {
       const businessFormData = JSON.parse(localStorage.getItem("businessInfoFormData") || "{}");
-      const locationFormData: { subcategories?: { businesses?: { location: any }[] }[] } = 
-        JSON.parse(localStorage.getItem("locationFormData") || '{"subcategories":[{"businesses":[{"location":{}}]}]}');
-      const contactAndTimingsFormData: { subcategories?: { businesses?: { contact?: any; timings?: any }[] }[] } = 
+      const locationFormData: { subcategories?: { businesses?: { location: any }[] }[] } = JSON.parse(
+        localStorage.getItem("locationFormData") || '{"subcategories":[{"businesses":[{"location":{}}]}]}'
+      );
+      const contactAndTimingsFormData: { subcategories?: { businesses?: { contact?: any; timings?: any }[] }[] } =
         JSON.parse(localStorage.getItem("contactAndTimingsFormData") || '{"subcategories":[{"businesses":[{}]}]}');
       const servicesFormData = JSON.parse(localStorage.getItem("servicesFormData") || "{}");
 
@@ -200,18 +203,9 @@ const GalleryFAQsAndCTA = () => {
                 gallery: parsedApiResponse.gallery || initialBusiness.gallery || [],
                 faqs: parsedApiResponse.faqs || initialBusiness.faqs || [],
                 cta: {
-                  call:
-                    parsedApiResponse.cta?.call ||
-                    parsedApiResponse.cta?.call ||
-                    initialBusiness.cta.call,
-                  bookUrl:
-                    parsedApiResponse.cta?.bookUrl ||
-                    parsedApiResponse.cta?.bookUrl ||
-                    initialBusiness.cta.bookUrl,
-                  getDirections:
-                    parsedApiResponse.cta?.getDirections ||
-                    parsedApiResponse.cta?.getDirections ||
-                    initialBusiness.cta.getDirections,
+                  call: parsedApiResponse.cta?.call || initialBusiness.cta.call,
+                  bookUrl: parsedApiResponse.cta?.bookUrl || initialBusiness.cta.bookUrl,
+                  getDirections: parsedApiResponse.cta?.getDirections || initialBusiness.cta.getDirections,
                 },
               },
             ],
@@ -221,17 +215,56 @@ const GalleryFAQsAndCTA = () => {
     }
 
     setInitialized(true);
-  }, [initialized]);
+  }, [initialized, initialBusiness]);
 
+  // Synchronize edit mode across components
   useEffect(() => {
-    if (initialized && formData && !isReadOnly) {
+    if (typeof window === "undefined") return;
+
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === EDIT_MODE_KEY) {
+        setIsEditMode(event.newValue === "true");
+      } else if (event.key === PUBLISH_FORM_DATA_KEY) {
+        try {
+          const publishFormData = event.newValue ? JSON.parse(event.newValue) : { published: false };
+          if (publishFormData.published) {
+            setIsEditMode(false);
+            localStorage.setItem(EDIT_MODE_KEY, "false");
+          }
+        } catch (err) {
+          console.error("Error parsing updated publishFormData:", err);
+        }
+      }
+    };
+
+    // Poll localStorage for same-tab updates
+    const checkLocalStorage = () => {
+      const editMode = localStorage.getItem(EDIT_MODE_KEY) === "true";
+      const publishFormData = localStorage.getItem(PUBLISH_FORM_DATA_KEY);
+      const isPublished = publishFormData ? JSON.parse(publishFormData).published : false;
+      setIsEditMode(editMode || !isPublished);
+      setIsPublished(isPublished);
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    const intervalId = setInterval(checkLocalStorage, 500); // Poll every 500ms
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(intervalId);
+    };
+  }, []);
+
+  // Persist form data
+  useEffect(() => {
+    if (initialized && formData && isEditMode) {
       localStorage.setItem(FORM_DATA_KEY, JSON.stringify(formData));
       localStorage.setItem(CALL_COUNTRY_CODE_KEY, callCountryCode);
     }
-  }, [formData, callCountryCode, initialized, isReadOnly]);
+  }, [formData, callCountryCode, initialized, isEditMode]);
 
   const updateFormData = (path: string, value: any) => {
-    if (!formData || isReadOnly) return;
+    if (!formData || !isEditMode) return;
     const keys = path.split(".");
     const newData = JSON.parse(JSON.stringify(formData));
     let current = newData;
@@ -245,7 +278,7 @@ const GalleryFAQsAndCTA = () => {
   };
 
   const handleArrayChange = (arrayPath: string, index: number, field: string, value: any) => {
-    if (!formData || isReadOnly) return;
+    if (!formData || !isEditMode) return;
     const newData = JSON.parse(JSON.stringify(formData));
     const keys = arrayPath.split(".");
     let current = newData;
@@ -259,7 +292,7 @@ const GalleryFAQsAndCTA = () => {
   };
 
   const addArrayItem = (arrayPath: string, newItem: any) => {
-    if (!formData || isReadOnly) return;
+    if (!formData || !isEditMode) return;
     const newData = JSON.parse(JSON.stringify(formData));
     const keys = arrayPath.split(".");
     let current = newData;
@@ -273,7 +306,7 @@ const GalleryFAQsAndCTA = () => {
   };
 
   const removeArrayItem = (arrayPath: string, index: number) => {
-    if (!formData || isReadOnly) return;
+    if (!formData || !isEditMode) return;
     const newData = JSON.parse(JSON.stringify(formData));
     const keys = arrayPath.split(".");
     let current = newData;
@@ -287,7 +320,7 @@ const GalleryFAQsAndCTA = () => {
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (isReadOnly) return;
+    if (!isEditMode) return;
     const file = e.target.files?.[0];
     if (!file || !formData) return;
 
@@ -308,7 +341,8 @@ const GalleryFAQsAndCTA = () => {
   };
 
   const handleEdit = () => {
-    setIsReadOnly(false);
+    setIsEditMode(true);
+    localStorage.setItem(EDIT_MODE_KEY, "true");
     localStorage.setItem(PUBLISH_FORM_DATA_KEY, JSON.stringify({ published: false }));
   };
 
@@ -431,29 +465,27 @@ const GalleryFAQsAndCTA = () => {
       const lastPublishedBusinessId = localStorage.getItem("lastPublishedBusinessId");
       let response;
       if (lastPublishedBusinessId && isPublished) {
-        // Update existing record
         response = await api.put(`/data/${lastPublishedBusinessId}`, completeBusinessData);
       } else {
-        // Create new record
         response = await api.post("/data", completeBusinessData);
         localStorage.setItem("lastPublishedBusinessId", response.data.id);
       }
       const savedBusiness = response.data;
 
-      // Store data in localStorage
       localStorage.setItem(PUBLISH_FORM_DATA_KEY, JSON.stringify({ published: true }));
+      localStorage.setItem(EDIT_MODE_KEY, "false");
       localStorage.setItem(BUSINESS_DATA_KEY, JSON.stringify(completeBusinessData));
       localStorage.setItem("apiResponse", JSON.stringify(completeBusinessData));
-      localStorage.setItem(FORM_DATA_KEY, JSON.stringify(formData)); // Ensure form data persists
-      localStorage.setItem(CALL_COUNTRY_CODE_KEY, callCountryCode); // Persist call country code
+      localStorage.setItem(FORM_DATA_KEY, JSON.stringify(formData));
+      localStorage.setItem(CALL_COUNTRY_CODE_KEY, callCountryCode);
 
       setIsPublished(true);
-      setIsReadOnly(true); // Set to read-only mode
+      setIsEditMode(false);
 
       alert(isPublished ? "Business updated successfully!" : "Business published successfully!");
-      setTimeout(()=>{
-         window.location.reload()
-      },1000)
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       console.error("Error publishing/updating business:", error);
       let errorMessage = "Failed to publish/update business. Please try again.";
@@ -499,7 +531,7 @@ const GalleryFAQsAndCTA = () => {
         <p id="form-instructions" className="sr-only">
           Upload images to the gallery, add FAQs, and provide call-to-action details. Use the buttons to navigate or publish the business.
         </p>
-        {isReadOnly && (
+        {!isEditMode && isPublished && (
           <button
             type="button"
             onClick={handleEdit}
@@ -511,13 +543,17 @@ const GalleryFAQsAndCTA = () => {
         )}
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Gallery, FAQs, and Call to Action</h2>
 
-        {isReadOnly ? (
+        {isEditMode ? (
+          <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-md">
+            Edit mode: You can modify all fields.
+          </div>
+        ) : isPublished ? (
           <div className="mb-4 p-3 bg-gray-100 text-gray-800 rounded-md">
             Viewing published data. Click the pencil icon in the top-right to edit.
           </div>
         ) : (
-          <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-md">
-            Edit mode: You can modify all fields.
+          <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
+            Create mode: Enter details and publish.
           </div>
         )}
 
@@ -534,7 +570,7 @@ const GalleryFAQsAndCTA = () => {
                       alt={`Gallery image ${index + 1}`}
                       className="w-full h-32 object-cover rounded-md border border-gray-200"
                     />
-                    {!isReadOnly && (
+                    {isEditMode && (
                       <button
                         type="button"
                         onClick={() => removeArrayItem("subcategories.0.businesses.0.gallery", index)}
@@ -561,7 +597,7 @@ const GalleryFAQsAndCTA = () => {
             ) : (
               <p className="text-gray-500 mb-4">No images uploaded yet</p>
             )}
-            {!isReadOnly && (
+            {isEditMode && (
               <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
                 <label className="cursor-pointer">
                   <input
@@ -615,12 +651,12 @@ const GalleryFAQsAndCTA = () => {
                 <select
                   id="call-code"
                   value={callCountryCode}
-                  onChange={(e) => !isReadOnly && setCallCountryCode(e.target.value)}
+                  onChange={(e) => isEditMode && setCallCountryCode(e.target.value)}
                   className={`w-24 p-2 border border-gray-300 rounded-l-md text-sm ${
-                    isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-gray-500"
+                    isEditMode ? "focus:ring-2 focus:ring-gray-500" : "bg-gray-100"
                   }`}
                   aria-label="Country code"
-                  disabled={isReadOnly}
+                  disabled={!isEditMode}
                 >
                   {countryCodes.map((country) => (
                     <option key={country.code} value={country.code}>
@@ -634,17 +670,17 @@ const GalleryFAQsAndCTA = () => {
                   placeholder="Phone number"
                   value={currentBusiness.cta.call.replace(`${callCountryCode}-`, "") || ""}
                   onChange={(e) =>
-                    !isReadOnly &&
+                    isEditMode &&
                     updateFormData(
                       "subcategories.0.businesses.0.cta.call",
                       `${callCountryCode}-${e.target.value.replace(/[^0-9]/g, "")}`
                     )
                   }
                   className={`flex-1 p-2 border border-gray-300 rounded-r-md text-sm ${
-                    isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-gray-500"
+                    isEditMode ? "focus:ring-2 focus:ring-gray-500" : "bg-gray-100"
                   }`}
                   aria-label="Call number"
-                  readOnly={isReadOnly}
+                  readOnly={!isEditMode}
                 />
               </div>
             </div>
@@ -658,12 +694,12 @@ const GalleryFAQsAndCTA = () => {
                 placeholder="https://example.com/book"
                 value={currentBusiness.cta.bookUrl || ""}
                 onChange={(e) =>
-                  !isReadOnly && updateFormData("subcategories.0.businesses.0.cta.bookUrl", e.target.value)
+                  isEditMode && updateFormData("subcategories.0.businesses.0.cta.bookUrl", e.target.value)
                 }
                 className={`w-full p-2 border border-gray-300 rounded-md text-sm ${
-                  isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-gray-500"
+                  isEditMode ? "focus:ring-2 focus:ring-gray-500" : "bg-gray-100"
                 }`}
-                readOnly={isReadOnly}
+                readOnly={!isEditMode}
               />
             </div>
           </div>
@@ -678,12 +714,12 @@ const GalleryFAQsAndCTA = () => {
                 placeholder="https://maps.google.com/..."
                 value={currentBusiness.cta.getDirections || ""}
                 onChange={(e) =>
-                  !isReadOnly && updateFormData("subcategories.0.businesses.0.cta.getDirections", e.target.value)
+                  isEditMode && updateFormData("subcategories.0.businesses.0.cta.getDirections", e.target.value)
                 }
                 className={`w-full p-2 border border-gray-300 rounded-md text-sm ${
-                  isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-gray-500"
+                  isEditMode ? "focus:ring-2 focus:ring-gray-500" : "bg-gray-100"
                 }`}
-                readOnly={isReadOnly}
+                readOnly={!isEditMode}
               />
             </div>
           </div>
@@ -694,15 +730,9 @@ const GalleryFAQsAndCTA = () => {
           <h3 className="text-lg font-semibold mb-4 text-gray-700">FAQs</h3>
           <div className="mb-4">
             {currentBusiness.faqs.map((faq, index) => (
-              <div
-                key={index}
-                className="mb-4 p-3 border border-gray-200 rounded-md bg-white"
-              >
+              <div key={index} className="mb-4 p-3 border border-gray-200 rounded-md bg-white">
                 <div className="mb-3">
-                  <label
-                    htmlFor={`faq-question-${index}`}
-                    className="block mb-2 font-medium text-gray-700"
-                  >
+                  <label htmlFor={`faq-question-${index}`} className="block mb-2 font-medium text-gray-700">
                     Question:
                   </label>
                   <input
@@ -711,20 +741,17 @@ const GalleryFAQsAndCTA = () => {
                     placeholder="Enter question"
                     value={faq.question || ""}
                     onChange={(e) =>
-                      !isReadOnly &&
+                      isEditMode &&
                       handleArrayChange("subcategories.0.businesses.0.faqs", index, "question", e.target.value)
                     }
                     className={`w-full p-2 border border-gray-300 rounded-md text-sm ${
-                      isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-gray-500"
+                      isEditMode ? "focus:ring-2 focus:ring-gray-500" : "bg-gray-100"
                     }`}
-                    readOnly={isReadOnly}
+                    readOnly={!isEditMode}
                   />
                 </div>
                 <div>
-                  <label
-                    htmlFor={`faq-answer-${index}`}
-                    className="block mb-2 font-medium text-gray-700"
-                  >
+                  <label htmlFor={`faq-answer-${index}`} className="block mb-2 font-medium text-gray-700">
                     Answer:
                   </label>
                   <textarea
@@ -732,16 +759,16 @@ const GalleryFAQsAndCTA = () => {
                     placeholder="Enter answer"
                     value={faq.answer || ""}
                     onChange={(e) =>
-                      !isReadOnly &&
+                      isEditMode &&
                       handleArrayChange("subcategories.0.businesses.0.faqs", index, "answer", e.target.value)
                     }
                     className={`w-full p-2 border border-gray-300 rounded-md text-sm h-24 ${
-                      isReadOnly ? "bg-gray-100" : "focus:ring-2 focus:ring-gray-500"
+                      isEditMode ? "focus:ring-2 focus:ring-gray-500" : "bg-gray-100"
                     }`}
-                    readOnly={isReadOnly}
+                    readOnly={!isEditMode}
                   />
                 </div>
-                {!isReadOnly && currentBusiness.faqs.length > 1 && (
+                {isEditMode && currentBusiness.faqs.length > 1 && (
                   <button
                     type="button"
                     onClick={() => removeArrayItem("subcategories.0.businesses.0.faqs", index)}
@@ -754,15 +781,10 @@ const GalleryFAQsAndCTA = () => {
               </div>
             ))}
           </div>
-          {!isReadOnly && (
+          {isEditMode && (
             <button
               type="button"
-              onClick={() =>
-                addArrayItem("subcategories.0.businesses.0.faqs", {
-                  question: "",
-                  answer: "",
-                })
-              }
+              onClick={() => addArrayItem("subcategories.0.businesses.0.faqs", { question: "", answer: "" })}
               className="px-4 py-2 bg-green-600 text-white rounded-md text-sm hover:bg-green-700 focus:ring-2 focus:ring-green-600"
               aria-label="Add new FAQ"
             >
@@ -779,15 +801,17 @@ const GalleryFAQsAndCTA = () => {
           >
             Back
           </Button>
-          <Button
-            className="w-full sm:w-auto bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
-            onClick={handlePublishOrUpdate}
-            type="button"
-            disabled={isPublishing}
-            aria-label={isPublishing ? "Publishing/Updating in progress" : isReadOnly ? "Publish business" : "Update business"}
-          >
-            {isPublishing ? "Processing..." : isReadOnly ? "Publish" : "Publish"}
-          </Button>
+          {isEditMode && (
+            <Button
+              className="w-full sm:w-auto bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
+              onClick={handlePublishOrUpdate}
+              type="button"
+              disabled={isPublishing}
+              aria-label={isPublishing ? "Publishing/Updating in progress" : isPublished ? "Update business" : "Publish business"}
+            >
+              {isPublishing ? "Processing..." : isPublished ? "Update" : "Publish"}
+            </Button>
+          )}
         </div>
       </form>
     </div>
