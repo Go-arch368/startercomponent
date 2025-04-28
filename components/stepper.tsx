@@ -1,7 +1,7 @@
 "use client";
 import clsx from "clsx";
-import React, { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Home,
   Briefcase,
@@ -22,47 +22,47 @@ interface Step {
 }
 
 const steps: Step[] = [
-  { 
-    label: "Welcome", 
-    path: "/welcome", 
-    icon: Home, 
-    storageKey: "welcomeFormData", 
-    apiResponseKey: "welcome" 
+  {
+    label: "Welcome",
+    path: "/welcome",
+    icon: Home,
+    storageKey: "welcomeFormData",
+    apiResponseKey: "welcome",
   },
-  { 
-    label: "Business Info", 
-    path: "/business-info", 
-    icon: Briefcase, 
-    storageKey: "businessInfoFormData", 
-    apiResponseKey: "business" 
+  {
+    label: "Business Info",
+    path: "/business-info",
+    icon: Briefcase,
+    storageKey: "businessInfoFormData",
+    apiResponseKey: "business",
   },
-  { 
-    label: "Location", 
-    path: "/location", 
-    icon: MapPin, 
-    storageKey: "locationFormData", 
-    apiResponseKey: "location" 
+  {
+    label: "Location",
+    path: "/location",
+    icon: MapPin,
+    storageKey: "locationFormData",
+    apiResponseKey: "location",
   },
-  { 
-    label: "Contact & Timings", 
-    path: "/contact&timings", 
-    icon: Phone, 
-    storageKey: "contactAndTimingsFormData", 
-    apiResponseKey: ["contact", "timings", "cta"] 
+  {
+    label: "Contact & Timings",
+    path: "/contact&timings",
+    icon: Phone,
+    storageKey: "contactAndTimingsFormData",
+    apiResponseKey: ["contact", "timings", "cta"],
   },
-  { 
-    label: "Services", 
-    path: "/services", 
-    icon: Wrench, 
-    storageKey: "servicesFormData", 
-    apiResponseKey: "services" 
+  {
+    label: "Services",
+    path: "/services",
+    icon: Wrench,
+    storageKey: "servicesFormData",
+    apiResponseKey: "services",
   },
-  { 
-    label: "Review & Publish", 
-    path: "/review&publish", 
-    icon: CheckCircle, 
-    storageKey: "publishFormData", 
-    apiResponseKey: "any" 
+  {
+    label: "Review & Publish",
+    path: "/review&publish",
+    icon: CheckCircle,
+    storageKey: "publishFormData",
+    apiResponseKey: "any",
   },
 ];
 
@@ -73,16 +73,16 @@ export default function Stepper() {
   const [hasData, setHasData] = useState<Record<string, boolean>>({});
   const [isPublished, setIsPublished] = useState(false);
 
-  const currentStep = steps.findIndex((step) => step.path === pathname) === -1 
-    ? 0 
-    : steps.findIndex((step) => step.path === pathname);
+  const currentStep =
+    steps.findIndex((step) => step.path === pathname) === -1
+      ? 0
+      : steps.findIndex((step) => step.path === pathname);
 
   useEffect(() => {
     setIsMounted(true);
-    checkData();
   }, []);
 
-  const checkData = useCallback(() => {
+  const checkData = React.useCallback(() => {
     if (!isMounted) return;
 
     const apiResponse = localStorage.getItem("apiResponse");
@@ -98,10 +98,11 @@ export default function Stepper() {
       console.error("Error parsing apiResponse:", error);
     }
     setIsPublished(hasApiResponse);
-    
+
     const dataPresence = steps.reduce((acc, step) => {
       const formDataExists = step.storageKey
-        ? !!localStorage.getItem(step.storageKey) && localStorage.getItem(step.storageKey) !== '""'
+        ? !!localStorage.getItem(step.storageKey) &&
+          localStorage.getItem(step.storageKey) !== '""'
         : false;
 
       let apiDataExists = false;
@@ -113,7 +114,8 @@ export default function Stepper() {
             (key) => apiData[key] && Object.keys(apiData[key]).length > 0
           );
         } else {
-          apiDataExists = apiData[step.apiResponseKey] && 
+          apiDataExists =
+            apiData[step.apiResponseKey] &&
             Object.keys(apiData[step.apiResponseKey]).length > 0;
         }
       }
@@ -128,9 +130,12 @@ export default function Stepper() {
   useEffect(() => {
     if (!isMounted) return;
 
+    checkData();
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.storageArea === localStorage && 
-          (steps.some(step => step.storageKey === e.key) || e.key === "apiResponse")) {
+      if (
+        e.storageArea === localStorage &&
+        (steps.some((step) => step.storageKey === e.key) || e.key === "apiResponse")
+      ) {
         checkData();
       }
     };
@@ -158,29 +163,21 @@ export default function Stepper() {
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
+  // Animation variants for steps
+  const stepVariants = {
+    hidden: { opacity: 0, scale: 0.8, y: 10 },
     visible: {
       opacity: 1,
-      transition: {
-        when: "beforeChildren",
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: {
-      opacity: 1,
+      scale: 1,
       y: 0,
       transition: {
         type: "spring",
-        stiffness: 300,
-        damping: 20,
+        stiffness: 200,
+        damping: 15,
+        duration: 0.3,
       },
     },
-    exit: { opacity: 0, y: -10 },
+    exit: { opacity: 0, scale: 0.8, y: -10 },
   };
 
   const renderStepCircle = (index: number) => {
@@ -192,9 +189,11 @@ export default function Stepper() {
     const circleClasses = clsx(
       "z-10 flex items-center justify-center rounded-full border-2 text-sm font-semibold bg-white cursor-pointer relative outline-none",
       {
-        "h-10 w-10 border-green-600 text-green-600": (hasStepData || isBeforeCurrent) || isCurrent,
+        "h-10 w-10 border-green-600 text-green-600":
+          (hasStepData || isBeforeCurrent) || isCurrent,
         "h-8 w-8": !isCurrent,
-        "border-gray-300 text-gray-400": !hasStepData && !isBeforeCurrent && !isCurrent,
+        "border-gray-300 text-gray-400":
+          !hasStepData && !isBeforeCurrent && !isCurrent,
       }
     );
 
@@ -207,18 +206,27 @@ export default function Stepper() {
         onClick={() => handleStepNavigation(index)}
         onKeyDown={(e) => handleKeyDown(e, index)}
         aria-label={`Go to ${steps[index].label} step`}
-        whileTap={{ scale: 0.95 }}
-        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+        whileTap={{ scale: 0.9 }}
+        layout
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
-        {isCurrent && (
-          <motion.div 
-            className="absolute -inset-2 rounded-full border-2 border-orange-600 pointer-events-none"
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 500, damping: 20 }}
-          />
-        )}
-        <Icon size={isCurrent ? 22 : 20} aria-hidden="true" />
+        <AnimatePresence>
+          {isCurrent && (
+            <motion.div
+              className="absolute -inset-2 rounded-full border-2 border-orange-600 pointer-events-none"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 400, damping: 15, duration: 0.2 }}
+            />
+          )}
+        </AnimatePresence>
+        <motion.div
+          layout
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        >
+          <Icon size={isCurrent ? 22 : 20} aria-hidden="true" />
+        </motion.div>
       </motion.div>
     );
   };
@@ -229,7 +237,7 @@ export default function Stepper() {
     const isBeforeCurrent = index < currentStep;
 
     const labelClasses = clsx(
-      "mt-3 px-1 text-xs text-center max-w-[100px] flex items-center gap-1 font-semibold",
+      "mt-3 px-1 text-xs text-center max-w-[100px] flex items-center gap-1 font-semibold transition-colors duration-300",
       {
         "text-green-600 text-sm": isCurrent,
         "text-green-600": (hasStepData || isBeforeCurrent) && !isCurrent,
@@ -238,21 +246,30 @@ export default function Stepper() {
     );
 
     return (
-      <label
+      <motion.label
         htmlFor={`step-${index}`}
         className={labelClasses}
         title={steps[index].label}
+        initial={{ opacity: 0.7, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
       >
         <span className="truncate">{steps[index].label}</span>
-        {(hasStepData || isBeforeCurrent) && (
-          <span 
-            className="ml-1 flex h-5 w-5 items-center justify-center rounded-full flex-shrink-0 bg-green-600 text-white"
-            aria-hidden="true"
-          >
-            <BadgeCheck size={12} strokeWidth={2} />
-          </span>
-        )}
-      </label>
+        <AnimatePresence>
+          {(hasStepData || isBeforeCurrent) && (
+            <motion.span
+              className="ml-1 flex h-5 w-5 items-center justify-center rounded-full flex-shrink-0 bg-green-600 text-white"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              aria-hidden="true"
+            >
+              <BadgeCheck size={12} strokeWidth={2} />
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </motion.label>
     );
   };
 
@@ -261,10 +278,13 @@ export default function Stepper() {
     const hasNextStepData = hasData[steps[index + 1].path] || isPublished;
     const isBeforeCurrent = index < currentStep;
 
-    return clsx("absolute top-5 z-0 h-[2px] w-full", {
-      "bg-green-600": hasStepData || hasNextStepData || isBeforeCurrent,
-      "bg-gray-300": !hasStepData && !hasNextStepData && !isBeforeCurrent,
-    });
+    return clsx(
+      "absolute top-5 z-0 h-[2px] w-full transition-colors duration-300 ease-in-out",
+      {
+        "bg-green-600": hasStepData || hasNextStepData || isBeforeCurrent,
+        "bg-gray-300": !hasStepData && !hasNextStepData && !isBeforeCurrent,
+      }
+    );
   };
 
   if (!isMounted) {
@@ -292,38 +312,42 @@ export default function Stepper() {
       {/* Mobile View */}
       <div className="flex w-full flex-col items-center px-2 py-6 sm:hidden">
         <motion.p
-          className="mb-2 text-sm font-semibold text-gray-700"
-          key={`counter-${currentStep}`}
-          initial={{ opacity: 0, y: -5 }}
+          key={currentStep}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15 }}
+          className="mb-2 text-sm font-semibold text-gray-700"
+          initial={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
         >
           Step {currentStep + 1} of {steps.length}
         </motion.p>
 
         <div className="relative mb-3 flex w-full max-w-xs items-center justify-between">
-          <motion.div
-            className="flex w-full justify-between"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            key={`mobile-container-${currentStep}`}
-          >
-            {visibleSteps.map((step, i) => {
+          <AnimatePresence mode="popLayout">
+            {visibleSteps.map((step, index) => {
               const globalIndex = steps.findIndex((s) => s.path === step.path);
-              const isLastVisible = i === visibleSteps.length - 1;
+              const isLastVisible =
+                globalIndex ===
+                steps.findIndex((s) => s.path === visibleSteps[visibleSteps.length - 1].path);
 
               return (
                 <motion.div
-                  key={`mobile-${globalIndex}`}
-                  className="relative flex flex-1 flex-col items-center"
-                  variants={itemVariants}
+                  key={step.label}
+                  variants={stepVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
                   layoutId={`mobile-step-${globalIndex}`}
+                  className="relative flex min-w-[80px] flex-1 flex-col items-center"
+                  layout
+                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
                 >
                   {globalIndex < steps.length - 1 && !isLastVisible && (
-                    <div
+                    <motion.div
                       className={getConnectorClass(globalIndex)}
                       style={{ left: "50%", right: "-50%" }}
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
                     />
                   )}
                   {renderStepCircle(globalIndex)}
@@ -331,20 +355,28 @@ export default function Stepper() {
                 </motion.div>
               );
             })}
-          </motion.div>
+          </AnimatePresence>
         </div>
 
         <motion.div className="mt-1 flex gap-2">
           {steps.map((_, index) => (
             <motion.div
-              key={`indicator-${index}`}
-              className={clsx("h-2 w-2 rounded-full", {
-                "bg-green-600": hasData[steps[index].path] || index < currentStep || isPublished,
-                "bg-gray-300": !hasData[steps[index].path] && index >= currentStep && !isPublished,
-              })}
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.15 }}
+              key={index}
+              role="presentation"
+              className={clsx(
+                "h-2.5 w-2.5 rounded-full transition-colors duration-300",
+                {
+                  "bg-green-600":
+                    hasData[steps[index].path] || index < currentStep || isPublished,
+                  "bg-gray-300":
+                    !hasData[steps[index].path] &&
+                    index >= currentStep &&
+                    !isPublished,
+                }
+              )}
+              initial={{ scale: 0.8, opacity: 0.7 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
             />
           ))}
         </motion.div>
@@ -356,23 +388,24 @@ export default function Stepper() {
           className="mb-4 text-sm font-semibold text-gray-700"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
         >
           Step {currentStep + 1} of {steps.length}
         </motion.p>
 
         <motion.div
           className="relative flex w-full max-w-5xl items-center justify-between"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          key="desktop-container"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
         >
           {steps.map((step, index) => (
             <motion.div
-              key={`desktop-${index}`}
+              key={step.label}
               className="relative z-10 flex min-w-[90px] flex-1 flex-col items-center"
-              variants={itemVariants}
+              variants={stepVariants}
+              initial="hidden"
+              animate="visible"
             >
               {index < steps.length - 1 && (
                 <motion.div
@@ -380,7 +413,7 @@ export default function Stepper() {
                   style={{ left: "50%", right: "-50%" }}
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: 1 }}
-                  transition={{ delay: 0.2, duration: 0.3 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
                 />
               )}
               {renderStepCircle(index)}

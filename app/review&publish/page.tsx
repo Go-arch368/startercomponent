@@ -444,6 +444,9 @@ const GalleryFAQsAndCTA = () => {
       setIsReadOnly(true);
 
       alert("Business published successfully!");
+      setTimeout(()=>{
+        window.location.reload()
+      },1000)
     } catch (error) {
       console.error("Error publishing business:", error);
       let errorMessage = "Failed to publish business. Please try again.";
