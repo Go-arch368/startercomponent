@@ -1,226 +1,428 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@heroui/button";
-import { Pencil, Trash2 } from "lucide-react";
-import businessData from "@/data/businessData.json";
+import clsx from "clsx";
+import React, { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  Home,
+  Briefcase,
+  MapPin,
+  Phone,
+  Wrench,
+  CheckCircle,
+  BadgeCheck,
+} from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 
-const Services = () => {
+interface Step {
+  label: string;
+  path: string;
+  icon: React.ComponentType<any>;
+  storageKey: string;
+  apiResponseKey: string | string[];
+}
+
+const steps: Step[] = [
+  {
+    label: "Welcome",
+    path: "/welcome",
+    icon: Home,
+    storageKey: "welcomeFormData",
+    apiResponseKey: "welcome",
+  },
+  {
+    label: "Business Info",
+    path: "/business-info",
+    icon: Briefcase,
+    storageKey: "businessInfoFormData",
+    apiResponseKey: "business",
+  },
+  {
+    label: "Location",
+    path: "/location",
+    icon: MapPin,
+    storageKey: "locationFormData",
+    apiResponseKey: "location",
+  },
+  {
+    label: "Contact & Timings",
+    path: "/contact&timings",
+    icon: Phone,
+    storageKey: "contactAndTimingsFormData",
+    apiResponseKey: ["contact", "timings", "cta"],
+  },
+  {
+    label: "Services",
+    path: "/services",
+    icon: Wrench,
+    storageKey: "servicesFormData",
+    apiResponseKey: "services",
+  },
+  {
+    label: "Review & Publish",
+    path: "/review&publish",
+    icon: CheckCircle,
+    storageKey: "publishFormData",
+    apiResponseKey: "any",
+  },
+];
+
+export default function Stepper() {
+  const [isMounted, setIsMounted] = useState(false);
+  const pathname = usePathname();
   const router = useRouter();
-  const [isEditing, setIsEditing] = useState(false);
-  const [hasExistingData, setHasExistingData] = useState(false);
-  const [services, setServices] = useState<{ name: string; price: string }[]>([
-    { name: "", price: "" },
-  ]);
-  const [initialServices, setInitialServices] = useState<{ name: string; price: string }[]>([]);
+  const [hasData, setHasData] = useState<Record<string, boolean>>({});
+  const [isPublished, setIsPublished] = useState(false);
+
+  const currentStep =
+    steps.findIndex((step) => step.path === pathname) === -1
+      ? 0
+      : steps.findIndex((step) => step.path === pathname);
 
   useEffect(() => {
-    const apiResponse = localStorage.getItem("apiResponse");
-    const servicesFormData = localStorage.getItem("servicesFormData");
-
-    let existingData = null;
-
-    if (servicesFormData && servicesFormData !== "null") {
-      try {
-        const parsedFormData = JSON.parse(servicesFormData);
-        const draftServices = parsedFormData.subcategories?.[0]?.businesses?.[0]?.services || [];
-        if (draftServices.length > 0) {
-          existingData = draftServices;
-        }
-      } catch (e) {
-        console.error("Error parsing draft data", e);
-      }
-    }
-
-    if (!existingData && apiResponse) {
-      try {
-        const parsedApiResponse = JSON.parse(apiResponse);
-        const publishedServices = parsedApiResponse?.services || [];
-        if (publishedServices.length > 0) {
-          existingData = publishedServices;
-        }
-      } catch (e) {
-        console.error("Error parsing api response", e);
-      }
-    }
-
-    if (existingData) {
-      setServices(existingData);
-      setInitialServices(existingData);
-      setHasExistingData(true);
-      setIsEditing(false);
-    } else {
-      setServices(businessData.subcategories[0].businesses[0].services);
-      setIsEditing(true);
-      setHasExistingData(false);
-    }
+    setIsMounted(true);
   }, []);
 
-  const handleServiceChange = (index: number, field: "name" | "price", value: string) => {
-    const updatedServices = [...services];
-    updatedServices[index][field] = value;
-    setServices(updatedServices);
-    localStorage.setItem("hasChanges", "true");
-  };
+  const checkData = React.useCallback(() => {
+    if (!isMounted) return;
 
-  const addService = () => {
-    setServices([...services, { name: "", price: "" }]);
-    localStorage.setItem("hasChanges", "true");
-  };
-
-  const removeService = (index: number) => {
-    if (services.length <= 1) return;
-    const updatedServices = services.filter((_, i) => i !== index);
-    setServices(updatedServices);
-    localStorage.setItem("hasChanges", "true");
-  };
-
-  const handleNext = () => {
-    const dataToSave = {
-      subcategories: [
-        {
-          businesses: [
-            {
-              services,
-            },
-          ],
-        },
-      ],
-    };
-    localStorage.setItem("servicesFormData", JSON.stringify(dataToSave));
-    localStorage.setItem("hasChanges", "true");
-    router.push("/review&publish");
-  };
-
-  const toggleEdit = () => {
-    if (isEditing) {
-      setServices(initialServices);
-      const dataToSave = {
-        subcategories: [
-          {
-            businesses: [
-              {
-                services: initialServices,
-              },
-            ],
-          },
-        ],
-      };
-      localStorage.setItem("servicesFormData", JSON.stringify(dataToSave));
-    } else {
-      localStorage.setItem("isEditModeActive", "true");
-      localStorage.setItem("hasChanges", "true");
-      console.log("Edit mode enabled via Services pencil");
+    // Check if the business is published using publishFormData
+    const publishFormDataRaw = localStorage.getItem("publishFormData");
+    let publishFormData = { published: false };
+    try {
+      publishFormData = publishFormDataRaw ? JSON.parse(publishFormDataRaw) : { published: false };
+    } catch (error) {
+      console.error("Error parsing publishFormData:", error);
     }
-    setIsEditing(!isEditing);
+    setIsPublished(publishFormData.published);
+
+    const apiResponse = localStorage.getItem("apiResponse");
+    let apiData: Record<string, any> = {};
+
+    try {
+      if (apiResponse && apiResponse !== '""') {
+        apiData = JSON.parse(apiResponse);
+      }
+    } catch (error) {
+      console.error("Error parsing apiResponse:", error);
+    }
+
+    const dataPresence = steps.reduce((acc, step) => {
+      const formDataExists = step.storageKey
+        ? !!localStorage.getItem(step.storageKey) &&
+          localStorage.getItem(step.storageKey) !== '""'
+        : false;
+
+      let apiDataExists = false;
+      if (step.apiResponseKey) {
+        if (step.apiResponseKey === "any") {
+          apiDataExists = !!apiResponse && apiResponse !== '""';
+        } else if (Array.isArray(step.apiResponseKey)) {
+          apiDataExists = step.apiResponseKey.every(
+            (key) => apiData[key] && Object.keys(apiData[key]).length > 0
+          );
+        } else {
+          apiDataExists =
+            apiData[step.apiResponseKey] &&
+            Object.keys(apiData[step.apiResponseKey]).length > 0;
+        }
+      }
+
+      acc[step.path] = formDataExists || apiDataExists;
+      return acc;
+    }, {} as Record<string, boolean>);
+
+    setHasData(dataPresence);
+  }, [isMounted]);
+
+  useEffect(() => {
+    if (!isMounted) return;
+
+    checkData();
+    const handleStorageChange = (e: StorageEvent) => {
+      if (
+        e.storageArea === localStorage &&
+        (steps.some((step) => step.storageKey === e.key) || e.key === "apiResponse" || e.key === "publishFormData")
+      ) {
+        checkData();
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [isMounted, checkData]);
+
+  const getVisibleSteps = () => {
+    if (currentStep <= 1) return steps.slice(0, 3);
+    if (currentStep >= steps.length - 1) return steps.slice(-3);
+    return steps.slice(currentStep - 1, currentStep + 2);
   };
 
-  const isReadOnly = hasExistingData && !isEditing;
+  const handleStepNavigation = (index: number) => {
+    router.push(steps[index].path);
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  };
 
-  return (
-    <main className="max-w-4xl mx-auto p-5">
-      <div className="bg-gray-50 rounded-lg shadow-sm p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Services</h2>
-          {isReadOnly && (
-            <button
-              onClick={toggleEdit}
-              className="text-blue-600 hover:text-blue-800"
-              aria-label="Edit Services"
-            >
-              <Pencil className="w-5 h-5" />
-            </button>
+  const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
+    if (event.key === "Enter" || event.key === " ") {
+      handleStepNavigation(index);
+    }
+  };
+
+  // Animation variants for steps
+  const stepVariants = {
+    hidden: { opacity: 0, scale: 0.8, y: 10 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 200,
+        damping: 15,
+        duration: 0.3,
+      },
+    },
+    exit: { opacity: 0, scale: 0.8, y: -10 },
+  };
+
+  const renderStepCircle = (index: number) => {
+    const Icon = steps[index].icon;
+    const isCurrent = index === currentStep;
+    const hasStepData = hasData[steps[index].path];
+    const isBeforeCurrent = index < currentStep;
+
+    const circleClasses = clsx(
+      "z-10 flex items-center justify-center rounded-full border-2 text-sm font-semibold bg-white cursor-pointer relative outline-none",
+      {
+        "h-10 w-10 border-green-600 text-green-600": (hasStepData || isBeforeCurrent) || isCurrent,
+        "h-8 w-8": !isCurrent,
+        "border-gray-300 text-gray-400": !hasStepData && !isBeforeCurrent && !isCurrent,
+      }
+    );
+
+    return (
+      <motion.div
+        id={`step-${index}`}
+        className={circleClasses}
+        role="button"
+        tabIndex={0}
+        onClick={() => handleStepNavigation(index)}
+        onKeyDown={(e) => handleKeyDown(e, index)}
+        aria-label={`Go to ${steps[index].label} step`}
+        whileTap={{ scale: 0.9 }}
+        layout
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      >
+        <AnimatePresence>
+          {isCurrent && (
+            <motion.div
+              className="absolute -inset-2 rounded-full border-2 border-orange-600 pointer-events-none"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 400, damping: 15, duration: 0.2 }}
+            />
           )}
-        </div>
+        </AnimatePresence>
+        <motion.div
+          layout
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        >
+          <Icon size={isCurrent ? 22 : 20} aria-hidden="true" />
+        </motion.div>
+      </motion.div>
+    );
+  };
 
-        {isReadOnly ? (
-          <div className="mb-4 p-3 bg-gray-100 text-gray-800 rounded-md">
-            Viewing saved services.
-          </div>
-        ) : (
-          <div className="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded-md">
-            {hasExistingData ? "Editing services." : "Please enter your services."}
-          </div>
-        )}
+  const renderStepLabel = (index: number) => {
+    const isCurrent = index === currentStep;
+    const hasStepData = hasData[steps[index].path];
+    const isBeforeCurrent = index < currentStep;
 
-        <div className="mb-6 pb-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold mb-4 text-gray-700">Service Details</h3>
-          {services.map((service, index) => (
-            <div key={index} className="flex flex-wrap gap-4 mb-4 items-center">
-              <div className="flex-1 min-w-[200px]">
-                <label className="block mb-2 font-medium text-gray-700">Service Name:</label>
-                <input
-                  type="text"
-                  value={service.name}
-                  onChange={(e) => handleServiceChange(index, "name", e.target.value)}
-                  readOnly={isReadOnly}
-                  className={`w-full p-2 ${
-                    isReadOnly ? "bg-gray-100" : "border border-gray-300"
-                  } rounded-md focus:ring-2 focus:ring-gray-500`}
-                  placeholder="Enter service name"
-                />
+    const labelClasses = clsx(
+      "mt-3 px-1 text-xs text-center max-w-[100px] flex items-center gap-1 font-semibold transition-colors duration-300",
+      {
+        "text-green-600 text-sm": isCurrent,
+        "text-green-600": (hasStepData || isBeforeCurrent) && !isCurrent,
+        "text-gray-600": !hasStepData && !isBeforeCurrent && !isCurrent,
+      }
+    );
+
+    return (
+      <motion.label
+        htmlFor={`step-${index}`}
+        className={labelClasses}
+        title={steps[index].label}
+        initial={{ opacity: 0.7, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+      >
+        <span className="truncate">{steps[index].label}</span>
+        <AnimatePresence>
+          {(hasStepData || isBeforeCurrent) && (
+            <motion.span
+              className="ml-1 flex h-5 w-5 items-center justify-center rounded-full flex-shrink-0 bg-green-600 text-white"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              aria-hidden="true"
+            >
+              <BadgeCheck size={12} strokeWidth={2} />
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </motion.label>
+    );
+  };
+
+  const getConnectorClass = (index: number) => {
+    const hasStepData = hasData[steps[index].path];
+    const hasNextStepData = hasData[steps[index + 1].path];
+    const isBeforeCurrent = index < currentStep;
+
+    return clsx(
+      "absolute top-5 z-0 h-[2px] w-full transition-colors duration-300 ease-in-out",
+      {
+        "bg-green-600": hasStepData || hasNextStepData || isBeforeCurrent,
+        "bg-gray-300": !hasStepData && !hasNextStepData && !isBeforeCurrent,
+      }
+    );
+  };
+
+  if (!isMounted) {
+    return (
+      <div className="w-full py-6">
+        <div className="mx-auto max-w-4xl animate-pulse">
+          <div className="h-8 w-1/3 rounded bg-gray-200 mb-4"></div>
+          <div className="flex justify-between">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex flex-col items-center">
+                <div className="h-8 w-8 rounded-full bg-gray-200"></div>
+                <div className="mt-2 h-4 w-16 rounded bg-gray-200"></div>
               </div>
-              <div className="flex-1 min-w-[150px]">
-                <label className="block mb-2 font-medium text-gray-700">Price:</label>
-                <input
-                  type="text"
-                  value={service.price}
-                  onChange={(e) => handleServiceChange(index, "price", e.target.value)}
-                  readOnly={isReadOnly}
-                  className={`w-full p-2 ${
-                    isReadOnly ? "bg-gray-100" : "border border-gray-300"
-                  } rounded-md focus:ring-2 focus:ring-gray-500`}
-                  placeholder="Enter price"
-                />
-              </div>
-              {!isReadOnly && services.length > 1 && (
-                <button
-                  onClick={() => removeService(index)}
-                  className="text-red-600 hover:text-red-800 mt-6"
-                  aria-label={`Remove service ${index + 1}`}
-                >
-                  <Trash2 className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-          ))}
-          {!isReadOnly && (
-            <Button
-              className="mt-4 bg-green-600 text-white hover:bg-green-700 focus:ring-2 focus:ring-green-500"
-              onClick={addService}
-            >
-              Add Service
-            </Button>
-          )}
-        </div>
-
-        <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
-          <Button
-            className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700 focus:ring-2 focus:ring-gray-500"
-            onClick={() => router.push("/contact&timings")}
-          >
-            Back
-          </Button>
-          {isEditing && hasExistingData && (
-            <Button
-              className="w-full sm:w-auto border border-gray-300 bg-white text-gray-700 focus:ring-2 focus:ring-gray-500"
-              onClick={toggleEdit}
-            >
-              Cancel
-            </Button>
-          )}
-          <Button
-            className="w-full sm:w-auto focus:ring-2 focus:ring-blue-500 bg-blue-600 text-white hover:bg-blue-700"
-            color="primary"
-            onClick={handleNext}
-            disabled={services.some((s) => !s.name.trim())}
-          >
-            {isReadOnly ? "Next" : "Save & Next"}
-          </Button>
+            ))}
+          </div>
         </div>
       </div>
-    </main>
-  );
-};
+    );
+  }
 
-export default Services;
+  const visibleSteps = getVisibleSteps();
+
+  return (
+    <nav aria-label="Stepper navigation">
+      {/* Mobile View */}
+      <div className="flex w-full flex-col items-center px-2 py-6 sm:hidden">
+        <motion.p
+          key={currentStep}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-2 text-sm font-semibold text-gray-700"
+          initial={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+        >
+          Step {currentStep + 1} of {steps.length}
+        </motion.p>
+
+        <div className="relative mb-3 flex w-full max-w-xs items-center justify-between">
+          <AnimatePresence mode="popLayout">
+            {visibleSteps.map((step, index) => {
+              const globalIndex = steps.findIndex((s) => s.path === step.path);
+              const isLastVisible =
+                globalIndex ===
+                steps.findIndex((s) => s.path === visibleSteps[visibleSteps.length - 1].path);
+
+              return (
+                <motion.div
+                  key={step.label}
+                  variants={stepVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  layoutId={`mobile-step-${globalIndex}`}
+                  className="relative flex min-w-[80px] flex-1 flex-col items-center"
+                  layout
+                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                >
+                  {globalIndex < steps.length - 1 && !isLastVisible && (
+                    <motion.div
+                      className={getConnectorClass(globalIndex)}
+                      style={{ left: "50%", right: "-50%" }}
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                    />
+                  )}
+                  {renderStepCircle(globalIndex)}
+                  {renderStepLabel(globalIndex)}
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+
+        <motion.div className="mt-1 flex gap-2">
+          {steps.map((_, index) => (
+            <motion.div
+              key={index}
+              role="presentation"
+              className={clsx(
+                "h-2.5 w-2.5 rounded-full transition-colors duration-300",
+                {
+                  "bg-green-600": hasData[steps[index].path] || index < currentStep,
+                  "bg-gray-300": !hasData[steps[index].path] && index >= currentStep,
+                }
+              )}
+              initial={{ scale: 0.8, opacity: 0.7 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+            />
+          ))}
+        </motion.div>
+      </div>
+
+      {/* Desktop View */}
+      <div className="hidden w-full flex-col items-center px-4 py-6 sm:flex">
+        <motion.p
+          className="mb-4 text-sm font-semibold text-gray-700"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+        >
+          Step {currentStep + 1} of {steps.length}
+        </motion.p>
+
+        <motion.div
+          className="relative flex w-full max-w-5xl items-center justify-between"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          {steps.map((step, index) => (
+            <motion.div
+              key={step.label}
+              className="relative z-10 flex min-w-[90px] flex-1 flex-col items-center"
+              variants={stepVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {index < steps.length - 1 && (
+                <motion.div
+                  className={getConnectorClass(index)}
+                  style={{ left: "50%", right: "-50%" }}
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                />
+              )}
+              {renderStepCircle(index)}
+              {renderStepLabel(index)}
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </nav>
+  );
+}
