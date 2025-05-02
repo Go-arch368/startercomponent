@@ -541,6 +541,8 @@ const GalleryFAQsAndCTA = () => {
       } else {
         response = await api.post("/data", completeBusinessData);
         localStorage.setItem("lastPublishedBusinessId", response.data.id);
+        console.log("New business published with ID:", response.data.id);
+        
       }
       const savedBusiness = response.data;
 
